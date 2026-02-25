@@ -4,1969 +4,1361 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="GlossaForge — Geospatial linguistics toolkit. Explore world languages, families, typology, and mutual intelligibility.">
-  <meta name="theme-color" content="#2563eb">
+  <meta name="theme-color" content="#00d4ff">
   <title>GlossaForge</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-/* ═══════════════════════════════════════════════════════════════════════════
-   CSS DESIGN SYSTEM — "CARVED STONE"
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ─── DESIGN TOKENS ─── */
+/* ═══════════════════════════════════════════════════════
+   TERMINUS — Design System
+   ═══════════════════════════════════════════════════════ */
 :root {
-  /* STONE — Backgrounds */
-  --stone-void: #07090c;
-  --stone-base: #0f1117;
-  --stone-raised: #171a22;
-  --stone-surface: #1f222c;
-  --stone-elevated: #272a36;
-  --stone-hover: #31353f;
-  --stone-active: #3b3f4b;
+  --void:    #06060e;
+  --base:    #0d0d18;
+  --raised:  #12121f;
+  --surface: #181828;
+  --lift:    #1e1e30;
+  --hover:   #252538;
+  --active:  #2c2c42;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
 
-  /* LAPIS — Primary accent */
-  --lapis: #2563eb;
-  --lapis-dim: rgba(37,99,235,0.12);
-  --lapis-glow: rgba(37,99,235,0.35);
-  --lapis-text: #60a5fa;
-  --lapis-bright: #3b82f6;
+  --cyan:      #00d4ff;
+  --cyan-dim:  rgba(0,212,255,0.10);
+  --cyan-glow: rgba(0,212,255,0.30);
 
-  /* AMBER — Secondary accent */
-  --amber: #d97706;
-  --amber-dim: rgba(217,119,6,0.12);
-  --amber-text: #fbbf24;
+  --violet:     #8b5cf6;
+  --violet-dim: rgba(139,92,246,0.12);
 
-  /* PARCHMENT — Text hierarchy */
-  --parchment: #edeef2;
-  --parchment-mid: #a8adb8;
-  --parchment-muted: #6b7080;
-  --parchment-faint: #424654;
+  --ink:    #eeeef5;
+  --ink-mid:#9898b0;
+  --ink-low:#5a5a72;
+  --ink-dim:#2e2e44;
 
-  /* LANGUAGE FAMILY COLORS */
-  --family-ie: #60a5fa;
-  --family-st: #f87171;
-  --family-nc: #34d399;
-  --family-aa: #fbbf24;
-  --family-an: #a78bfa;
-  --family-dr: #fb923c;
-  --family-tk: #22d3ee;
-  --family-ur: #e879f9;
-  --family-jp: #f472b6;
-  --family-kr: #818cf8;
-  --family-ta: #2dd4bf;
-  --family-au: #a3e635;
-  --family-other: #94a3b8;
+  --safe:     #34d399;
+  --vuln:     #fbbf24;
+  --endanger: #fb923c;
+  --severe:   #f87171;
+  --critical: #ef4444;
+  --extinct:  #52525b;
 
-  /* ENDANGERMENT STATUS COLORS */
-  --safe: #34d399;
-  --vulnerable: #fbbf24;
-  --endangered: #fb923c;
-  --severely-endangered: #f87171;
-  --critically-endangered: #ef4444;
-  --extinct: #6b7280;
+  --font-head: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  /* BORDERS & EFFECTS */
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-medium: rgba(255,255,255,0.1);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 20px var(--lapis-glow);
-
-  /* TYPOGRAPHY — Fluid */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-label: 'Source Serif 4', Georgia, serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-  --text-hero: clamp(2rem, 5vw, 3.5rem);
-  --text-h1: clamp(1.5rem, 3.5vw, 2.25rem);
-  --text-h2: clamp(1.2rem, 2.5vw, 1.75rem);
-  --text-h3: clamp(1rem, 2vw, 1.25rem);
-  --text-body: clamp(0.875rem, 1.5vw, 1rem);
-  --text-small: clamp(0.75rem, 1.2vw, 0.875rem);
-  --text-xs: clamp(0.65rem, 1vw, 0.75rem);
-
-  /* SPACING */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-
-  /* RADIUS */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-full: 9999px;
-
-  /* TRANSITIONS */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-fast: 150ms var(--ease-out);
-  --transition-normal: 250ms var(--ease-out);
-  --transition-slow: 400ms var(--ease-out);
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 24px; --r-full: 9999px;
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --fast: 140ms var(--ease);
+  --norm: 240ms var(--ease);
 }
 
-/* ─── LIGHT THEME ─── */
 [data-theme="light"] {
-  --stone-void: #f5f6f8;
-  --stone-base: #edeef2;
-  --stone-raised: #e4e5eb;
-  --stone-surface: #ffffff;
-  --stone-elevated: #ffffff;
-  --stone-hover: #d8d9e0;
-  --stone-active: #cccdd4;
-
-  --lapis: #1d4ed8;
-  --lapis-dim: rgba(29,78,216,0.08);
-  --lapis-glow: rgba(29,78,216,0.2);
-  --lapis-text: #1d4ed8;
-
-  --parchment: #111827;
-  --parchment-mid: #4b5563;
-  --parchment-muted: #6b7280;
-  --parchment-faint: #d1d5db;
-
-  --border-subtle: rgba(0,0,0,0.06);
-  --border-medium: rgba(0,0,0,0.1);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --void: #f4f4f8; --base: #ededf3; --raised: #e6e6ee; --surface: #ffffff;
+  --lift: #ffffff; --hover: #dddde8; --active: #d4d4e0;
+  --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.13);
+  --ink: #111120; --ink-mid: #4a4a60; --ink-low: #7a7a90; --ink-dim: #d0d0de;
 }
 
-/* ─── GLOBAL RESET ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100% }
 body {
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  color: var(--parchment);
-  background: var(--stone-void);
-  line-height: 1.6;
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+  font-family:var(--font-body); font-size:15px; color:var(--ink);
+  background:var(--void); line-height:1.6; min-height:100vh;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
 }
-img, svg { display: block; max-width: 100%; }
-button, input, select, textarea { font: inherit; color: inherit; }
-a { color: var(--lapis-text); text-decoration: none; }
-a:hover { text-decoration: underline; }
-::selection { background: var(--lapis); color: #fff; }
-:focus-visible { outline: 2px solid var(--lapis); outline-offset: 2px; border-radius: var(--radius-sm); }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+img,svg { display:block; max-width:100% }
+button,input,select,textarea { font:inherit; color:inherit }
+a { color:var(--cyan); text-decoration:none }
+::selection { background:var(--cyan); color:#000 }
+:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; border-radius:var(--r-sm) }
+.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
 
-/* ─── SKIP LINK ─── */
-.skip-link {
-  position: fixed; top: -100%; left: 50%; transform: translateX(-50%);
-  background: var(--lapis); color: #fff; padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-md); z-index: 10000; font-weight: 600;
-}
-.skip-link:focus { top: var(--space-md); }
-
-/* ─── HEADER ─── */
+/* ── HEADER ── */
 .site-header {
-  position: sticky; top: 0; z-index: 1000;
-  background: rgba(15,17,23,0.85); backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 0 var(--space-lg); height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
+  position:sticky; top:0; z-index:900; height:56px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+  background:rgba(6,6,14,0.82); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
 }
-[data-theme="light"] .site-header { background: rgba(237,238,242,0.85); }
-.logo-group { display: flex; align-items: baseline; gap: var(--space-sm); }
-.logo-mark { font-family: var(--font-display); font-size: 1.5rem; font-weight: 900; color: var(--lapis-text); }
-.logo-tag { font-family: var(--font-label); font-size: var(--text-small); color: var(--parchment-muted); font-weight: 600; }
-.header-actions { display: flex; align-items: center; gap: var(--space-md); }
+[data-theme="light"] .site-header { background:rgba(244,244,248,0.85) }
 
-/* ─── DESKTOP NAV ─── */
-.desktop-nav { display: flex; gap: var(--space-xs); }
-.desktop-nav .nav-link {
-  padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md);
-  font-size: var(--text-small); font-weight: 500; color: var(--parchment-mid);
-  cursor: pointer; transition: all var(--transition-fast); border: none; background: none;
-  white-space: nowrap;
+.logo {
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-head); font-size:1.15rem; font-weight:700;
+  letter-spacing:-0.02em; color:var(--ink); cursor:pointer; text-decoration:none;
 }
-.desktop-nav .nav-link:hover { color: var(--parchment); background: var(--stone-hover); }
-.desktop-nav .nav-link.active { color: var(--lapis-text); background: var(--lapis-dim); }
-
-/* ─── THEME TOGGLE ─── */
-.theme-toggle {
-  width: 38px; height: 38px; border-radius: var(--radius-md);
-  background: var(--stone-surface); border: 1px solid var(--border-subtle);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; transition: all var(--transition-fast);
+.logo span { color:var(--cyan) }
+.logo-sub {
+  font-family:var(--font-body); font-size:11px; font-weight:500;
+  color:var(--ink-low); letter-spacing:0.04em; text-transform:uppercase;
 }
-.theme-toggle:hover { background: var(--stone-hover); border-color: var(--border-medium); }
 
-/* ─── MOBILE NAV ─── */
+/* ── PILL NAV ── */
+.pill-nav {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:2px;
+  background:var(--raised); border:1px solid var(--border);
+  border-radius:var(--r-full); padding:4px;
+}
+.pill-nav .pn {
+  padding:6px 16px; border-radius:var(--r-full);
+  font-family:var(--font-head); font-size:13px; font-weight:500;
+  color:var(--ink-mid); cursor:pointer; border:none; background:none;
+  transition:all var(--fast); white-space:nowrap;
+}
+.pill-nav .pn:hover { color:var(--ink); background:var(--hover) }
+.pill-nav .pn.active { color:#000; background:var(--cyan); font-weight:600 }
+[data-theme="light"] .pill-nav .pn.active { color:#fff }
+
+.header-end { display:flex; align-items:center; gap:8px }
+.icon-btn {
+  width:36px; height:36px; border-radius:var(--r-md);
+  background:var(--raised); border:1px solid var(--border);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:15px; transition:all var(--fast);
+}
+.icon-btn:hover { background:var(--hover); border-color:var(--border2) }
+
+/* ── MOBILE NAV ── */
 .mobile-nav {
-  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
-  background: rgba(15,17,23,0.92); backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border-subtle);
-  padding: var(--space-xs) 0 calc(var(--space-xs) + env(safe-area-inset-bottom));
-  justify-content: space-around;
+  display:none; position:fixed; bottom:0; left:0; right:0; z-index:900;
+  background:rgba(13,13,24,0.94); backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+  justify-content:space-around;
 }
-[data-theme="light"] .mobile-nav { background: rgba(237,238,242,0.92); }
-.mobile-nav .mob-link {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-md);
-  font-size: 10px; font-weight: 500; color: var(--parchment-muted);
-  cursor: pointer; border: none; background: none; transition: all var(--transition-fast);
+[data-theme="light"] .mobile-nav { background:rgba(237,237,243,0.94) }
+.mob-link {
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:4px 10px; border-radius:var(--r-md);
+  font-size:10px; font-weight:500; color:var(--ink-low);
+  cursor:pointer; border:none; background:none; transition:all var(--fast);
 }
-.mobile-nav .mob-link .mob-icon { font-size: 1.2rem; }
-.mobile-nav .mob-link:hover, .mobile-nav .mob-link.active { color: var(--lapis-text); }
+.mob-link .mi { font-size:18px; line-height:1 }
+.mob-link:hover,.mob-link.active { color:var(--cyan) }
 
-/* ─── MAIN CONTENT ─── */
-main { padding: var(--space-lg); max-width: 1400px; margin: 0 auto; padding-bottom: 100px; }
-.view { display: none; }
-.view.active { display: block; animation: fadeIn 0.3s var(--ease-out); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* ── VIEWS ── */
+main { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
+.views-wrap { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
+.view { display:none }
+.view.active { display:block; animation:fadeIn 0.25s var(--ease) }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-/* ─── SECTION HEADERS ─── */
-.section-header { margin-bottom: var(--space-xl); }
-.section-title {
-  font-family: var(--font-display); font-size: var(--text-h1); font-weight: 900;
-  color: var(--parchment); line-height: 1.2; margin-bottom: var(--space-xs);
+/* ── HOME ── */
+.home-hero { text-align:center; padding:64px 0 48px }
+.home-hero h1 {
+  font-family:var(--font-head); font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:700; letter-spacing:-0.04em; line-height:1.1;
+  color:var(--ink); margin-bottom:16px;
 }
-.section-subtitle { font-size: var(--text-body); color: var(--parchment-muted); max-width: 600px; }
+.home-hero h1 em { font-style:normal; color:var(--cyan) }
+.home-hero p { font-size:16px; color:var(--ink-mid); max-width:560px; margin:0 auto 40px; line-height:1.7 }
 
-/* ─── CARDS ─── */
-.card {
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg); padding: var(--space-lg);
-  transition: all var(--transition-normal);
+.stat-row {
+  display:flex; flex-wrap:wrap; justify-content:center;
+  background:var(--raised); border:1px solid var(--border);
+  border-radius:var(--r-xl); overflow:hidden; margin:0 auto 56px; max-width:720px;
 }
-.card:hover { border-color: var(--border-medium); box-shadow: var(--shadow-md); }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
-.card-title {
-  font-family: var(--font-label); font-size: var(--text-h3); font-weight: 700;
-  color: var(--parchment); margin-bottom: var(--space-sm);
+.stat-cell {
+  flex:1; min-width:120px; padding:20px 16px; text-align:center;
+  border-right:1px solid var(--border);
 }
-.card-desc { font-size: var(--text-small); color: var(--parchment-mid); line-height: 1.5; }
-.card-icon { font-size: 2rem; margin-bottom: var(--space-md); }
-.card-link {
-  display: inline-flex; align-items: center; gap: var(--space-xs);
-  font-size: var(--text-small); font-weight: 600; color: var(--lapis-text);
-  margin-top: var(--space-md); cursor: pointer;
+.stat-cell:last-child { border-right:none }
+.stat-val {
+  font-family:var(--font-head); font-size:1.9rem; font-weight:700;
+  color:var(--cyan); letter-spacing:-0.03em; line-height:1; margin-bottom:4px;
 }
+.stat-lbl { font-size:11px; font-weight:500; color:var(--ink-low); text-transform:uppercase; letter-spacing:0.06em }
 
-/* ─── BUTTONS ─── */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-lg); border-radius: var(--radius-md);
-  font-weight: 600; font-size: var(--text-small); cursor: pointer;
-  border: 1px solid transparent; transition: all var(--transition-fast);
+.feat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px }
+.feat-card {
+  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:24px; cursor:pointer; transition:all var(--norm);
+  display:flex; flex-direction:column;
 }
-.btn-primary { background: var(--lapis); color: #fff; }
-.btn-primary:hover { background: var(--lapis-bright); box-shadow: var(--shadow-glow); }
-.btn-secondary { background: var(--stone-surface); color: var(--parchment); border-color: var(--border-medium); }
-.btn-secondary:hover { background: var(--stone-hover); }
-.btn-sm { padding: var(--space-xs) var(--space-md); font-size: var(--text-xs); }
+.feat-card:hover {
+  border-color:var(--border2); background:var(--surface);
+  transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.35);
+}
+.feat-icon { font-size:28px; margin-bottom:16px }
+.feat-title { font-family:var(--font-head); font-size:1rem; font-weight:600; color:var(--ink); margin-bottom:8px }
+.feat-desc { font-size:13px; color:var(--ink-mid); line-height:1.55; flex:1 }
+.feat-cta { margin-top:16px; font-size:12px; font-weight:600; color:var(--cyan) }
 
-/* ─── CHIPS / BADGES ─── */
-.chip {
-  display: inline-flex; align-items: center; gap: var(--space-xs);
-  padding: 3px 10px; border-radius: var(--radius-full);
-  font-size: var(--text-xs); font-weight: 600; border: 1px solid var(--border-subtle);
-  background: var(--stone-surface); color: var(--parchment-mid);
-  cursor: pointer; transition: all var(--transition-fast);
+/* ── SECTION HEADER ── */
+.sec-head { margin-bottom:28px }
+.sec-head h2 {
+  font-family:var(--font-head); font-size:clamp(1.4rem,3vw,1.9rem);
+  font-weight:700; letter-spacing:-0.03em; color:var(--ink); margin-bottom:6px;
 }
-.chip:hover { border-color: var(--border-medium); }
-.chip.active { background: var(--lapis-dim); color: var(--lapis-text); border-color: var(--lapis); }
-.badge {
-  display: inline-flex; align-items: center; padding: 2px 8px;
-  border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600;
-}
-.badge-safe { background: rgba(52,211,153,0.15); color: var(--safe); }
-.badge-vulnerable { background: rgba(251,191,36,0.15); color: var(--vulnerable); }
-.badge-endangered { background: rgba(251,146,60,0.15); color: var(--endangered); }
-.badge-severely { background: rgba(248,113,113,0.15); color: var(--severely-endangered); }
-.badge-critical { background: rgba(239,68,68,0.15); color: var(--critically-endangered); }
-.badge-extinct { background: rgba(107,114,128,0.15); color: var(--extinct); }
+.sec-head p { font-size:14px; color:var(--ink-mid); max-width:560px }
 
-/* ─── FORMS ─── */
-.form-group { margin-bottom: var(--space-md); }
-.form-label {
-  display: block; font-size: var(--text-small); font-weight: 600;
-  color: var(--parchment-mid); margin-bottom: var(--space-xs);
+/* ── MAP VIEW ── */
+#view-map {
+  display:none;
+  position:fixed; top:56px; left:0; right:0; bottom:0;
+  overflow:hidden;
 }
-.form-input, .form-select {
-  width: 100%; padding: var(--space-sm) var(--space-md);
-  background: var(--stone-surface); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md); color: var(--parchment);
-  font-size: var(--text-body); transition: border-color var(--transition-fast);
-}
-.form-input:focus, .form-select:focus { border-color: var(--lapis); outline: none; }
-.form-input::placeholder { color: var(--parchment-faint); }
+#view-map.active { display:block }
 
-/* ─── STATS ROW ─── */
-.stats-row { display: flex; gap: var(--space-lg); flex-wrap: wrap; margin-bottom: var(--space-xl); }
-.stat-item { text-align: center; flex: 1; min-width: 120px; }
-.stat-value {
-  font-family: var(--font-display); font-size: var(--text-h2); font-weight: 900;
-  color: var(--lapis-text);
-}
-.stat-label { font-size: var(--text-xs); color: var(--parchment-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.map-wrap { position:relative; width:100%; height:100% }
+#mapContainer { position:absolute; inset:0; background:#0a0a14 }
 
-/* ─── MODAL ─── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 5000;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
-  padding: var(--space-lg); opacity: 0; pointer-events: none;
-  transition: opacity var(--transition-normal);
+.map-float-top {
+  position:absolute; top:14px; left:14px; z-index:500;
+  display:flex; gap:8px; align-items:center;
 }
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal {
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg); padding: var(--space-xl);
-  max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;
-  box-shadow: var(--shadow-lg);
+.map-search-box {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-lg);
+  padding:0 14px; height:40px; min-width:220px;
 }
-.modal-title {
-  font-family: var(--font-display); font-size: var(--text-h2); font-weight: 900;
-  margin-bottom: var(--space-md);
+[data-theme="light"] .map-search-box { background:rgba(255,255,255,0.9) }
+.map-search-box input {
+  background:none; border:none; outline:none;
+  font-size:13px; color:var(--ink); flex:1;
 }
-.modal-close {
-  position: absolute; top: var(--space-md); right: var(--space-md);
-  width: 32px; height: 32px; border-radius: var(--radius-md);
-  background: var(--stone-surface); border: 1px solid var(--border-subtle);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; color: var(--parchment-muted);
-}
+.map-search-box input::placeholder { color:var(--ink-low) }
+.map-search-icon { color:var(--ink-low); font-size:14px }
 
-/* ─── MAP SPECIFIC ─── */
-.map-wrapper { position: relative; height: calc(100vh - 140px); border-radius: var(--radius-lg); overflow: hidden; }
-.map-container { width: 100%; height: 100%; }
-.map-sidebar {
-  position: absolute; top: 0; left: 0; z-index: 800;
-  width: 320px; height: 100%; background: rgba(15,17,23,0.92);
-  backdrop-filter: blur(16px); border-right: 1px solid var(--border-subtle);
-  overflow-y: auto; padding: var(--space-lg);
-  transform: translateX(0); transition: transform var(--transition-normal);
+.map-adv-selects {
+  position:absolute; top:62px; left:14px; z-index:500;
+  display:flex; gap:6px; flex-wrap:wrap; align-items:center;
 }
-[data-theme="light"] .map-sidebar { background: rgba(255,255,255,0.92); }
-.map-sidebar.collapsed { transform: translateX(-100%); }
-.map-sidebar-toggle {
-  position: absolute; top: var(--space-md); z-index: 801;
-  width: 36px; height: 36px; border-radius: var(--radius-md);
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: left var(--transition-normal);
-  left: 328px;
+.map-adv-sel {
+  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-full);
+  padding:5px 12px; font-size:11px; color:var(--ink-mid);
 }
-.map-sidebar.collapsed ~ .map-sidebar-toggle { left: var(--space-md); }
-.map-legend {
-  position: absolute; bottom: var(--space-md); right: var(--space-md); z-index: 800;
-  background: rgba(15,17,23,0.9); backdrop-filter: blur(8px);
-  border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
-  padding: var(--space-md); min-width: 180px;
+[data-theme="light"] .map-adv-sel { background:rgba(255,255,255,0.88) }
+.map-adv-sel select {
+  background:none; border:none; outline:none;
+  font:inherit; color:inherit; cursor:pointer;
 }
-.map-legend-title { font-size: var(--text-xs); font-weight: 700; color: var(--parchment-muted); text-transform: uppercase; margin-bottom: var(--space-sm); }
-.map-legend-item { display: flex; align-items: center; gap: var(--space-sm); font-size: var(--text-xs); color: var(--parchment-mid); padding: 2px 0; }
-.map-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.map-popup {
-  font-family: var(--font-body); font-size: var(--text-small);
+.map-extinct-wrap {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-full);
+  padding:5px 12px; font-size:11px; color:var(--ink-low); cursor:pointer;
 }
-.map-popup h3 { font-family: var(--font-label); font-size: var(--text-h3); margin-bottom: var(--space-xs); }
-.map-popup .popup-family { font-size: var(--text-xs); font-weight: 600; margin-bottom: var(--space-sm); }
-.map-popup .popup-stat { display: flex; justify-content: space-between; padding: 2px 0; font-size: var(--text-xs); }
-.map-layer-controls {
-  position: absolute; top: var(--space-md); right: var(--space-md); z-index: 800;
-  display: flex; gap: var(--space-xs); flex-wrap: wrap;
+[data-theme="light"] .map-extinct-wrap { background:rgba(255,255,255,0.88) }
+.map-reset-btn {
+  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-full);
+  padding:5px 12px; font-size:11px; color:var(--ink-low);
+  cursor:pointer; transition:all var(--fast);
 }
+[data-theme="light"] .map-reset-btn { background:rgba(255,255,255,0.88) }
+.map-reset-btn:hover { color:var(--ink) }
+
+.map-count {
+  position:absolute; top:14px; right:14px; z-index:500;
+  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-full);
+  padding:6px 14px; font-size:12px; color:var(--ink-mid);
+}
+[data-theme="light"] .map-count { background:rgba(255,255,255,0.88) }
+
+.map-layers {
+  position:absolute; bottom:32px; left:50%; transform:translateX(-50%); z-index:500;
+  display:flex; gap:4px;
+  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-full); padding:4px;
+}
+[data-theme="light"] .map-layers { background:rgba(255,255,255,0.9) }
 .map-layer-btn {
-  padding: var(--space-xs) var(--space-md); border-radius: var(--radius-full);
-  background: rgba(15,17,23,0.85); border: 1px solid var(--border-subtle);
-  color: var(--parchment-mid); font-size: var(--text-xs); font-weight: 600;
-  cursor: pointer; backdrop-filter: blur(8px); transition: all var(--transition-fast);
+  padding:6px 18px; border-radius:var(--r-full);
+  font-size:12px; font-weight:500; color:var(--ink-low);
+  cursor:pointer; border:none; background:none; transition:all var(--fast);
 }
-.map-layer-btn.active { background: var(--lapis); color: #fff; border-color: var(--lapis); }
+.map-layer-btn:hover { color:var(--ink) }
+.map-layer-btn.active { background:var(--cyan); color:#000; font-weight:600 }
+[data-theme="light"] .map-layer-btn.active { color:#fff }
 
-/* ─── EXPLORER ─── */
-.explorer-controls { display: flex; gap: var(--space-md); flex-wrap: wrap; margin-bottom: var(--space-lg); align-items: flex-end; }
-.explorer-search { flex: 1; min-width: 200px; }
-.explorer-filters { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
-.explorer-count { font-size: var(--text-small); color: var(--parchment-muted); margin-bottom: var(--space-md); }
+.map-legend {
+  position:absolute; bottom:90px; right:14px; z-index:500;
+  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
+  border:1px solid var(--border2); border-radius:var(--r-lg);
+  padding:12px 14px; min-width:140px; max-height:280px; overflow-y:auto;
+}
+[data-theme="light"] .map-legend { background:rgba(255,255,255,0.9) }
+.legend-title { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:8px }
+.legend-row { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-mid); margin-bottom:5px }
+.legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0 }
+
+/* Leaflet popup */
+.leaflet-popup-content-wrapper {
+  background:var(--raised) !important; border:1px solid var(--border2) !important;
+  border-radius:var(--r-lg) !important; box-shadow:0 8px 24px rgba(0,0,0,.5) !important;
+  color:var(--ink) !important;
+}
+.leaflet-popup-tip { background:var(--raised) !important }
+.leaflet-popup-content { margin:16px !important; font-family:var(--font-body) !important; font-size:13px !important }
+.map-popup h3 { font-family:var(--font-head); font-size:1rem; font-weight:600; margin-bottom:4px }
+.popup-family { font-size:12px; font-weight:500; margin-bottom:10px }
+.popup-row { display:flex; justify-content:space-between; gap:16px; padding:4px 0; border-top:1px solid var(--border) }
+.popup-row span:first-child { color:var(--ink-low); font-size:11px }
+.popup-row span:last-child { font-size:12px; font-weight:500 }
+.popup-link { display:block; margin-top:10px; font-size:11px; font-weight:600; color:var(--cyan) }
+
+/* ── FORMS ── */
+.field-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:5px }
+.inp {
+  width:100%; padding:9px 14px; background:var(--raised);
+  border:1px solid var(--border); border-radius:var(--r-md);
+  font-size:14px; color:var(--ink); transition:border-color var(--fast); outline:none;
+}
+.inp:focus { border-color:var(--cyan) }
+.inp::placeholder { color:var(--ink-low) }
+.sel {
+  padding:9px 14px; background:var(--raised);
+  border:1px solid var(--border); border-radius:var(--r-md);
+  font-size:13px; color:var(--ink); cursor:pointer; outline:none;
+  transition:border-color var(--fast);
+}
+.sel:focus { border-color:var(--cyan) }
+
+/* ── CHIPS ── */
+.chip-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px }
+.chip {
+  padding:4px 12px; border-radius:var(--r-full);
+  font-size:12px; font-weight:500;
+  background:var(--raised); border:1px solid var(--border);
+  color:var(--ink-mid); cursor:pointer; transition:all var(--fast);
+}
+.chip:hover { border-color:var(--border2); color:var(--ink) }
+.chip.active { background:var(--cyan-dim); border-color:var(--cyan); color:var(--cyan) }
+
+/* ── EXPLORER ── */
+.explorer-top { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; align-items:flex-end }
+.explorer-search-wrap { flex:1; min-width:200px }
+.result-meta { font-size:12px; color:var(--ink-low); margin-bottom:12px }
+
+.lang-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px }
 .lang-card {
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md); padding: var(--space-md);
-  cursor: pointer; transition: all var(--transition-fast);
+  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:16px; cursor:pointer; transition:all var(--fast);
 }
-.lang-card:hover { border-color: var(--lapis); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.lang-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-sm); }
-.lang-card-name { font-family: var(--font-label); font-size: var(--text-h3); font-weight: 700; }
-.lang-card-native { font-size: var(--text-small); color: var(--parchment-muted); }
-.lang-card-iso { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--parchment-muted); }
-.lang-card-meta { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-sm); }
-.family-badge {
-  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
-  border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600;
-}
+.lang-card:hover { border-color:var(--border2); background:var(--surface); transform:translateY(-1px) }
+.lang-name { font-family:var(--font-head); font-size:0.95rem; font-weight:600; color:var(--ink); margin-bottom:2px }
+.lang-native { font-size:12px; color:var(--ink-low); margin-bottom:8px }
+.lang-badges { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px }
+.fam-tag { padding:2px 8px; border-radius:var(--r-full); font-size:11px; font-weight:600 }
+.badge { padding:2px 8px; border-radius:var(--r-full); font-size:11px; font-weight:600 }
+.badge-safe { background:rgba(52,211,153,.12); color:var(--safe) }
+.badge-vulnerable { background:rgba(251,191,36,.12); color:var(--vuln) }
+.badge-endangered { background:rgba(251,146,60,.12); color:var(--endanger) }
+.badge-severely { background:rgba(248,113,113,.12); color:var(--severe) }
+.badge-critical { background:rgba(239,68,68,.12); color:var(--critical) }
+.badge-extinct { background:rgba(82,82,91,.12); color:var(--extinct) }
+.lang-foot { display:flex; justify-content:space-between; font-size:11px; color:var(--ink-low) }
+.lang-iso { font-family:var(--font-mono); font-size:11px; color:var(--ink-low) }
 
-/* ─── DETAIL PANEL ─── */
-.detail-panel {
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg); padding: var(--space-xl);
-  margin-bottom: var(--space-lg);
+/* ── DETAIL ── */
+.detail-back {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:13px; font-weight:500; color:var(--ink-mid);
+  cursor:pointer; margin-bottom:24px; background:var(--raised);
+  border:1px solid var(--border); border-radius:var(--r-md);
+  padding:7px 14px; transition:all var(--fast);
 }
-.detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-lg); }
-.detail-name { font-family: var(--font-display); font-size: var(--text-h1); font-weight: 900; }
-.detail-native { font-size: var(--text-h3); color: var(--parchment-mid); }
-.detail-section { margin-bottom: var(--space-lg); }
-.detail-section-title {
-  font-family: var(--font-label); font-size: var(--text-h3); font-weight: 700;
-  color: var(--parchment); margin-bottom: var(--space-md);
-  padding-bottom: var(--space-xs); border-bottom: 1px solid var(--border-subtle);
+.detail-back:hover { border-color:var(--border2); color:var(--ink) }
+.detail-wrap { max-width:900px }
+.detail-name {
+  font-family:var(--font-head); font-size:clamp(1.6rem,4vw,2.4rem);
+  font-weight:700; letter-spacing:-0.03em; color:var(--ink); margin-bottom:4px;
 }
-.detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-md); }
-.detail-field { }
-.detail-label { font-size: var(--text-xs); color: var(--parchment-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.detail-value { font-size: var(--text-body); color: var(--parchment); font-weight: 500; }
+.detail-sub { font-size:14px; color:var(--ink-mid); margin-bottom:4px }
+.detail-alts { font-size:12px; color:var(--ink-low); margin-bottom:16px }
+.detail-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:28px }
+.detail-sec { margin-bottom:28px }
+.detail-sec-title {
+  font-family:var(--font-head); font-size:13px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--ink-low);
+  margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.detail-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px }
+.detail-field { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-md); padding:10px 14px }
+.detail-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:3px }
+.detail-val { font-size:13px; font-weight:500; color:var(--ink) }
 
-/* ─── FAMILY TREE ─── */
-.tree-container { }
-.tree-family {
-  background: var(--stone-raised); border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md); margin-bottom: var(--space-sm); overflow: hidden;
+/* ── FAMILIES ── */
+.tree-fam {
+  background:var(--raised); border:1px solid var(--border);
+  border-radius:var(--r-lg); margin-bottom:8px; overflow:hidden;
 }
-.tree-family-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-md) var(--space-lg); cursor: pointer;
-  transition: background var(--transition-fast);
+.tree-fam-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; cursor:pointer; transition:background var(--fast); user-select:none;
 }
-.tree-family-header:hover { background: var(--stone-hover); }
-.tree-family-name { font-family: var(--font-label); font-size: var(--text-h3); font-weight: 700; display: flex; align-items: center; gap: var(--space-sm); }
-.tree-family-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.tree-family-stats { display: flex; gap: var(--space-lg); font-size: var(--text-xs); color: var(--parchment-muted); }
-.tree-branch { padding-left: var(--space-xl); border-left: 2px solid var(--border-subtle); margin-left: var(--space-xl); }
-.tree-branch-header {
-  padding: var(--space-sm) var(--space-md); cursor: pointer;
-  font-size: var(--text-body); font-weight: 600; color: var(--parchment-mid);
-  display: flex; align-items: center; gap: var(--space-sm);
-  transition: color var(--transition-fast);
+.tree-fam-head:hover { background:var(--hover) }
+.tree-fam-left { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:0.95rem; font-weight:600; color:var(--ink) }
+.tree-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0 }
+.tree-chevron { font-size:10px; color:var(--ink-low); transition:transform var(--fast); margin-left:4px }
+.tree-chevron.open { transform:rotate(90deg) }
+.tree-fam-stats { font-size:12px; color:var(--ink-low); display:flex; gap:16px }
+.tree-body { display:none; border-top:1px solid var(--border) }
+.tree-body.open { display:block }
+.tree-branch { padding:6px 16px 6px 32px; border-bottom:1px solid var(--border) }
+.tree-branch:last-child { border-bottom:none }
+.tree-branch-head {
+  display:flex; align-items:center; gap:8px; padding:7px 0;
+  cursor:pointer; font-size:13px; font-weight:600; color:var(--ink-mid);
+  transition:color var(--fast); user-select:none;
 }
-.tree-branch-header:hover { color: var(--parchment); }
-.tree-language {
-  padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-xl);
-  font-size: var(--text-small); color: var(--parchment-mid); cursor: pointer;
-  display: flex; justify-content: space-between; align-items: center;
-  transition: all var(--transition-fast); border-radius: var(--radius-sm);
+.tree-branch-head:hover { color:var(--ink) }
+.tree-sub-body { display:none; padding-left:16px }
+.tree-sub-body.open { display:block }
+.tree-lang {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:5px 8px; border-radius:var(--r-sm);
+  font-size:12px; color:var(--ink-mid); cursor:pointer; transition:all var(--fast);
 }
-.tree-language:hover { color: var(--lapis-text); background: var(--lapis-dim); }
-.tree-language-iso { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--parchment-faint); }
-.tree-chevron { transition: transform var(--transition-fast); font-size: 0.8rem; }
-.tree-chevron.open { transform: rotate(90deg); }
-.tree-children { display: none; }
-.tree-children.open { display: block; }
+.tree-lang:hover { background:var(--hover); color:var(--ink) }
+.tree-lang-iso { font-family:var(--font-mono); font-size:10px; color:var(--ink-dim) }
 
-/* ─── TOOLS ─── */
-.tools-nav { display: flex; gap: var(--space-xs); margin-bottom: var(--space-xl); flex-wrap: wrap; }
-.tools-nav .tool-tab {
-  padding: var(--space-sm) var(--space-lg); border-radius: var(--radius-md);
-  font-size: var(--text-small); font-weight: 600; color: var(--parchment-muted);
-  cursor: pointer; border: 1px solid var(--border-subtle); background: none;
-  transition: all var(--transition-fast);
+/* ── TOOLS ── */
+.tool-tabs {
+  display:flex; gap:4px; margin-bottom:24px;
+  border-bottom:1px solid var(--border); padding-bottom:0;
 }
-.tools-nav .tool-tab:hover { color: var(--parchment); border-color: var(--border-medium); }
-.tools-nav .tool-tab.active { color: var(--lapis-text); background: var(--lapis-dim); border-color: var(--lapis); }
-.tool-panel { display: none; }
-.tool-panel.active { display: block; }
-.tool-results { margin-top: var(--space-xl); }
-.similarity-bar { height: 8px; background: var(--stone-surface); border-radius: var(--radius-full); overflow: hidden; }
-.similarity-fill { height: 100%; border-radius: var(--radius-full); transition: width var(--transition-slow); }
-.comparison-table { width: 100%; border-collapse: collapse; }
-.comparison-table th, .comparison-table td {
-  padding: var(--space-sm) var(--space-md); text-align: left;
-  border-bottom: 1px solid var(--border-subtle); font-size: var(--text-small);
+.tool-tab {
+  padding:10px 20px; font-family:var(--font-head); font-size:13px; font-weight:500;
+  color:var(--ink-low); cursor:pointer; border:none; background:none;
+  border-bottom:2px solid transparent; margin-bottom:-1px; transition:all var(--fast);
 }
-.comparison-table th { font-weight: 600; color: var(--parchment-muted); font-size: var(--text-xs); text-transform: uppercase; }
-.comparison-table .match { background: var(--lapis-dim); }
+.tool-tab:hover { color:var(--ink) }
+.tool-tab.active { color:var(--cyan); border-bottom-color:var(--cyan) }
+.tool-panel { display:none }
+.tool-panel.active { display:block; animation:fadeIn .2s var(--ease) }
+.tool-h { font-family:var(--font-head); font-size:1.1rem; font-weight:600; margin-bottom:6px; color:var(--ink) }
+.tool-sub { font-size:13px; color:var(--ink-mid); margin-bottom:20px; max-width:560px }
 
-/* ─── TABLE SCROLL ─── */
-.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-md); }
+.bar-wrap { background:var(--raised); border-radius:var(--r-full); height:5px; overflow:hidden; flex:1 }
+.bar-fill { height:100%; border-radius:var(--r-full); transition:width .4s var(--ease) }
 
-/* ─── TIMELINE ─── */
-.timeline { position: relative; padding-left: var(--space-xl); }
-.timeline::before {
-  content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
-  width: 2px; background: var(--border-subtle);
+.res-card {
+  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:14px 16px; margin-bottom:8px; transition:border-color var(--fast);
 }
-.timeline-item { position: relative; margin-bottom: var(--space-lg); padding-left: var(--space-lg); }
-.timeline-dot {
-  position: absolute; left: -20px; top: 4px; width: 12px; height: 12px;
-  border-radius: 50%; background: var(--lapis); border: 2px solid var(--stone-raised);
+.res-card:hover { border-color:var(--border2) }
+
+.tbl-scroll { overflow-x:auto; border-radius:var(--r-lg); border:1px solid var(--border) }
+.comp-table { width:100%; border-collapse:collapse; font-size:13px }
+.comp-table th {
+  background:var(--surface); padding:10px 14px; text-align:left;
+  font-family:var(--font-head); font-size:11px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low);
+  border-bottom:1px solid var(--border);
 }
-.timeline-period { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--parchment-muted); }
-.timeline-name { font-family: var(--font-label); font-size: var(--text-body); font-weight: 600; }
+.comp-table td { padding:9px 14px; border-bottom:1px solid var(--border); color:var(--ink-mid) }
+.comp-table td:first-child { color:var(--ink-low); font-size:12px }
+.comp-table tr.match td { color:var(--ink); background:rgba(0,212,255,.04) }
+.comp-table tr:last-child td { border-bottom:none }
 
-/* ─── KNOWLEDGE ─── */
-.source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-lg); }
-.source-card { background: var(--stone-raised); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-lg); }
-.source-name { font-family: var(--font-label); font-size: var(--text-h3); font-weight: 700; margin-bottom: var(--space-xs); }
-.source-desc { font-size: var(--text-small); color: var(--parchment-mid); }
-.source-url { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--lapis-text); margin-top: var(--space-sm); display: block; word-break: break-all; }
+.timeline { position:relative; padding-left:24px }
+.timeline::before { content:''; position:absolute; left:6px; top:0; bottom:0; width:1px; background:var(--border) }
+.tl-item { position:relative; padding:8px 0 8px 20px; margin-bottom:2px }
+.tl-dot { position:absolute; left:-18px; top:13px; width:8px; height:8px; border-radius:50% }
+.tl-period { font-family:var(--font-mono); font-size:11px; color:var(--ink-low); margin-bottom:2px }
+.tl-name { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:1px }
+.tl-meta { font-size:11px; color:var(--ink-low) }
 
-/* ─── FOOTER ─── */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px }
+.stats-card { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px }
+.stats-card-title { font-family:var(--font-head); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:14px }
+.stats-row-item { margin-bottom:10px }
+.stats-bar-top { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; color:var(--ink-mid) }
+
+/* ── KNOWLEDGE ── */
+.know-sec { margin-bottom:32px }
+.know-sec-title {
+  font-family:var(--font-head); font-size:13px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--ink-low);
+  margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.source-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px }
+.source-card { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg); padding:18px }
+.source-name { font-family:var(--font-head); font-size:0.9rem; font-weight:600; margin-bottom:6px; color:var(--ink) }
+.source-desc { font-size:12px; color:var(--ink-mid); line-height:1.55; margin-bottom:8px }
+.source-url { font-family:var(--font-mono); font-size:11px; color:var(--cyan) }
+
+/* ── FOOTER ── */
 .site-footer {
-  text-align: center; padding: var(--space-xl) var(--space-lg);
-  font-size: var(--text-xs); color: var(--parchment-faint);
-  border-top: 1px solid var(--border-subtle); margin-top: var(--space-2xl);
+  text-align:center; padding:24px;
+  font-size:11px; color:var(--ink-low);
+  border-top:1px solid var(--border); margin-top:32px;
 }
 
-/* ─── MICRO-INTERACTIONS ─── */
-@keyframes skeleton-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
-.card { transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal); }
-.card:hover { transform: translateY(-2px); }
-.lang-card { animation: fadeIn 0.3s var(--ease-out) backwards; }
-.stat-item { animation: fadeIn 0.4s var(--ease-out) backwards; }
-.stat-item:nth-child(1) { animation-delay: 0s; }
-.stat-item:nth-child(2) { animation-delay: 0.05s; }
-.stat-item:nth-child(3) { animation-delay: 0.1s; }
-.stat-item:nth-child(4) { animation-delay: 0.15s; }
-.stat-item:nth-child(5) { animation-delay: 0.2s; }
+/* ── BUTTONS ── */
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 18px; border-radius:var(--r-md);
+  font-family:var(--font-head); font-size:13px; font-weight:600;
+  cursor:pointer; border:1px solid transparent; transition:all var(--fast);
+}
+.btn-primary { background:var(--cyan); color:#000; border-color:var(--cyan) }
+.btn-primary:hover { opacity:.88; box-shadow:0 0 20px var(--cyan-glow) }
+.btn-ghost { background:var(--raised); color:var(--ink); border-color:var(--border) }
+.btn-ghost:hover { background:var(--hover); border-color:var(--border2) }
+.btn-sm { padding:5px 14px; font-size:12px }
 
-/* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-  .desktop-nav { display: none; }
-  .mobile-nav { display: flex; }
-  main { padding-bottom: 80px; }
-  .logo-tag { display: none; }
-  .map-sidebar { width: 100%; height: 50%; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--border-subtle); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-  .map-sidebar.collapsed { transform: translateY(100%); }
-  .map-sidebar-toggle { top: auto; bottom: 55%; left: 50%; transform: translateX(-50%); }
-  .map-sidebar.collapsed ~ .map-sidebar-toggle { bottom: var(--space-md); }
-  .map-wrapper { height: calc(100vh - 120px); }
-  .map-layer-controls { top: var(--space-sm); right: var(--space-sm); }
+/* ── RESPONSIVE ── */
+@media (max-width:768px) {
+  .pill-nav { display:none }
+  .mobile-nav { display:flex }
+  main,.views-wrap { padding:20px 16px 100px }
+  .home-hero { padding:32px 0 28px }
+  .stat-row { max-width:100% }
+  .stat-cell { min-width:80px; padding:14px 8px }
+  .stat-val { font-size:1.4rem }
+  .map-adv-selects { display:none }
+  .map-layers { bottom:80px }
+  .logo-sub { display:none }
 }
-@media (max-width: 600px) {
-  main { padding: var(--space-md); padding-bottom: 80px; }
-  .card-grid { grid-template-columns: 1fr; }
-  .detail-grid { grid-template-columns: 1fr 1fr; }
-  .stats-row { gap: var(--space-md); }
-  .stat-item { min-width: 80px; }
-  .explorer-controls { flex-direction: column; }
-  .tools-nav { gap: var(--space-xs); }
-  .source-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 480px) {
-  .modal { border-radius: var(--radius-lg) var(--radius-lg) 0 0; position: fixed; bottom: 0; left: 0; right: 0; max-width: 100%; max-height: 85vh; }
-  .detail-grid { grid-template-columns: 1fr; }
-}
-
-/* ─── PRINT ─── */
-@media print {
-  .site-header, .mobile-nav, .theme-toggle, .map-sidebar-toggle { display: none !important; }
-  body { background: #fff; color: #000; }
-  .card, .lang-card, .detail-panel, .tree-family { border-color: #ddd; break-inside: avoid; }
-}
-
-/* ─── REDUCED MOTION ─── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-  html { scroll-behavior: auto; }
+@media (max-width:480px) {
+  .stat-cell { flex-basis:50% }
+  .stat-cell:nth-child(2) { border-right:none }
+  .stat-cell:nth-child(3),.stat-cell:nth-child(4) { border-top:1px solid var(--border) }
+  .stat-cell:nth-child(5) { border-top:1px solid var(--border); flex-basis:100%; border-right:none }
 }
   </style>
 </head>
 <body>
-  <!-- Skip Link -->
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <!-- ═══ HEADER ═══ -->
-  <header class="site-header">
-    <div class="logo-group">
-      <span class="logo-mark">GlossaForge</span>
-      <span class="logo-tag">Geospatial Linguistics Toolkit</span>
-    </div>
-    <nav class="desktop-nav" aria-label="Main navigation">
-      <button class="nav-link active" data-view="home">Home</button>
-      <button class="nav-link" data-view="map">Map</button>
-      <button class="nav-link" data-view="explorer">Explorer</button>
-      <button class="nav-link" data-view="families">Families</button>
-      <button class="nav-link" data-view="tools">Tools</button>
-      <button class="nav-link" data-view="knowledge">Sources</button>
-    </nav>
-    <div class="header-actions">
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
-    </div>
-  </header>
+<a class="sr-only" href="#main-content">Skip to content</a>
 
-  <!-- ═══ MOBILE NAV ═══ -->
-  <nav class="mobile-nav" aria-label="Mobile navigation">
-    <button class="mob-link active" data-view="home"><span class="mob-icon">🏠</span>Home</button>
-    <button class="mob-link" data-view="map"><span class="mob-icon">🗺️</span>Map</button>
-    <button class="mob-link" data-view="explorer"><span class="mob-icon">🔍</span>Explorer</button>
-    <button class="mob-link" data-view="families"><span class="mob-icon">🌳</span>Families</button>
-    <button class="mob-link" data-view="tools"><span class="mob-icon">🧰</span>Tools</button>
-    <button class="mob-link" data-view="knowledge"><span class="mob-icon">📚</span>Sources</button>
+<!-- HEADER -->
+<header class="site-header">
+  <a class="logo" onclick="switchToView('home')" href="#">
+    Glossa<span>Forge</span>
+    <span class="logo-sub">Geospatial Linguistics</span>
+  </a>
+  <nav class="pill-nav" aria-label="Main navigation">
+    <button class="pn active" data-view="home">Home</button>
+    <button class="pn" data-view="map">Map</button>
+    <button class="pn" data-view="explorer">Explorer</button>
+    <button class="pn" data-view="families">Families</button>
+    <button class="pn" data-view="tools">Tools</button>
+    <button class="pn" data-view="knowledge">Sources</button>
   </nav>
+  <div class="header-end">
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+  </div>
+</header>
 
-  <!-- ═══ MAIN CONTENT ═══ -->
-  <main id="main-content">
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <button class="mob-link active" data-view="home"><span class="mi">🏠</span>Home</button>
+  <button class="mob-link" data-view="map"><span class="mi">🗺</span>Map</button>
+  <button class="mob-link" data-view="explorer"><span class="mi">🔍</span>Explorer</button>
+  <button class="mob-link" data-view="families"><span class="mi">🌳</span>Families</button>
+  <button class="mob-link" data-view="tools"><span class="mi">🧰</span>Tools</button>
+  <button class="mob-link" data-view="knowledge"><span class="mi">📚</span>Sources</button>
+</nav>
 
-    <!-- ═══════════════ HOME VIEW ═══════════════ -->
-    <section id="view-home" class="view active">
-      <div class="section-header" style="text-align:center; margin-bottom:var(--space-2xl);">
-        <h1 style="font-family:var(--font-display); font-size:var(--text-hero); font-weight:900; margin-bottom:var(--space-sm);">
-          Glossa<span style="color:var(--lapis-text)">Forge</span>
-        </h1>
-        <p class="section-subtitle" style="margin:0 auto; max-width:640px;">
-          Explore the world's languages — their families, geography, typology, endangerment, and connections.
-          An evidence-based toolkit for linguists, polyglots, and the curious.
-        </p>
+<!-- HOME (inside main) -->
+<main id="main-content">
+  <section id="view-home" class="view active">
+    <div class="home-hero">
+      <h1>Glossa<em>Forge</em></h1>
+      <p>Explore the world's languages — their families, geography, typology, endangerment, and connections. An evidence-based toolkit for linguists, polyglots, and the curious.</p>
+    </div>
+    <div class="stat-row" id="homeStats">
+      <div class="stat-cell"><div class="stat-val" id="statLangs">—</div><div class="stat-lbl">Languages</div></div>
+      <div class="stat-cell"><div class="stat-val" id="statFamilies">—</div><div class="stat-lbl">Families</div></div>
+      <div class="stat-cell"><div class="stat-val" id="statSpeakers">—</div><div class="stat-lbl">Speakers</div></div>
+      <div class="stat-cell"><div class="stat-val" id="statEndangered">—</div><div class="stat-lbl">Endangered</div></div>
+      <div class="stat-cell"><div class="stat-val" id="statExtinct">—</div><div class="stat-lbl">Extinct</div></div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card" onclick="switchToView('map')">
+        <div class="feat-icon">🗺️</div>
+        <div class="feat-title">World Map</div>
+        <p class="feat-desc">Interactive map of 500+ languages. Color by family, endangerment, word order, or morphology. Filter and search in real time.</p>
+        <span class="feat-cta">Open Map →</span>
       </div>
-
-      <div class="stats-row" id="homeStats">
-        <div class="stat-item"><div class="stat-value" id="statLangs">—</div><div class="stat-label">Languages</div></div>
-        <div class="stat-item"><div class="stat-value" id="statFamilies">—</div><div class="stat-label">Families</div></div>
-        <div class="stat-item"><div class="stat-value" id="statSpeakers">—</div><div class="stat-label">Total Speakers</div></div>
-        <div class="stat-item"><div class="stat-value" id="statEndangered">—</div><div class="stat-label">Endangered</div></div>
-        <div class="stat-item"><div class="stat-value" id="statExtinct">—</div><div class="stat-label">Extinct</div></div>
+      <div class="feat-card" onclick="switchToView('explorer')">
+        <div class="feat-icon">🔍</div>
+        <div class="feat-title">Language Explorer</div>
+        <p class="feat-desc">Search and filter by name, family, region, typological features, or endangerment status. View full typological profiles.</p>
+        <span class="feat-cta">Explore →</span>
       </div>
-
-      <div class="card-grid">
-        <div class="card" onclick="switchToView('map')" style="cursor:pointer">
-          <div class="card-icon">🗺️</div>
-          <h3 class="card-title">World Map</h3>
-          <p class="card-desc">Interactive geospatial map with 500+ languages. Color by family, endangerment, word order, or morphology. Filter and search.</p>
-          <span class="card-link">Open Map →</span>
-        </div>
-        <div class="card" onclick="switchToView('explorer')" style="cursor:pointer">
-          <div class="card-icon">🔍</div>
-          <h3 class="card-title">Language Explorer</h3>
-          <p class="card-desc">Search and filter languages by name, family, region, typological features, or endangerment status. View detailed profiles.</p>
-          <span class="card-link">Explore Languages →</span>
-        </div>
-        <div class="card" onclick="switchToView('families')" style="cursor:pointer">
-          <div class="card-icon">🌳</div>
-          <h3 class="card-title">Family Trees</h3>
-          <p class="card-desc">Hierarchical view of all language families — from Indo-European to isolates. Browse branches, sub-branches, and individual languages.</p>
-          <span class="card-link">View Families →</span>
-        </div>
-        <div class="card" onclick="switchToView('tools')" style="cursor:pointer">
-          <div class="card-icon">🧰</div>
-          <h3 class="card-title">Linguistics Tools</h3>
-          <p class="card-desc">Mutual intelligibility matcher, grammatical similarity finder, side-by-side comparison, historical timeline, and global statistics.</p>
-          <span class="card-link">Open Tools →</span>
-        </div>
-        <div class="card" onclick="switchToView('knowledge')" style="cursor:pointer">
-          <div class="card-icon">📚</div>
-          <h3 class="card-title">Sources & Methods</h3>
-          <p class="card-desc">Data sources, methodology notes, and academic references. Built on Glottolog, WALS, PHOIBLE, and UNESCO Atlas data.</p>
-          <span class="card-link">View Sources →</span>
-        </div>
+      <div class="feat-card" onclick="switchToView('families')">
+        <div class="feat-icon">🌳</div>
+        <div class="feat-title">Family Trees</div>
+        <p class="feat-desc">Hierarchical view of all language families — from Indo-European to isolates. Browse branches and individual languages.</p>
+        <span class="feat-cta">View Families →</span>
       </div>
-    </section>
-
-    <!-- ═══════════════ MAP VIEW ═══════════════ -->
-    <section id="view-map" class="view">
-      <div class="map-wrapper">
-        <div id="mapContainer" class="map-container"></div>
-
-        <!-- Map sidebar (filters) -->
-        <div id="mapSidebar" class="map-sidebar">
-          <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">Filters</h3>
-          <div class="form-group">
-            <label class="form-label" for="mapSearch">Search Language</label>
-            <input type="text" id="mapSearch" class="form-input" placeholder="Name or ISO code...">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapFamily">Language Family</label>
-            <select id="mapFamily" class="form-select"><option value="">All Families</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapRegion">Region</label>
-            <select id="mapRegion" class="form-select"><option value="">All Regions</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapWordOrder">Word Order</label>
-            <select id="mapWordOrder" class="form-select"><option value="">Any</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapMorphType">Morphological Type</label>
-            <select id="mapMorphType" class="form-select"><option value="">Any</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapEndangerment">Endangerment</label>
-            <select id="mapEndangerment" class="form-select">
-              <option value="">Any Status</option>
-              <option value="safe">Safe</option>
-              <option value="vulnerable">Vulnerable</option>
-              <option value="definitely_endangered">Endangered</option>
-              <option value="severely_endangered">Severely Endangered</option>
-              <option value="critically_endangered">Critically Endangered</option>
-              <option value="extinct">Extinct</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="mapTone">Tone System</label>
-            <select id="mapTone" class="form-select"><option value="">Any</option></select>
-          </div>
-          <div class="form-group" style="display:flex; align-items:center; gap:var(--space-sm);">
-            <input type="checkbox" id="mapShowExtinct">
-            <label for="mapShowExtinct" style="font-size:var(--text-small); color:var(--parchment-mid); cursor:pointer;">Show extinct languages</label>
-          </div>
-          <div style="margin-top:var(--space-md);">
-            <button class="btn btn-secondary btn-sm" onclick="resetMapFilters()" style="width:100%;">Reset Filters</button>
-          </div>
-          <div id="mapFilterCount" style="margin-top:var(--space-sm); font-size:var(--text-xs); color:var(--parchment-muted); text-align:center;"></div>
-        </div>
-
-        <!-- Sidebar toggle -->
-        <button id="mapSidebarToggle" class="map-sidebar-toggle" aria-label="Toggle filters">☰</button>
-
-        <!-- Layer controls -->
-        <div class="map-layer-controls">
-          <button class="map-layer-btn active" data-layer="family">Family</button>
-          <button class="map-layer-btn" data-layer="endangerment">Endangerment</button>
-          <button class="map-layer-btn" data-layer="wordorder">Word Order</button>
-          <button class="map-layer-btn" data-layer="morphology">Morphology</button>
-          <button class="map-layer-btn" data-layer="tone">Tone</button>
-        </div>
-
-        <!-- Legend -->
-        <div id="mapLegend" class="map-legend"></div>
+      <div class="feat-card" onclick="switchToView('tools')">
+        <div class="feat-icon">🧰</div>
+        <div class="feat-title">Linguistics Tools</div>
+        <p class="feat-desc">Mutual intelligibility matcher, grammatical similarity finder, side-by-side comparison, historical timeline, and world statistics.</p>
+        <span class="feat-cta">Open Tools →</span>
       </div>
-    </section>
-
-    <!-- ═══════════════ EXPLORER VIEW ═══════════════ -->
-    <section id="view-explorer" class="view">
-      <div class="section-header">
-        <h2 class="section-title">Language Explorer</h2>
-        <p class="section-subtitle">Search, filter, and explore detailed profiles of 500+ world languages.</p>
+      <div class="feat-card" onclick="switchToView('knowledge')">
+        <div class="feat-icon">📚</div>
+        <div class="feat-title">Sources &amp; Methods</div>
+        <p class="feat-desc">Data sources, methodology notes, and academic references. Built on Glottolog, WALS, PHOIBLE, and UNESCO Atlas.</p>
+        <span class="feat-cta">View Sources →</span>
       </div>
+    </div>
+  </section>
+</main>
 
-      <div class="explorer-controls">
-        <div class="explorer-search">
-          <label class="form-label" for="explorerSearch">Search</label>
-          <input type="text" id="explorerSearch" class="form-input" placeholder="Language name, ISO code, or alternate name...">
-        </div>
-        <div class="form-group" style="min-width:150px;">
-          <label class="form-label" for="explorerFamily">Family</label>
-          <select id="explorerFamily" class="form-select"><option value="">All</option></select>
-        </div>
-        <div class="form-group" style="min-width:150px;">
-          <label class="form-label" for="explorerRegion">Region</label>
-          <select id="explorerRegion" class="form-select"><option value="">All</option></select>
-        </div>
-        <div class="form-group" style="min-width:130px;">
-          <label class="form-label" for="explorerEndanger">Status</label>
-          <select id="explorerEndanger" class="form-select">
-            <option value="">Any</option>
-            <option value="safe">Safe</option>
-            <option value="vulnerable">Vulnerable</option>
-            <option value="definitely_endangered">Endangered</option>
-            <option value="severely_endangered">Severely Endangered</option>
-            <option value="critically_endangered">Critically Endangered</option>
-            <option value="extinct">Extinct</option>
-          </select>
-        </div>
+<!-- MAP (fixed, full viewport) -->
+<section id="view-map" class="view">
+  <div class="map-wrap">
+    <div id="mapContainer"></div>
+    <div class="map-float-top">
+      <div class="map-search-box">
+        <span class="map-search-icon">⌕</span>
+        <input type="text" id="mapSearch" placeholder="Search language or ISO code…" autocomplete="off">
       </div>
-      <div class="explorer-filters" id="explorerChips" role="group" aria-label="Quick filters"></div>
-      <div class="explorer-count" id="explorerCount"></div>
-      <div class="card-grid" id="explorerResults"></div>
-      <div id="explorerDetail" style="display:none;"></div>
-    </section>
+    </div>
+    <div class="map-adv-selects" id="mapAdvFilters">
+      <div class="map-adv-sel"><select id="mapFamily"><option value="">All Families</option></select></div>
+      <div class="map-adv-sel"><select id="mapRegion"><option value="">All Regions</option></select></div>
+      <div class="map-adv-sel"><select id="mapWordOrder"><option value="">Word Order</option></select></div>
+      <div class="map-adv-sel"><select id="mapMorphType"><option value="">Morphology</option></select></div>
+      <div class="map-adv-sel"><select id="mapEndangerment">
+        <option value="">Any Status</option>
+        <option value="safe">Safe</option>
+        <option value="vulnerable">Vulnerable</option>
+        <option value="definitely_endangered">Endangered</option>
+        <option value="severely_endangered">Severely Endangered</option>
+        <option value="critically_endangered">Critically Endangered</option>
+        <option value="extinct">Extinct</option>
+      </select></div>
+      <div class="map-adv-sel"><select id="mapTone"><option value="">Tone</option></select></div>
+      <label class="map-extinct-wrap"><input type="checkbox" id="mapShowExtinct" style="accent-color:var(--cyan)"> Show extinct</label>
+      <button class="map-reset-btn" onclick="resetMapFilters()">Reset</button>
+    </div>
+    <div class="map-count" id="mapFilterCount"></div>
+    <div class="map-layers">
+      <button class="map-layer-btn active" data-layer="family">Family</button>
+      <button class="map-layer-btn" data-layer="endangerment">Endangerment</button>
+      <button class="map-layer-btn" data-layer="wordorder">Word Order</button>
+      <button class="map-layer-btn" data-layer="morphology">Morphology</button>
+      <button class="map-layer-btn" data-layer="tone">Tone</button>
+    </div>
+    <div id="mapLegend" class="map-legend"></div>
+  </div>
+</section>
 
-    <!-- ═══════════════ FAMILIES VIEW ═══════════════ -->
-    <section id="view-families" class="view">
-      <div class="section-header">
-        <h2 class="section-title">Language Families</h2>
-        <p class="section-subtitle">Hierarchical view of the world's language families, branches, and individual languages.</p>
-      </div>
-      <div class="form-group" style="max-width:400px; margin-bottom:var(--space-xl);">
-        <label class="form-label" for="familySearch">Search Families</label>
-        <input type="text" id="familySearch" class="form-input" placeholder="Search family or language name...">
-      </div>
-      <div class="stats-row" id="familyStats"></div>
-      <div id="familyTree" class="tree-container"></div>
-    </section>
+<!-- OTHER VIEWS -->
+<div class="views-wrap">
 
-    <!-- ═══════════════ TOOLS VIEW ═══════════════ -->
-    <section id="view-tools" class="view">
-      <div class="section-header">
-        <h2 class="section-title">Linguistics Tools</h2>
-        <p class="section-subtitle">Analyze languages with matching, comparison, and visualization tools.</p>
+  <!-- EXPLORER -->
+  <section id="view-explorer" class="view">
+    <div class="sec-head"><h2>Language Explorer</h2><p>Search and filter 500+ world languages. Click any card for a full typological profile.</p></div>
+    <div class="explorer-top">
+      <div class="explorer-search-wrap">
+        <div class="field-label">Search</div>
+        <input class="inp" type="text" id="explorerSearch" placeholder="Name, ISO code, or alternate name…">
       </div>
-
-      <div class="tools-nav" role="tablist" aria-label="Tool categories">
-        <button class="tool-tab active" role="tab" data-tool="intelligibility" aria-selected="true">Intelligibility</button>
-        <button class="tool-tab" role="tab" data-tool="similarity" aria-selected="false">Grammar Similarity</button>
-        <button class="tool-tab" role="tab" data-tool="comparison" aria-selected="false">Comparison</button>
-        <button class="tool-tab" role="tab" data-tool="timeline" aria-selected="false">Timeline</button>
-        <button class="tool-tab" role="tab" data-tool="stats" aria-selected="false">World Stats</button>
+      <div><div class="field-label">Family</div><select class="sel" id="explorerFamily"><option value="">All</option></select></div>
+      <div><div class="field-label">Region</div><select class="sel" id="explorerRegion"><option value="">All</option></select></div>
+      <div><div class="field-label">Status</div>
+        <select class="sel" id="explorerEndanger">
+          <option value="">Any</option>
+          <option value="safe">Safe</option>
+          <option value="vulnerable">Vulnerable</option>
+          <option value="definitely_endangered">Endangered</option>
+          <option value="severely_endangered">Severely Endangered</option>
+          <option value="critically_endangered">Critically Endangered</option>
+          <option value="extinct">Extinct</option>
+        </select>
       </div>
+    </div>
+    <div class="chip-row" id="explorerChips"></div>
+    <div class="result-meta" id="explorerCount"></div>
+    <div class="lang-grid" id="explorerResults"></div>
+    <div id="explorerDetail" style="display:none"></div>
+  </section>
 
-      <!-- Intelligibility Matcher -->
-      <div id="tool-intelligibility" class="tool-panel active" role="tabpanel">
-        <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">Mutual Intelligibility Matcher</h3>
-        <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-lg);">Select a language to see which others its speakers can understand — and to what degree. Intelligibility is often asymmetric.</p>
-        <div class="form-group" style="max-width:400px;">
-          <label class="form-label" for="intelligibilityLang">Select Language</label>
-          <select id="intelligibilityLang" class="form-select"><option value="">Choose a language...</option></select>
-        </div>
-        <div id="intelligibilityResults" class="tool-results"></div>
+  <!-- FAMILIES -->
+  <section id="view-families" class="view">
+    <div class="sec-head"><h2>Language Families</h2><p>Hierarchical view of the world's language families, branches, and individual languages.</p></div>
+    <div style="max-width:400px;margin-bottom:24px">
+      <div class="field-label">Search</div>
+      <input class="inp" type="text" id="familySearch" placeholder="Search family or language name…">
+    </div>
+    <div class="stat-row" id="familyStats" style="max-width:600px;margin-bottom:28px"></div>
+    <div id="familyTree"></div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="view-tools" class="view">
+    <div class="sec-head"><h2>Linguistics Tools</h2><p>Analyze languages with matching, comparison, and visualization tools.</p></div>
+    <div class="tool-tabs" role="tablist">
+      <button class="tool-tab active" data-tool="intelligibility" role="tab" aria-selected="true">Intelligibility</button>
+      <button class="tool-tab" data-tool="similarity" role="tab" aria-selected="false">Grammar Similarity</button>
+      <button class="tool-tab" data-tool="comparison" role="tab" aria-selected="false">Comparison</button>
+      <button class="tool-tab" data-tool="timeline" role="tab" aria-selected="false">Timeline</button>
+      <button class="tool-tab" data-tool="stats" role="tab" aria-selected="false">World Stats</button>
+    </div>
+    <div id="tool-intelligibility" class="tool-panel active" role="tabpanel">
+      <div class="tool-h">Mutual Intelligibility Matcher</div>
+      <p class="tool-sub">Select a language to see which others its speakers can understand — and to what degree. Intelligibility is often asymmetric.</p>
+      <div style="max-width:400px;margin-bottom:20px"><div class="field-label">Select Language</div><select class="sel" id="intelligibilityLang" style="width:100%"><option value="">Choose a language…</option></select></div>
+      <div id="intelligibilityResults"></div>
+    </div>
+    <div id="tool-similarity" class="tool-panel" role="tabpanel">
+      <div class="tool-h">Grammatical Similarity Finder</div>
+      <p class="tool-sub">Find languages that share grammatical features — even across unrelated families. Scored across word order, morphology, case alignment, tone, gender, and more.</p>
+      <div style="max-width:400px;margin-bottom:20px"><div class="field-label">Select Language</div><select class="sel" id="similarityLang" style="width:100%"><option value="">Choose a language…</option></select></div>
+      <div id="similarityResults"></div>
+    </div>
+    <div id="tool-comparison" class="tool-panel" role="tabpanel">
+      <div class="tool-h">Language Comparison</div>
+      <p class="tool-sub">Select 2–5 languages for a side-by-side typological comparison. Matching features are highlighted.</p>
+      <div id="comparisonSelectors" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addComparisonSlot()" id="addCompBtn">+ Add Language</button>
+      <div id="comparisonResults" style="margin-top:20px"></div>
+    </div>
+    <div id="tool-timeline" class="tool-panel" role="tabpanel">
+      <div class="tool-h">Historical Timeline</div>
+      <p class="tool-sub">Extinct and historical languages across time. Filter by family.</p>
+      <div style="max-width:300px;margin-bottom:20px"><div class="field-label">Filter by Family</div><select class="sel" id="timelineFamily" style="width:100%"><option value="">All Families</option></select></div>
+      <div id="timelineResults"></div>
+    </div>
+    <div id="tool-stats" class="tool-panel" role="tabpanel">
+      <div class="tool-h">World Language Statistics</div>
+      <p class="tool-sub">Global overview of language diversity, distribution, and endangerment.</p>
+      <div id="worldStats"></div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE -->
+  <section id="view-knowledge" class="view">
+    <div class="sec-head"><h2>Sources &amp; Methodology</h2><p>Data provenance, scoring methodology, and academic references.</p></div>
+    <div class="know-sec">
+      <div class="know-sec-title">Data Sources</div>
+      <div class="source-grid">
+        <div class="source-card"><div class="source-name">Glottolog</div><p class="source-desc">Comprehensive catalogue of the world's languages, language families, and dialects. Provides ISO 639-3 codes, geographic coordinates, and family classification.</p><span class="source-url">glottolog.org</span></div>
+        <div class="source-card"><div class="source-name">WALS — World Atlas of Language Structures</div><p class="source-desc">Database of structural properties of languages. Primary source for typological features like word order, morphological type, and case alignment.</p><span class="source-url">wals.info</span></div>
+        <div class="source-card"><div class="source-name">PHOIBLE</div><p class="source-desc">Repository of cross-linguistic phonological inventory data. Source for consonant/vowel inventory sizes, click sounds, ejectives, and tonal information.</p><span class="source-url">phoible.org</span></div>
+        <div class="source-card"><div class="source-name">UNESCO Atlas of World's Languages in Danger</div><p class="source-desc">Classification of languages by endangerment: vulnerable, definitely endangered, severely endangered, critically endangered, and extinct.</p><span class="source-url">unesco.org/languages-atlas</span></div>
+        <div class="source-card"><div class="source-name">Ethnologue</div><p class="source-desc">Reference publication cataloging all known living languages. Source for speaker population estimates, country-level distribution, and EGIDS vitality levels.</p><span class="source-url">ethnologue.com</span></div>
+        <div class="source-card"><div class="source-name">Academic Literature</div><p class="source-desc">Mutual intelligibility scores from Gooskens (2007), Tang &amp; van Heuven (2009), and Golubovic &amp; Gooskens (2020).</p></div>
       </div>
-
-      <!-- Grammar Similarity -->
-      <div id="tool-similarity" class="tool-panel" role="tabpanel">
-        <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">Grammatical Similarity Finder</h3>
-        <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-lg);">Find languages that share grammatical features — even across unrelated families. Scoring based on word order, morphology, case alignment, tone, gender, and more.</p>
-        <div class="form-group" style="max-width:400px;">
-          <label class="form-label" for="similarityLang">Select Language</label>
-          <select id="similarityLang" class="form-select"><option value="">Choose a language...</option></select>
-        </div>
-        <div id="similarityResults" class="tool-results"></div>
-      </div>
-
-      <!-- Comparison -->
-      <div id="tool-comparison" class="tool-panel" role="tabpanel">
-        <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">Language Comparison</h3>
-        <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-lg);">Select 2–5 languages for a side-by-side typological comparison. Matching features are highlighted.</p>
-        <div id="comparisonSelectors" style="display:flex; gap:var(--space-sm); flex-wrap:wrap; margin-bottom:var(--space-lg);"></div>
-        <button class="btn btn-secondary btn-sm" onclick="addComparisonSlot()" id="addCompBtn">+ Add Language</button>
-        <div id="comparisonResults" class="tool-results" style="margin-top:var(--space-lg);"></div>
-      </div>
-
-      <!-- Timeline -->
-      <div id="tool-timeline" class="tool-panel" role="tabpanel">
-        <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">Historical Timeline</h3>
-        <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-lg);">Extinct and historical languages across time. Filter by family.</p>
-        <div class="form-group" style="max-width:300px;">
-          <label class="form-label" for="timelineFamily">Filter by Family</label>
-          <select id="timelineFamily" class="form-select"><option value="">All Families</option></select>
-        </div>
-        <div id="timelineResults" class="tool-results"></div>
-      </div>
-
-      <!-- World Stats -->
-      <div id="tool-stats" class="tool-panel" role="tabpanel">
-        <h3 style="font-family:var(--font-label); font-size:var(--text-h3); font-weight:700; margin-bottom:var(--space-md);">World Language Statistics</h3>
-        <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-lg);">Global overview of language diversity, distribution, and endangerment.</p>
-        <div id="worldStats"></div>
-      </div>
-    </section>
-
-    <!-- ═══════════════ KNOWLEDGE VIEW ═══════════════ -->
-    <section id="view-knowledge" class="view">
-      <div class="section-header">
-        <h2 class="section-title">Sources & Methodology</h2>
-        <p class="section-subtitle">Data provenance, scoring methodology, and academic references.</p>
-      </div>
-
-      <div class="detail-section">
-        <h3 class="detail-section-title">Data Sources</h3>
-        <div class="source-grid">
-          <div class="source-card">
-            <div class="source-name">Glottolog</div>
-            <p class="source-desc">Comprehensive catalogue of the world's languages, language families, and dialects. Provides ISO 639-3 codes, geographic coordinates, and family classification.</p>
-            <span class="source-url">glottolog.org</span>
-          </div>
-          <div class="source-card">
-            <div class="source-name">WALS — World Atlas of Language Structures</div>
-            <p class="source-desc">Database of structural (phonological, grammatical, lexical) properties of languages. Primary source for typological features like word order, morphological type, and case alignment.</p>
-            <span class="source-url">wals.info</span>
-          </div>
-          <div class="source-card">
-            <div class="source-name">PHOIBLE</div>
-            <p class="source-desc">Repository of cross-linguistic phonological inventory data. Source for consonant and vowel inventory sizes, click sounds, ejectives, and tonal information.</p>
-            <span class="source-url">phoible.org</span>
-          </div>
-          <div class="source-card">
-            <div class="source-name">UNESCO Atlas of World's Languages in Danger</div>
-            <p class="source-desc">Classification of languages by endangerment level: vulnerable, definitely endangered, severely endangered, critically endangered, and extinct.</p>
-            <span class="source-url">unesco.org/languages-atlas</span>
-          </div>
-          <div class="source-card">
-            <div class="source-name">Ethnologue</div>
-            <p class="source-desc">Reference publication cataloging all known living languages. Source for speaker population estimates, country-level distribution, and EGIDS vitality levels.</p>
-            <span class="source-url">ethnologue.com</span>
-          </div>
-          <div class="source-card">
-            <div class="source-name">Academic Literature</div>
-            <p class="source-desc">Mutual intelligibility scores derived from published studies including Gooskens (2007), Tang & van Heuven (2009), and Golubovic & Gooskens (2020).</p>
-          </div>
+    </div>
+    <div class="know-sec">
+      <div class="know-sec-title">Grammatical Similarity Score</div>
+      <div style="background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);max-width:700px">
+        <div class="tbl-scroll">
+          <table class="comp-table">
+            <thead><tr><th>Feature</th><th>Weight</th><th>Rationale</th></tr></thead>
+            <tbody>
+              <tr><td>Word Order</td><td>15%</td><td>SOV, SVO, VSO, etc.</td></tr>
+              <tr><td>Morphological Type</td><td>15%</td><td>Isolating, agglutinative, fusional, polysynthetic</td></tr>
+              <tr><td>Case Alignment</td><td>12%</td><td>Nominative-accusative, ergative-absolutive, etc.</td></tr>
+              <tr><td>Case Count</td><td>8%</td><td>Number of grammatical cases</td></tr>
+              <tr><td>Tone System</td><td>10%</td><td>None, simple, complex</td></tr>
+              <tr><td>Gender System</td><td>8%</td><td>None, 2-gender, 3-gender, classifier, noun class</td></tr>
+              <tr><td>Evidentiality</td><td>7%</td><td>Grammaticalized source-of-information marking</td></tr>
+              <tr><td>Vowel Harmony</td><td>5%</td><td>Presence of vowel harmony system</td></tr>
+              <tr><td>Consonant Inventory</td><td>5%</td><td>Small, average, large, very large</td></tr>
+              <tr><td>Vowel Inventory</td><td>5%</td><td>Small, average, large</td></tr>
+              <tr><td>Definiteness</td><td>5%</td><td>Article system type</td></tr>
+              <tr><td>Negation Type</td><td>5%</td><td>Negation strategy</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div class="detail-section">
-        <h3 class="detail-section-title">Scoring Methodology</h3>
-        <div class="card" style="max-width:800px;">
-          <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-sm);">Grammatical Similarity Score</h4>
-          <p style="font-size:var(--text-small); color:var(--parchment-mid); margin-bottom:var(--space-md);">
-            Languages are compared across 12 typological dimensions. Each dimension is weighted by its discriminative power:
-          </p>
-          <div class="table-scroll">
-            <table class="comparison-table">
-              <thead><tr><th>Feature</th><th>Weight</th><th>Rationale</th></tr></thead>
-              <tbody>
-                <tr><td>Word Order</td><td>15%</td><td>Basic clause structure (SOV, SVO, VSO, etc.)</td></tr>
-                <tr><td>Morphological Type</td><td>15%</td><td>Isolating, agglutinative, fusional, polysynthetic</td></tr>
-                <tr><td>Case Alignment</td><td>12%</td><td>Nominative-accusative, ergative-absolutive, etc.</td></tr>
-                <tr><td>Case Count</td><td>8%</td><td>Number of grammatical cases</td></tr>
-                <tr><td>Tone System</td><td>10%</td><td>None, simple, complex tone</td></tr>
-                <tr><td>Gender System</td><td>8%</td><td>None, 2-gender, 3-gender, classifier, noun class</td></tr>
-                <tr><td>Evidentiality</td><td>7%</td><td>Grammaticalized source-of-information marking</td></tr>
-                <tr><td>Vowel Harmony</td><td>5%</td><td>Presence of vowel harmony system</td></tr>
-                <tr><td>Consonant Inventory</td><td>5%</td><td>Small, average, large, very large</td></tr>
-                <tr><td>Vowel Inventory</td><td>5%</td><td>Small, average, large</td></tr>
-                <tr><td>Definiteness</td><td>5%</td><td>Article system type</td></tr>
-                <tr><td>Negation Type</td><td>5%</td><td>Negation strategy</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    </div>
+    <div class="know-sec">
+      <div class="know-sec-title">Mutual Intelligibility Scores</div>
+      <div style="background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;max-width:700px;font-size:13px;color:var(--ink-mid);line-height:1.65">
+        Scores represent the percentage of content a listener can understand without prior study. Scores are <strong style="color:var(--ink)">directional</strong> — a Portuguese speaker may understand more Spanish than vice versa.
+        Categories: <strong style="color:var(--ink)">Very High</strong> (80%+), <strong style="color:var(--ink)">High</strong> (60–79%), <strong style="color:var(--ink)">Moderate</strong> (40–59%), <strong style="color:var(--ink)">Low</strong> (20–39%), <strong style="color:var(--ink)">Minimal</strong> (&lt;20%).
       </div>
+    </div>
+  </section>
 
-      <div class="detail-section">
-        <h3 class="detail-section-title">Mutual Intelligibility Scores</h3>
-        <div class="card" style="max-width:800px;">
-          <p style="font-size:var(--text-small); color:var(--parchment-mid);">
-            Intelligibility scores represent the percentage of content a listener can understand without prior study.
-            Scores are <strong>directional</strong> — a Portuguese speaker may understand more Spanish than vice versa.
-            Categories: <strong>Very High</strong> (80%+), <strong>High</strong> (60–79%), <strong>Moderate</strong> (40–59%),
-            <strong>Low</strong> (20–39%), <strong>Minimal</strong> (&lt;20%).
-          </p>
-        </div>
-      </div>
-    </section>
+</div><!-- /views-wrap -->
 
-  </main>
+<footer class="site-footer">
+  GlossaForge — Data from Glottolog · WALS · PHOIBLE · UNESCO Atlas
+</footer>
 
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="site-footer">
-    GlossaForge — Built with data from Glottolog, WALS, PHOIBLE & UNESCO
-  </footer>
+<!-- DATA -->
+<script src="data/families.js"></script>
+<script src="data/languages.js"></script>
+<script src="data/intelligibility.js"></script>
+<script src="data/countries.js"></script>
 
-  <!-- ═══ DATA FILES ═══ -->
-  <script src="data/families.js"></script>
-  <script src="data/languages.js"></script>
-  <script src="data/intelligibility.js"></script>
-  <script src="data/countries.js"></script>
+<!-- APP -->
+<script>
+'use strict';
 
-  <!-- ═══ CORE JS ═══ -->
-  <script>
-  /* ═══════════════════════════════════════════════════════════════════════════
-     CORE APPLICATION JS
-     ═══════════════════════════════════════════════════════════════════════════ */
+let currentView = 'home';
+let leafletMap = null;
+let mapMarkers = [];
+let mapLayerMode = 'family';
+let comparisonSlots = [];
+let viewsLoaded = { home: true };
+let explorerActiveChips = [];
+let darkTiles, lightTiles;
 
-  // ─── STATE ───
-  let currentView = 'home';
-  let leafletMap = null;
-  let mapMarkers = [];
-  let mapLayerMode = 'family';
-  let explorerPage = 0;
-  let comparisonSlots = [];
-  let viewsLoaded = { home: true };
-
-  // ─── THEME TOGGLE ───
-  (function initTheme() {
-    const saved = localStorage.getItem('gf-theme');
-    if (saved) document.documentElement.setAttribute('data-theme', saved);
-    const btn = document.getElementById('themeToggle');
-    btn.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? '☀️' : '🌙';
-    btn.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('gf-theme', next);
-      btn.textContent = next === 'light' ? '☀️' : '🌙';
-      if (leafletMap) updateMapTiles();
-    });
-  })();
-
-  // ─── NAVIGATION ───
-  function switchToView(viewId) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-link, .mob-link').forEach(l => l.classList.remove('active'));
-    const target = document.getElementById('view-' + viewId);
-    if (target) {
-      target.classList.add('active');
-      currentView = viewId;
-    }
-    document.querySelectorAll(`[data-view="${viewId}"]`).forEach(l => l.classList.add('active'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (!viewsLoaded[viewId]) lazyLoadView(viewId);
-  }
-
-  document.querySelectorAll('[data-view]').forEach(el => {
-    el.addEventListener('click', () => switchToView(el.dataset.view));
+// ── THEME ──
+(function() {
+  const saved = localStorage.getItem('gf-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('themeToggle');
+  btn.textContent = saved === 'light' ? '☀️' : '🌙';
+  btn.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const nxt = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nxt);
+    localStorage.setItem('gf-theme', nxt);
+    btn.textContent = nxt === 'light' ? '☀️' : '🌙';
+    if (leafletMap) updateMapTiles();
   });
+})();
 
-  // ─── LAZY LOAD VIEWS ───
-  function lazyLoadView(viewId) {
-    viewsLoaded[viewId] = true;
-    switch (viewId) {
-      case 'map': initMap(); break;
-      case 'explorer': initExplorer(); break;
-      case 'families': initFamilyTree(); break;
-      case 'tools': initTools(); break;
-    }
+// ── NAVIGATION ──
+function switchToView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.pn, .mob-link').forEach(l => l.classList.remove('active'));
+  const target = document.getElementById('view-' + viewId);
+  if (target) { target.classList.add('active'); currentView = viewId; }
+  document.querySelectorAll('[data-view="' + viewId + '"]').forEach(l => l.classList.add('active'));
+  if (viewId === 'map') {
+    // Critical Leaflet fix: invalidate after display:none -> display:block transition
+    requestAnimationFrame(() => { if (leafletMap) leafletMap.invalidateSize(); });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+  if (!viewsLoaded[viewId]) lazyLoadView(viewId);
+}
 
-  // ─── HELPER: Format number ───
-  function fmtNum(n) {
-    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
-    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-    return n.toString();
-  }
+document.querySelectorAll('[data-view]').forEach(el => {
+  el.addEventListener('click', () => switchToView(el.dataset.view));
+});
 
-  // ─── HELPER: Get family color ───
-  function getFamilyColor(familyId) {
-    const colors = {
-      indoEuropean: 'var(--family-ie)', sinoTibetan: 'var(--family-st)',
-      nigerCongo: 'var(--family-nc)', afroasiatic: 'var(--family-aa)',
-      austronesian: 'var(--family-an)', dravidian: 'var(--family-dr)',
-      turkic: 'var(--family-tk)', uralic: 'var(--family-ur)',
-      japonic: 'var(--family-jp)', koreanic: 'var(--family-kr)',
-      taiKadai: 'var(--family-ta)', austroasiatic: 'var(--family-au)'
-    };
-    return colors[familyId] || 'var(--family-other)';
-  }
+function lazyLoadView(id) {
+  viewsLoaded[id] = true;
+  if (id === 'map') initMap();
+  else if (id === 'explorer') initExplorer();
+  else if (id === 'families') initFamilyTree();
+  else if (id === 'tools') initTools();
+}
 
-  function getFamilyHex(familyId) {
-    const colors = {
-      indoEuropean: '#60a5fa', sinoTibetan: '#f87171',
-      nigerCongo: '#34d399', afroasiatic: '#fbbf24',
-      austronesian: '#a78bfa', dravidian: '#fb923c',
-      turkic: '#22d3ee', uralic: '#e879f9',
-      japonic: '#f472b6', koreanic: '#818cf8',
-      taiKadai: '#2dd4bf', austroasiatic: '#a3e635'
-    };
-    return colors[familyId] || '#94a3b8';
-  }
+// ── HELPERS ──
+function fmtNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return String(n||0);
+}
+function getAllLangs() { return typeof LANGUAGE_DATABASE!=='undefined' ? Object.values(LANGUAGE_DATABASE) : []; }
+function getFamilyName(id) { return (typeof FAMILY_TREE!=='undefined'&&FAMILY_TREE[id]) ? FAMILY_TREE[id].name : id; }
+const FHEX = {indoEuropean:'#60a5fa',sinoTibetan:'#f87171',nigerCongo:'#34d399',afroasiatic:'#fbbf24',austronesian:'#a78bfa',dravidian:'#fb923c',turkic:'#22d3ee',uralic:'#e879f9',japonic:'#f472b6',koreanic:'#818cf8',taiKadai:'#2dd4bf',austroasiatic:'#a3e635'};
+function getFamilyHex(id) { return FHEX[id] || '#71717a'; }
+function endangerBadge(s) {
+  const m = {safe:['Safe','badge-safe'],vulnerable:['Vulnerable','badge-vulnerable'],definitely_endangered:['Endangered','badge-endangered'],severely_endangered:['Severely End.','badge-severely'],critically_endangered:['Critical','badge-critical'],extinct:['Extinct','badge-extinct']};
+  const [l,c] = m[s]||['—',''];
+  return `<span class="badge ${c}">${l}</span>`;
+}
 
-  // ─── HELPER: Endangerment badge ───
-  function endangerBadge(status) {
-    const map = {
-      safe: ['Safe', 'badge-safe'], vulnerable: ['Vulnerable', 'badge-vulnerable'],
-      definitely_endangered: ['Endangered', 'badge-endangered'],
-      severely_endangered: ['Severely Endangered', 'badge-severely'],
-      critically_endangered: ['Critical', 'badge-critical'],
-      extinct: ['Extinct', 'badge-extinct']
-    };
-    const [label, cls] = map[status] || ['Unknown', ''];
-    return `<span class="badge ${cls}">${label}</span>`;
-  }
-
-  // ─── HELPER: Get all languages as array ───
-  function getAllLanguages() {
-    if (typeof LANGUAGE_DATABASE === 'undefined') return [];
-    return Object.values(LANGUAGE_DATABASE);
-  }
-
-  // ─── HELPER: Get family name ───
-  function getFamilyName(familyId) {
-    if (typeof FAMILY_TREE === 'undefined') return familyId;
-    const fam = FAMILY_TREE[familyId];
-    return fam ? fam.name : familyId;
-  }
-
-  // ─── HOME STATS ───
-  function loadHomeStats() {
-    const langs = getAllLanguages();
-    if (langs.length === 0) return;
+// ── HOME STATS ──
+window.addEventListener('DOMContentLoaded', () => {
+  const langs = getAllLangs();
+  if (langs.length) {
     document.getElementById('statLangs').textContent = langs.length;
-    const families = new Set(langs.map(l => l.family));
-    document.getElementById('statFamilies').textContent = families.size;
-    const totalSpeakers = langs.reduce((s, l) => s + (l.totalSpeakers || l.l1Speakers || 0), 0);
-    document.getElementById('statSpeakers').textContent = fmtNum(totalSpeakers);
-    const endangered = langs.filter(l => l.unescoStatus && l.unescoStatus !== 'safe' && l.unescoStatus !== 'extinct').length;
-    document.getElementById('statEndangered').textContent = endangered;
-    const extinct = langs.filter(l => l.isExtinct || l.unescoStatus === 'extinct').length;
-    document.getElementById('statExtinct').textContent = extinct;
+    document.getElementById('statFamilies').textContent = new Set(langs.map(l=>l.family)).size;
+    document.getElementById('statSpeakers').textContent = fmtNum(langs.reduce((s,l)=>s+(l.totalSpeakers||l.l1Speakers||0),0));
+    document.getElementById('statEndangered').textContent = langs.filter(l=>l.unescoStatus&&l.unescoStatus!=='safe'&&l.unescoStatus!=='extinct').length;
+    document.getElementById('statExtinct').textContent = langs.filter(l=>l.isExtinct||l.unescoStatus==='extinct').length;
   }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+});
 
-  // ─── INIT ON LOAD ───
-  window.addEventListener('DOMContentLoaded', () => {
-    loadHomeStats();
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
+// ═══ MAP ═══
+function initMap() {
+  if (leafletMap) { setTimeout(()=>leafletMap.invalidateSize(),50); return; }
+  leafletMap = L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,0],2);
+  L.control.zoom({position:'bottomright'}).addTo(leafletMap);
+  L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
+  darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18});
+  lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18});
+  (document.documentElement.getAttribute('data-theme')!=='light' ? darkTiles : lightTiles).addTo(leafletMap);
+  populateMapFilters();
+  renderMapMarkers();
+  renderMapLegend();
+  setupMapEvents();
+  // Double invalidate — catches both immediate and post-transition layout
+  setTimeout(()=>leafletMap.invalidateSize(),100);
+  setTimeout(()=>leafletMap.invalidateSize(),500);
+}
+
+function updateMapTiles() {
+  if (!leafletMap) return;
+  if (document.documentElement.getAttribute('data-theme')!=='light') { leafletMap.removeLayer(lightTiles); darkTiles.addTo(leafletMap); }
+  else { leafletMap.removeLayer(darkTiles); lightTiles.addTo(leafletMap); }
+}
+
+function populateMapFilters() {
+  const langs = getAllLangs();
+  const add = (id, arr, lFn) => { const s=document.getElementById(id); arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lFn?lFn(v):v;s.appendChild(o)}); };
+  add('mapFamily',[...new Set(langs.map(l=>l.family))].sort(),getFamilyName);
+  add('mapRegion',[...new Set(langs.map(l=>l.macroRegion).filter(Boolean))].sort());
+  add('mapWordOrder',[...new Set(langs.map(l=>l.wordOrder).filter(Boolean))].sort());
+  add('mapMorphType',[...new Set(langs.map(l=>l.morphType).filter(Boolean))].sort());
+  add('mapTone',[...new Set(langs.map(l=>l.toneSystem).filter(Boolean))].sort());
+}
+
+function getMapFiltered() {
+  let langs = getAllLangs();
+  const q = v => document.getElementById(v).value;
+  const search = q('mapSearch').toLowerCase().trim();
+  const extinct = document.getElementById('mapShowExtinct').checked;
+  if (!extinct) langs = langs.filter(l=>!l.isExtinct&&l.unescoStatus!=='extinct');
+  if (search) langs = langs.filter(l=>l.name.toLowerCase().includes(search)||l.id.toLowerCase().includes(search)||(l.nativeName&&l.nativeName.toLowerCase().includes(search))||(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))));
+  if (q('mapFamily')) langs=langs.filter(l=>l.family===q('mapFamily'));
+  if (q('mapRegion')) langs=langs.filter(l=>l.macroRegion===q('mapRegion'));
+  if (q('mapWordOrder')) langs=langs.filter(l=>l.wordOrder===q('mapWordOrder'));
+  if (q('mapMorphType')) langs=langs.filter(l=>l.morphType===q('mapMorphType'));
+  if (q('mapEndangerment')) langs=langs.filter(l=>l.unescoStatus===q('mapEndangerment'));
+  if (q('mapTone')) langs=langs.filter(l=>l.toneSystem===q('mapTone'));
+  return langs;
+}
+
+function getMarkerColor(l) {
+  if (mapLayerMode==='family') return getFamilyHex(l.family);
+  if (mapLayerMode==='endangerment') return ({safe:'#34d399',vulnerable:'#fbbf24',definitely_endangered:'#fb923c',severely_endangered:'#f87171',critically_endangered:'#ef4444',extinct:'#52525b'})[l.unescoStatus]||'#71717a';
+  if (mapLayerMode==='wordorder') return ({SOV:'#60a5fa',SVO:'#34d399',VSO:'#fbbf24',VOS:'#f87171',OVS:'#a78bfa',OSV:'#fb923c'})[l.wordOrder]||'#71717a';
+  if (mapLayerMode==='morphology') return ({isolating:'#60a5fa',agglutinative:'#34d399',fusional:'#fbbf24',polysynthetic:'#f87171',introflexive:'#a78bfa'})[l.morphType]||'#71717a';
+  if (mapLayerMode==='tone') return ({none:'#71717a',simple:'#fbbf24',complex:'#f87171'})[l.toneSystem]||'#71717a';
+  return '#71717a';
+}
+
+function renderMapMarkers() {
+  mapMarkers.forEach(m=>leafletMap.removeLayer(m)); mapMarkers=[];
+  const langs=getMapFiltered();
+  document.getElementById('mapFilterCount').textContent=langs.length+' language'+(langs.length!==1?'s':'')+' shown';
+  langs.forEach(lang=>{
+    if (!lang.lat||!lang.lon) return;
+    const r=Math.max(4,Math.min(14,Math.log10(lang.totalSpeakers||lang.l1Speakers||1000)*2));
+    const col=getMarkerColor(lang);
+    const m=L.circleMarker([lang.lat,lang.lon],{radius:r,fillColor:col,color:col,weight:1,opacity:.85,fillOpacity:.5});
+    m.bindPopup(`<div class="map-popup">
+      <h3>${lang.name}</h3>
+      ${lang.nativeName&&lang.nativeName!==lang.name?`<div style="color:var(--ink-low);font-size:11px;margin-bottom:4px">${lang.nativeName}</div>`:''}
+      <div class="popup-family" style="color:${col}">${getFamilyName(lang.family)}</div>
+      <div class="popup-row"><span>ISO 639-3</span><span style="font-family:var(--font-mono)">${lang.id}</span></div>
+      <div class="popup-row"><span>L1 Speakers</span><span>${fmtNum(lang.l1Speakers||0)}</span></div>
+      <div class="popup-row"><span>Total Speakers</span><span>${fmtNum(lang.totalSpeakers||lang.l1Speakers||0)}</span></div>
+      <div class="popup-row"><span>Status</span><span>${lang.unescoStatus||'—'}</span></div>
+      <div class="popup-row"><span>Word Order</span><span>${lang.wordOrder||'—'}</span></div>
+      <div class="popup-row"><span>Morphology</span><span>${lang.morphType||'—'}</span></div>
+      <a class="popup-link" href="#" onclick="event.preventDefault();switchToView('explorer');showLangDetail('${lang.id}')">Full Profile →</a>
+    </div>`,{maxWidth:260});
+    m.addTo(leafletMap); mapMarkers.push(m);
   });
+}
 
-  // ─── KEYBOARD: Escape closes modals ───
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-    }
+function renderMapLegend() {
+  const lg=document.getElementById('mapLegend');
+  let rows=[];
+  if (mapLayerMode==='family') {
+    (typeof FAMILY_TREE!=='undefined'?Object.values(FAMILY_TREE):[]).slice(0,12).forEach(f=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${f.color}"></div>${f.name}</div>`));
+    rows.push(`<div class="legend-row"><div class="legend-dot" style="background:#71717a"></div>Other</div>`);
+  } else if (mapLayerMode==='endangerment') {
+    [['#34d399','Safe'],['#fbbf24','Vulnerable'],['#fb923c','Endangered'],['#f87171','Severely End.'],['#ef4444','Critical'],['#52525b','Extinct']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
+  } else if (mapLayerMode==='wordorder') {
+    [['#60a5fa','SOV'],['#34d399','SVO'],['#fbbf24','VSO'],['#f87171','VOS'],['#a78bfa','OVS'],['#fb923c','OSV']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
+  } else if (mapLayerMode==='morphology') {
+    [['#60a5fa','Isolating'],['#34d399','Agglutinative'],['#fbbf24','Fusional'],['#f87171','Polysynthetic']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
+  } else if (mapLayerMode==='tone') {
+    [['#71717a','No Tone'],['#fbbf24','Simple'],['#f87171','Complex']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
+  }
+  lg.innerHTML=`<div class="legend-title">${mapLayerMode.charAt(0).toUpperCase()+mapLayerMode.slice(1)}</div>${rows.join('')}`;
+}
+
+function setupMapEvents() {
+  ['mapSearch','mapFamily','mapRegion','mapWordOrder','mapMorphType','mapEndangerment','mapTone'].forEach(id=>{
+    document.getElementById(id).addEventListener(id==='mapSearch'?'input':'change',renderMapMarkers);
   });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MAP VIEW
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  let darkTiles, lightTiles;
-
-  function initMap() {
-    if (leafletMap) return;
-    leafletMap = L.map('mapContainer', { zoomControl: false, attributionControl: false }).setView([20, 0], 2);
-    L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
-    L.control.attribution({ position: 'bottomright', prefix: false }).addTo(leafletMap);
-
-    darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
+  document.getElementById('mapShowExtinct').addEventListener('change',renderMapMarkers);
+  document.querySelectorAll('.map-layer-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.map-layer-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active'); mapLayerMode=btn.dataset.layer;
+      renderMapMarkers(); renderMapLegend();
     });
-    lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
+  });
+}
+
+function resetMapFilters() {
+  ['mapSearch','mapFamily','mapRegion','mapWordOrder','mapMorphType','mapEndangerment','mapTone'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('mapShowExtinct').checked=false;
+  renderMapMarkers();
+}
+
+// ═══ EXPLORER ═══
+function initExplorer() {
+  const langs=getAllLangs();
+  const add=(id,arr,lFn)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lFn?lFn(v):v;s.appendChild(o)});};
+  add('explorerFamily',[...new Set(langs.map(l=>l.family))].sort(),getFamilyName);
+  add('explorerRegion',[...new Set(langs.map(l=>l.macroRegion).filter(Boolean))].sort());
+  const qf=['SVO','SOV','VSO','Tonal','Agglutinative','Fusional','Polysynthetic','Has Clicks','Has Ejectives'];
+  document.getElementById('explorerChips').innerHTML=qf.map(q=>`<button class="chip" onclick="toggleChip(this,'${q}')">${q}</button>`).join('');
+  ['explorerSearch','explorerFamily','explorerRegion','explorerEndanger'].forEach(id=>{
+    document.getElementById(id).addEventListener(id==='explorerSearch'?'input':'change',renderExplorerResults);
+  });
+  renderExplorerResults();
+}
+
+function toggleChip(el,f) {
+  el.classList.toggle('active');
+  if (el.classList.contains('active')) explorerActiveChips.push(f);
+  else explorerActiveChips=explorerActiveChips.filter(x=>x!==f);
+  renderExplorerResults();
+}
+
+function getExplorerFiltered() {
+  let langs=getAllLangs();
+  const q=id=>document.getElementById(id).value;
+  const search=q('explorerSearch').toLowerCase().trim();
+  if (search) langs=langs.filter(l=>l.name.toLowerCase().includes(search)||l.id.toLowerCase().includes(search)||(l.nativeName&&l.nativeName.toLowerCase().includes(search))||(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))));
+  if (q('explorerFamily')) langs=langs.filter(l=>l.family===q('explorerFamily'));
+  if (q('explorerRegion')) langs=langs.filter(l=>l.macroRegion===q('explorerRegion'));
+  if (q('explorerEndanger')) langs=langs.filter(l=>l.unescoStatus===q('explorerEndanger'));
+  explorerActiveChips.forEach(chip=>{
+    if (chip==='SVO') langs=langs.filter(l=>l.wordOrder==='SVO');
+    else if (chip==='SOV') langs=langs.filter(l=>l.wordOrder==='SOV');
+    else if (chip==='VSO') langs=langs.filter(l=>l.wordOrder==='VSO');
+    else if (chip==='Tonal') langs=langs.filter(l=>l.toneSystem&&l.toneSystem!=='none');
+    else if (chip==='Agglutinative') langs=langs.filter(l=>l.morphType==='agglutinative');
+    else if (chip==='Fusional') langs=langs.filter(l=>l.morphType==='fusional');
+    else if (chip==='Polysynthetic') langs=langs.filter(l=>l.morphType==='polysynthetic');
+    else if (chip==='Has Clicks') langs=langs.filter(l=>l.hasClicks);
+    else if (chip==='Has Ejectives') langs=langs.filter(l=>l.hasEjectives);
+  });
+  return langs;
+}
+
+function renderExplorerResults() {
+  const langs=getExplorerFiltered();
+  document.getElementById('explorerCount').textContent=langs.length+' language'+(langs.length!==1?'s':'')+' found';
+  const toShow=langs.slice(0,60);
+  document.getElementById('explorerResults').innerHTML=toShow.map(l=>`
+    <div class="lang-card" onclick="showLangDetail('${l.id}')" tabindex="0" role="button">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div><div class="lang-name">${l.name}</div>${l.nativeName&&l.nativeName!==l.name?`<div class="lang-native">${l.nativeName}</div>`:''}</div>
+        <span class="lang-iso">${l.id}</span>
+      </div>
+      <div class="lang-badges">
+        <span class="fam-tag" style="background:${getFamilyHex(l.family)}18;color:${getFamilyHex(l.family)}">${getFamilyName(l.family)}</span>
+        ${endangerBadge(l.unescoStatus)}
+      </div>
+      <div class="lang-foot"><span>${fmtNum(l.totalSpeakers||l.l1Speakers||0)} speakers</span><span>${l.wordOrder||'—'} · ${l.morphType||'—'}</span></div>
+    </div>
+  `).join('')+(langs.length>60?`<div style="text-align:center;padding:20px;color:var(--ink-low);font-size:13px;grid-column:1/-1">Showing 60 of ${langs.length} — refine search to see more</div>`:'');
+}
+
+function showLangDetail(langId) {
+  const lang=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[langId]:null;
+  if (!lang) return;
+  document.getElementById('explorerResults').style.display='none';
+  document.getElementById('explorerCount').style.display='none';
+  document.getElementById('explorerChips').style.display='none';
+  document.querySelector('.explorer-top').style.display='none';
+  const countries=(lang.countries||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c);
+  const officialIn=(lang.officialIn||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c);
+  const d=document.getElementById('explorerDetail');
+  d.style.display='block';
+  d.innerHTML=`<div class="detail-wrap">
+    <button class="detail-back" onclick="closeLangDetail()">← Back to results</button>
+    <div class="detail-name">${lang.name}</div>
+    ${lang.nativeName&&lang.nativeName!==lang.name?`<div class="detail-sub">${lang.nativeName}</div>`:''}
+    ${lang.alternateNames&&lang.alternateNames.length?`<div class="detail-alts">Also: ${lang.alternateNames.join(', ')}</div>`:''}
+    <div class="detail-tags">
+      <span class="fam-tag" style="background:${getFamilyHex(lang.family)}18;color:${getFamilyHex(lang.family)};padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">${getFamilyName(lang.family)}</span>
+      ${endangerBadge(lang.unescoStatus)}
+      ${lang.isUNLanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">UN Language</span>':''}
+      ${lang.isEULanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">EU Language</span>':''}
+    </div>
+    <div class="detail-sec"><div class="detail-sec-title">Classification</div><div class="detail-grid">
+      <div class="detail-field"><div class="detail-lbl">ISO 639-3</div><div class="detail-val" style="font-family:var(--font-mono)">${lang.id}</div></div>
+      ${lang.iso639_1?`<div class="detail-field"><div class="detail-lbl">ISO 639-1</div><div class="detail-val" style="font-family:var(--font-mono)">${lang.iso639_1}</div></div>`:''}
+      <div class="detail-field"><div class="detail-lbl">Family</div><div class="detail-val">${getFamilyName(lang.family)}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Branch</div><div class="detail-val">${lang.branch||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Sub-branch</div><div class="detail-val">${lang.subbranch||'—'}</div></div>
+    </div></div>
+    <div class="detail-sec"><div class="detail-sec-title">Demographics</div><div class="detail-grid">
+      <div class="detail-field"><div class="detail-lbl">L1 Speakers</div><div class="detail-val">${(lang.l1Speakers||0).toLocaleString()}</div></div>
+      <div class="detail-field"><div class="detail-lbl">L2 Speakers</div><div class="detail-val">${(lang.l2Speakers||0).toLocaleString()}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Total Speakers</div><div class="detail-val">${(lang.totalSpeakers||lang.l1Speakers||0).toLocaleString()}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Region</div><div class="detail-val">${lang.macroRegion||'—'}</div></div>
+    </div></div>
+    ${countries.length||officialIn.length?`<div class="detail-sec"><div class="detail-sec-title">Geography & Legal Status</div><div class="detail-grid">
+      ${countries.length?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-lbl">Countries</div><div class="detail-val">${countries.join(', ')}</div></div>`:''}
+      ${officialIn.length?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-lbl">Official In</div><div class="detail-val">${officialIn.join(', ')}</div></div>`:''}
+    </div></div>`:''}
+    <div class="detail-sec"><div class="detail-sec-title">Typological Features</div><div class="detail-grid">
+      <div class="detail-field"><div class="detail-lbl">Word Order</div><div class="detail-val">${lang.wordOrder||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Morphological Type</div><div class="detail-val">${lang.morphType||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Case Alignment</div><div class="detail-val">${(lang.caseAlignment||'—').replace(/_/g,'-')}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Case Count</div><div class="detail-val">${lang.caseCount??'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Tone System</div><div class="detail-val">${lang.toneSystem||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Gender System</div><div class="detail-val">${(lang.genderSystem||'—').replace(/_/g,' ')}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Evidentiality</div><div class="detail-val">${lang.evidentiality||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Vowel Harmony</div><div class="detail-val">${lang.hasVowelHarmony?'Yes':'No'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Clicks</div><div class="detail-val">${lang.hasClicks?'Yes':'No'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Ejectives</div><div class="detail-val">${lang.hasEjectives?'Yes':'No'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Nasal Vowels</div><div class="detail-val">${lang.hasNasalVowels?'Yes':'No'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Consonant Inventory</div><div class="detail-val">${lang.consonantInventory||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Vowel Inventory</div><div class="detail-val">${lang.vowelInventory||'—'}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Definiteness</div><div class="detail-val">${(lang.definiteness||'—').replace(/_/g,' ')}</div></div>
+      <div class="detail-field"><div class="detail-lbl">Negation</div><div class="detail-val">${(lang.negationType||'—').replace(/_/g,' ')}</div></div>
+    </div></div>
+    ${lang.scripts&&lang.scripts.length?`<div class="detail-sec"><div class="detail-sec-title">Writing Systems</div><div class="detail-grid">
+      ${lang.scripts.map(s=>`<div class="detail-field"><div class="detail-lbl">${s.name}${s.isPrimary?' (primary)':''}</div><div class="detail-val">${s.type} · ${s.direction.toUpperCase()}</div></div>`).join('')}
+    </div></div>`:''}
+  </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function closeLangDetail() {
+  document.getElementById('explorerDetail').style.display='none';
+  document.getElementById('explorerResults').style.display='';
+  document.getElementById('explorerCount').style.display='';
+  document.getElementById('explorerChips').style.display='';
+  document.querySelector('.explorer-top').style.display='';
+}
+
+// ═══ FAMILIES ═══
+function initFamilyTree() {
+  if (typeof FAMILY_TREE==='undefined') return;
+  const top5=Object.values(FAMILY_TREE).sort((a,b)=>(b.speakers||0)-(a.speakers||0)).slice(0,5);
+  document.getElementById('familyStats').innerHTML=top5.map(f=>`<div class="stat-cell"><div class="stat-val" style="color:${f.color};font-size:1.3rem">${fmtNum(f.speakers||0)}</div><div class="stat-lbl">${f.name}</div></div>`).join('');
+  renderFamilyTree();
+  document.getElementById('familySearch').addEventListener('input',renderFamilyTree);
+}
+
+function countBL(branches) {
+  let n=0; if (!branches) return 0;
+  Object.values(branches).forEach(b=>{if(b.languages)n+=b.languages.length;if(b.branches)n+=countBL(b.branches)});
+  return n;
+}
+
+function renderFamilyTree() {
+  const search=document.getElementById('familySearch').value.toLowerCase().trim();
+  document.getElementById('familyTree').innerHTML=Object.values(FAMILY_TREE).map(fam=>{
+    const lc=countBL(fam.branches);
+    if (search&&!fam.name.toLowerCase().includes(search)&&!bmatch(fam.branches,search)) return '';
+    return `<div class="tree-fam">
+      <div class="tree-fam-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chevron').classList.toggle('open')">
+        <div class="tree-fam-left"><div class="tree-dot" style="background:${fam.color}"></div>${fam.name}<span class="tree-chevron">▶</span></div>
+        <div class="tree-fam-stats"><span>${lc} langs</span><span>${fmtNum(fam.speakers||0)} speakers</span></div>
+      </div>
+      <div class="tree-body">${fam.branches?renderBranches(fam.branches,search):''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBranches(branches,search) {
+  return Object.values(branches).map(b=>{
+    const hasSub=b.branches&&Object.keys(b.branches).length>0;
+    const langs=b.languages||[];
+    if (search&&!b.name.toLowerCase().includes(search)&&!bmatch(b.branches,search)&&!langs.some(id=>{const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;return l&&l.name.toLowerCase().includes(search)})) return '';
+    return `<div class="tree-branch">
+      <div class="tree-branch-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chevron').classList.toggle('open')">
+        <span class="tree-chevron" style="font-size:9px;color:var(--ink-low)">▶</span>
+        ${b.name}
+        <span style="font-size:11px;color:var(--ink-dim);margin-left:auto">${hasSub?countBL(b.branches)+langs.length:langs.length}</span>
+      </div>
+      <div class="tree-sub-body">
+        ${hasSub?renderBranches(b.branches,search):''}
+        ${langs.map(id=>{
+          const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;
+          if (search&&l&&!l.name.toLowerCase().includes(search)) return '';
+          return `<div class="tree-lang" onclick="switchToView('explorer');showLangDetail('${id}')"><span>${l?l.name:id}</span><span class="tree-lang-iso">${id}</span></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function bmatch(branches,search) {
+  if (!branches) return false;
+  return Object.values(branches).some(b=>
+    b.name.toLowerCase().includes(search)||
+    (b.languages||[]).some(id=>{const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;return l&&l.name.toLowerCase().includes(search)})||
+    bmatch(b.branches,search)
+  );
+}
+
+// ═══ TOOLS ═══
+function initTools() {
+  document.querySelectorAll('.tool-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.tool-tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
+      document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+      document.getElementById('tool-'+tab.dataset.tool).classList.add('active');
     });
-
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    (isDark ? darkTiles : lightTiles).addTo(leafletMap);
-
-    populateMapFilters();
-    renderMapMarkers();
-    renderMapLegend();
-    setupMapEvents();
-
-    setTimeout(() => leafletMap.invalidateSize(), 100);
+  });
+  const langs=getAllLangs().filter(l=>!l.isExtinct).sort((a,b)=>a.name.localeCompare(b.name));
+  ['intelligibilityLang','similarityLang'].forEach(id=>{
+    const s=document.getElementById(id);
+    langs.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=`${l.name} [${l.id}]`;s.appendChild(o)});
+  });
+  if (typeof FAMILY_TREE!=='undefined') {
+    const s=document.getElementById('timelineFamily');
+    Object.values(FAMILY_TREE).forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.name;s.appendChild(o)});
   }
+  document.getElementById('intelligibilityLang').addEventListener('change',runIntelligibility);
+  document.getElementById('similarityLang').addEventListener('change',runSimilarity);
+  document.getElementById('timelineFamily').addEventListener('change',runTimeline);
+  initComparisonSlots(); runWorldStats(); runTimeline();
+}
 
-  function updateMapTiles() {
-    if (!leafletMap) return;
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    if (isDark) { leafletMap.removeLayer(lightTiles); darkTiles.addTo(leafletMap); }
-    else { leafletMap.removeLayer(darkTiles); lightTiles.addTo(leafletMap); }
-  }
+function runIntelligibility() {
+  const id=document.getElementById('intelligibilityLang').value;
+  const c=document.getElementById('intelligibilityResults');
+  if (!id){c.innerHTML='';return}
+  if (typeof INTELLIGIBILITY_EDGES==='undefined'){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
+  const edges=INTELLIGIBILITY_EDGES.filter(e=>e.source===id||e.target===id);
+  if (!edges.length){c.innerHTML='<p style="color:var(--ink-low)">No intelligibility data for this language.</p>';return}
+  const lang=LANGUAGE_DATABASE[id];
+  c.innerHTML=edges.map(e=>{
+    const othId=e.source===id?e.target:e.source;
+    const oth=LANGUAGE_DATABASE[othId]; if (!oth) return '';
+    const fwd=e.source===id?e.score:e.reverse;
+    const rev=e.source===id?e.reverse:e.score;
+    const col=fwd>=.8?'var(--safe)':fwd>=.6?'var(--vuln)':fwd>=.4?'var(--endanger)':'var(--severe)';
+    return `<div class="res-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><span style="font-weight:600;font-size:14px">${oth.name}</span><span style="font-family:var(--font-mono);font-size:10px;color:var(--ink-low);margin-left:8px">${othId}</span></div>
+        <span class="badge" style="background:${col}18;color:${col}">${e.category.replace(/_/g,' ')}</span>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:4px"><span>${lang.name} → ${oth.name}</span><span style="color:var(--ink)">${Math.round(fwd*100)}%</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${fwd*100}%;background:${col}"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:4px"><span>${oth.name} → ${lang.name}</span><span style="color:var(--ink)">${Math.round(rev*100)}%</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${rev*100}%;background:${col}"></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--ink-low);margin-top:8px">Modality: ${e.modality||'spoken'}</div>
+    </div>`;
+  }).join('');
+}
 
-  function populateMapFilters() {
-    const langs = getAllLanguages();
-    const families = [...new Set(langs.map(l => l.family))].sort();
-    const regions = [...new Set(langs.map(l => l.macroRegion).filter(Boolean))].sort();
-    const wordOrders = [...new Set(langs.map(l => l.wordOrder).filter(Boolean))].sort();
-    const morphTypes = [...new Set(langs.map(l => l.morphType).filter(Boolean))].sort();
-    const tones = [...new Set(langs.map(l => l.toneSystem).filter(Boolean))].sort();
-
-    const famSel = document.getElementById('mapFamily');
-    families.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = getFamilyName(f); famSel.appendChild(o); });
-    const regSel = document.getElementById('mapRegion');
-    regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; regSel.appendChild(o); });
-    const woSel = document.getElementById('mapWordOrder');
-    wordOrders.forEach(w => { const o = document.createElement('option'); o.value = w; o.textContent = w; woSel.appendChild(o); });
-    const mtSel = document.getElementById('mapMorphType');
-    morphTypes.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; mtSel.appendChild(o); });
-    const tnSel = document.getElementById('mapTone');
-    tones.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; tnSel.appendChild(o); });
-  }
-
-  function getFilteredLanguages() {
-    let langs = getAllLanguages();
-    const search = document.getElementById('mapSearch').value.toLowerCase().trim();
-    const family = document.getElementById('mapFamily').value;
-    const region = document.getElementById('mapRegion').value;
-    const wordOrder = document.getElementById('mapWordOrder').value;
-    const morphType = document.getElementById('mapMorphType').value;
-    const endanger = document.getElementById('mapEndangerment').value;
-    const tone = document.getElementById('mapTone').value;
-    const showExtinct = document.getElementById('mapShowExtinct').checked;
-
-    if (!showExtinct) langs = langs.filter(l => !l.isExtinct && l.unescoStatus !== 'extinct');
-    if (search) langs = langs.filter(l =>
-      l.name.toLowerCase().includes(search) ||
-      l.id.toLowerCase().includes(search) ||
-      (l.nativeName && l.nativeName.toLowerCase().includes(search)) ||
-      (l.alternateNames && l.alternateNames.some(a => a.toLowerCase().includes(search)))
-    );
-    if (family) langs = langs.filter(l => l.family === family);
-    if (region) langs = langs.filter(l => l.macroRegion === region);
-    if (wordOrder) langs = langs.filter(l => l.wordOrder === wordOrder);
-    if (morphType) langs = langs.filter(l => l.morphType === morphType);
-    if (endanger) langs = langs.filter(l => l.unescoStatus === endanger);
-    if (tone) langs = langs.filter(l => l.toneSystem === tone);
-
-    return langs;
-  }
-
-  function getMarkerColor(lang) {
-    if (mapLayerMode === 'family') return getFamilyHex(lang.family);
-    if (mapLayerMode === 'endangerment') {
-      const m = { safe:'#34d399', vulnerable:'#fbbf24', definitely_endangered:'#fb923c', severely_endangered:'#f87171', critically_endangered:'#ef4444', extinct:'#6b7280' };
-      return m[lang.unescoStatus] || '#94a3b8';
-    }
-    if (mapLayerMode === 'wordorder') {
-      const m = { SOV:'#60a5fa', SVO:'#34d399', VSO:'#fbbf24', VOS:'#f87171', OVS:'#a78bfa', OSV:'#fb923c' };
-      return m[lang.wordOrder] || '#94a3b8';
-    }
-    if (mapLayerMode === 'morphology') {
-      const m = { isolating:'#60a5fa', agglutinative:'#34d399', fusional:'#fbbf24', polysynthetic:'#f87171', introflexive:'#a78bfa' };
-      return m[lang.morphType] || '#94a3b8';
-    }
-    if (mapLayerMode === 'tone') {
-      const m = { none:'#94a3b8', simple:'#fbbf24', complex:'#f87171' };
-      return m[lang.toneSystem] || '#94a3b8';
-    }
-    return '#94a3b8';
-  }
-
-  function renderMapMarkers() {
-    mapMarkers.forEach(m => leafletMap.removeLayer(m));
-    mapMarkers = [];
-    const langs = getFilteredLanguages();
-    const count = document.getElementById('mapFilterCount');
-    count.textContent = `${langs.length} language${langs.length !== 1 ? 's' : ''} shown`;
-
-    langs.forEach(lang => {
-      if (!lang.lat || !lang.lon) return;
-      const radius = Math.max(4, Math.min(14, Math.log10(lang.totalSpeakers || lang.l1Speakers || 1000) * 2));
-      const color = getMarkerColor(lang);
-      const marker = L.circleMarker([lang.lat, lang.lon], {
-        radius, fillColor: color, color: color, weight: 1, opacity: 0.8, fillOpacity: 0.5
-      });
-      marker.bindPopup(`
-        <div class="map-popup">
-          <h3>${lang.name}</h3>
-          ${lang.nativeName && lang.nativeName !== lang.name ? `<div style="color:var(--parchment-mid); font-size:12px; margin-bottom:4px;">${lang.nativeName}</div>` : ''}
-          <div class="popup-family" style="color:${color}">${getFamilyName(lang.family)}</div>
-          <div class="popup-stat"><span>ISO 639-3</span><span style="font-family:var(--font-mono)">${lang.id}</span></div>
-          <div class="popup-stat"><span>L1 Speakers</span><span>${fmtNum(lang.l1Speakers || 0)}</span></div>
-          <div class="popup-stat"><span>Total Speakers</span><span>${fmtNum(lang.totalSpeakers || lang.l1Speakers || 0)}</span></div>
-          <div class="popup-stat"><span>Status</span><span>${lang.unescoStatus || 'unknown'}</span></div>
-          <div class="popup-stat"><span>Word Order</span><span>${lang.wordOrder || '—'}</span></div>
-          <div class="popup-stat"><span>Morphology</span><span>${lang.morphType || '—'}</span></div>
-          <div style="margin-top:8px;"><a href="#" onclick="event.preventDefault();switchToView('explorer');showLangDetail('${lang.id}')" style="color:var(--lapis-text); font-size:12px; font-weight:600;">View Full Profile →</a></div>
+function runSimilarity() {
+  const id=document.getElementById('similarityLang').value;
+  const c=document.getElementById('similarityResults');
+  if (!id){c.innerHTML='';return}
+  const lang=LANGUAGE_DATABASE[id];
+  const features=[{key:'wordOrder',w:15},{key:'morphType',w:15},{key:'caseAlignment',w:12},{key:'toneSystem',w:10},{key:'genderSystem',w:8},{key:'evidentiality',w:7},{key:'consonantInventory',w:5},{key:'vowelInventory',w:5},{key:'definiteness',w:5},{key:'negationType',w:5}];
+  const bools=[{key:'hasVowelHarmony',w:5},{key:'hasClicks',w:3},{key:'hasEjectives',w:3},{key:'hasNasalVowels',w:2}];
+  const scores=getAllLangs().filter(l=>l.id!==id&&!l.isExtinct).map(oth=>{
+    let sc=0,tot=0;
+    features.forEach(f=>{if(lang[f.key]&&oth[f.key]){tot+=f.w;if(lang[f.key]===oth[f.key])sc+=f.w}});
+    bools.forEach(f=>{tot+=f.w;if(lang[f.key]===oth[f.key])sc+=f.w});
+    if(lang.caseCount!=null&&oth.caseCount!=null){tot+=8;const d=Math.abs(lang.caseCount-oth.caseCount);if(d===0)sc+=8;else if(d<=2)sc+=5;else if(d<=5)sc+=2}
+    return {lang:oth,score:tot>0?sc/tot:0};
+  }).sort((a,b)=>b.score-a.score).slice(0,20);
+  c.innerHTML=`<div style="margin-bottom:14px;font-size:13px;color:var(--ink-mid)">Most grammatically similar to <strong style="color:var(--ink)">${lang.name}</strong></div>`+
+  scores.map((item,i)=>{
+    const col=item.score>=.8?'var(--safe)':item.score>=.6?'var(--cyan)':item.score>=.4?'var(--vuln)':'var(--ink-low)';
+    return `<div class="res-card" style="display:flex;align-items:center;gap:12px">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-dim);width:20px;text-align:right">${i+1}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-weight:600;font-size:13px">${item.lang.name}</span>
+          <span class="fam-tag" style="background:${getFamilyHex(item.lang.family)}18;color:${getFamilyHex(item.lang.family)};padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">${getFamilyName(item.lang.family)}</span>
         </div>
-      `, { maxWidth: 280 });
-      marker.addTo(leafletMap);
-      mapMarkers.push(marker);
-    });
-  }
-
-  function renderMapLegend() {
-    const legend = document.getElementById('mapLegend');
-    let items = [];
-    if (mapLayerMode === 'family') {
-      const families = typeof FAMILY_TREE !== 'undefined' ? Object.values(FAMILY_TREE) : [];
-      families.slice(0, 12).forEach(f => { items.push(`<div class="map-legend-item"><div class="map-legend-dot" style="background:${f.color}"></div>${f.name}</div>`); });
-      items.push(`<div class="map-legend-item"><div class="map-legend-dot" style="background:#94a3b8"></div>Other</div>`);
-    } else if (mapLayerMode === 'endangerment') {
-      items = [
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#34d399"></div>Safe</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fbbf24"></div>Vulnerable</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fb923c"></div>Endangered</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#f87171"></div>Severely Endangered</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#ef4444"></div>Critically Endangered</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#6b7280"></div>Extinct</div>`
-      ];
-    } else if (mapLayerMode === 'wordorder') {
-      items = [
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#60a5fa"></div>SOV</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#34d399"></div>SVO</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fbbf24"></div>VSO</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#f87171"></div>VOS</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#a78bfa"></div>OVS</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fb923c"></div>OSV</div>`
-      ];
-    } else if (mapLayerMode === 'morphology') {
-      items = [
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#60a5fa"></div>Isolating</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#34d399"></div>Agglutinative</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fbbf24"></div>Fusional</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#f87171"></div>Polysynthetic</div>`
-      ];
-    } else if (mapLayerMode === 'tone') {
-      items = [
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#94a3b8"></div>None</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#fbbf24"></div>Simple</div>`,
-        `<div class="map-legend-item"><div class="map-legend-dot" style="background:#f87171"></div>Complex</div>`
-      ];
-    }
-    legend.innerHTML = `<div class="map-legend-title">${mapLayerMode.charAt(0).toUpperCase() + mapLayerMode.slice(1)}</div>${items.join('')}`;
-  }
-
-  function setupMapEvents() {
-    document.getElementById('mapSidebarToggle').addEventListener('click', () => {
-      document.getElementById('mapSidebar').classList.toggle('collapsed');
-      setTimeout(() => leafletMap.invalidateSize(), 300);
-    });
-    ['mapSearch','mapFamily','mapRegion','mapWordOrder','mapMorphType','mapEndangerment','mapTone'].forEach(id => {
-      document.getElementById(id).addEventListener(id === 'mapSearch' ? 'input' : 'change', renderMapMarkers);
-    });
-    document.getElementById('mapShowExtinct').addEventListener('change', renderMapMarkers);
-    document.querySelectorAll('.map-layer-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.map-layer-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        mapLayerMode = btn.dataset.layer;
-        renderMapMarkers();
-        renderMapLegend();
-      });
-    });
-  }
-
-  function resetMapFilters() {
-    document.getElementById('mapSearch').value = '';
-    document.getElementById('mapFamily').value = '';
-    document.getElementById('mapRegion').value = '';
-    document.getElementById('mapWordOrder').value = '';
-    document.getElementById('mapMorphType').value = '';
-    document.getElementById('mapEndangerment').value = '';
-    document.getElementById('mapTone').value = '';
-    document.getElementById('mapShowExtinct').checked = false;
-    renderMapMarkers();
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // EXPLORER VIEW
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  function initExplorer() {
-    populateExplorerFilters();
-    renderExplorerResults();
-    setupExplorerEvents();
-  }
-
-  function populateExplorerFilters() {
-    const langs = getAllLanguages();
-    const families = [...new Set(langs.map(l => l.family))].sort();
-    const regions = [...new Set(langs.map(l => l.macroRegion).filter(Boolean))].sort();
-    const famSel = document.getElementById('explorerFamily');
-    families.forEach(f => { const o = document.createElement('option'); o.value = f; o.textContent = getFamilyName(f); famSel.appendChild(o); });
-    const regSel = document.getElementById('explorerRegion');
-    regions.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; regSel.appendChild(o); });
-
-    const chips = document.getElementById('explorerChips');
-    const quickFilters = ['SVO', 'SOV', 'VSO', 'Tonal', 'Agglutinative', 'Fusional', 'Polysynthetic', 'Has Clicks', 'Has Ejectives'];
-    chips.innerHTML = quickFilters.map(q => `<button class="chip" role="checkbox" aria-checked="false" onclick="toggleExplorerChip(this, '${q}')">${q}</button>`).join('');
-  }
-
-  let explorerActiveChips = [];
-  function toggleExplorerChip(el, filter) {
-    el.classList.toggle('active');
-    const isActive = el.classList.contains('active');
-    el.setAttribute('aria-checked', isActive);
-    if (isActive) explorerActiveChips.push(filter);
-    else explorerActiveChips = explorerActiveChips.filter(f => f !== filter);
-    renderExplorerResults();
-  }
-
-  function getExplorerFiltered() {
-    let langs = getAllLanguages();
-    const search = document.getElementById('explorerSearch').value.toLowerCase().trim();
-    const family = document.getElementById('explorerFamily').value;
-    const region = document.getElementById('explorerRegion').value;
-    const endanger = document.getElementById('explorerEndanger').value;
-
-    if (search) langs = langs.filter(l =>
-      l.name.toLowerCase().includes(search) || l.id.toLowerCase().includes(search) ||
-      (l.nativeName && l.nativeName.toLowerCase().includes(search)) ||
-      (l.alternateNames && l.alternateNames.some(a => a.toLowerCase().includes(search)))
-    );
-    if (family) langs = langs.filter(l => l.family === family);
-    if (region) langs = langs.filter(l => l.macroRegion === region);
-    if (endanger) langs = langs.filter(l => l.unescoStatus === endanger);
-
-    explorerActiveChips.forEach(chip => {
-      if (chip === 'SVO') langs = langs.filter(l => l.wordOrder === 'SVO');
-      else if (chip === 'SOV') langs = langs.filter(l => l.wordOrder === 'SOV');
-      else if (chip === 'VSO') langs = langs.filter(l => l.wordOrder === 'VSO');
-      else if (chip === 'Tonal') langs = langs.filter(l => l.toneSystem && l.toneSystem !== 'none');
-      else if (chip === 'Agglutinative') langs = langs.filter(l => l.morphType === 'agglutinative');
-      else if (chip === 'Fusional') langs = langs.filter(l => l.morphType === 'fusional');
-      else if (chip === 'Polysynthetic') langs = langs.filter(l => l.morphType === 'polysynthetic');
-      else if (chip === 'Has Clicks') langs = langs.filter(l => l.hasClicks);
-      else if (chip === 'Has Ejectives') langs = langs.filter(l => l.hasEjectives);
-    });
-
-    return langs;
-  }
-
-  function renderExplorerResults() {
-    const langs = getExplorerFiltered();
-    document.getElementById('explorerCount').textContent = `${langs.length} language${langs.length !== 1 ? 's' : ''} found`;
-    const container = document.getElementById('explorerResults');
-    const toShow = langs.slice(0, 60);
-    container.innerHTML = toShow.map(l => `
-      <div class="lang-card" onclick="showLangDetail('${l.id}')" tabindex="0" role="button" aria-label="View ${l.name} details">
-        <div class="lang-card-header">
-          <div>
-            <div class="lang-card-name">${l.name}</div>
-            ${l.nativeName && l.nativeName !== l.name ? `<div class="lang-card-native">${l.nativeName}</div>` : ''}
-          </div>
-          <div class="lang-card-iso">${l.id}</div>
-        </div>
-        <div class="lang-card-meta">
-          <span class="family-badge" style="background:${getFamilyHex(l.family)}22; color:${getFamilyHex(l.family)}">${getFamilyName(l.family)}</span>
-          ${endangerBadge(l.unescoStatus)}
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:var(--space-sm); font-size:var(--text-xs); color:var(--parchment-muted);">
-          <span>${fmtNum(l.totalSpeakers || l.l1Speakers || 0)} speakers</span>
-          <span>${l.wordOrder || '—'} · ${l.morphType || '—'}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="bar-wrap"><div class="bar-fill" style="width:${item.score*100}%;background:${col}"></div></div>
+          <span style="font-size:11px;color:${col};white-space:nowrap">${Math.round(item.score*100)}%</span>
         </div>
       </div>
-    `).join('');
-    if (langs.length > 60) container.innerHTML += `<div style="text-align:center; padding:var(--space-lg); color:var(--parchment-muted); font-size:var(--text-small);">Showing 60 of ${langs.length} — refine your search to see more</div>`;
-  }
+    </div>`;
+  }).join('');
+}
 
-  function setupExplorerEvents() {
-    document.getElementById('explorerSearch').addEventListener('input', renderExplorerResults);
-    document.getElementById('explorerFamily').addEventListener('change', renderExplorerResults);
-    document.getElementById('explorerRegion').addEventListener('change', renderExplorerResults);
-    document.getElementById('explorerEndanger').addEventListener('change', renderExplorerResults);
-  }
+function initComparisonSlots() { comparisonSlots=[]; addComparisonSlot(); addComparisonSlot(); }
 
-  function showLangDetail(langId) {
-    const lang = LANGUAGE_DATABASE[langId];
-    if (!lang) return;
-    const container = document.getElementById('explorerDetail');
-    container.style.display = 'block';
-    document.getElementById('explorerResults').style.display = 'none';
-    document.querySelector('.explorer-controls').style.display = 'none';
-    document.getElementById('explorerChips').style.display = 'none';
-    document.getElementById('explorerCount').style.display = 'none';
+function addComparisonSlot() {
+  if (comparisonSlots.length>=5) return;
+  const idx=comparisonSlots.length; comparisonSlots.push('');
+  const div=document.createElement('div'); div.style.minWidth='170px';
+  div.innerHTML=`<div class="field-label">Language ${idx+1}</div><select class="sel" id="comp-${idx}" onchange="comparisonSlots[${idx}]=this.value;renderComparison()"><option value="">Select…</option></select>`;
+  document.getElementById('comparisonSelectors').appendChild(div);
+  const s=div.querySelector('select');
+  getAllLangs().filter(l=>!l.isExtinct).sort((a,b)=>a.name.localeCompare(b.name)).forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name;s.appendChild(o)});
+  if (comparisonSlots.length>=5) document.getElementById('addCompBtn').style.display='none';
+}
 
-    const countries = (lang.countries || []).map(c => {
-      if (typeof COUNTRY_DATA !== 'undefined' && COUNTRY_DATA[c]) return COUNTRY_DATA[c].name;
-      return c;
-    });
-    const officialIn = (lang.officialIn || []).map(c => {
-      if (typeof COUNTRY_DATA !== 'undefined' && COUNTRY_DATA[c]) return COUNTRY_DATA[c].name;
-      return c;
-    });
+function renderComparison() {
+  const sel=comparisonSlots.filter(s=>s).map(id=>LANGUAGE_DATABASE[id]).filter(Boolean);
+  const c=document.getElementById('comparisonResults');
+  if (sel.length<2){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">Select at least 2 languages to compare.</p>';return}
+  const features=[
+    {key:'family',lbl:'Family',fmt:v=>getFamilyName(v)},
+    {key:'wordOrder',lbl:'Word Order'},{key:'morphType',lbl:'Morphological Type'},
+    {key:'caseAlignment',lbl:'Case Alignment',fmt:v=>(v||'—').replace(/_/g,'-')},
+    {key:'caseCount',lbl:'Case Count'},{key:'toneSystem',lbl:'Tone System'},
+    {key:'genderSystem',lbl:'Gender System',fmt:v=>(v||'—').replace(/_/g,' ')},
+    {key:'genderCount',lbl:'Gender Count'},{key:'evidentiality',lbl:'Evidentiality'},
+    {key:'hasVowelHarmony',lbl:'Vowel Harmony',fmt:v=>v?'Yes':'No'},
+    {key:'hasClicks',lbl:'Clicks',fmt:v=>v?'Yes':'No'},{key:'hasEjectives',lbl:'Ejectives',fmt:v=>v?'Yes':'No'},
+    {key:'consonantInventory',lbl:'Consonant Inventory'},{key:'vowelInventory',lbl:'Vowel Inventory'},
+    {key:'definiteness',lbl:'Definiteness',fmt:v=>(v||'—').replace(/_/g,' ')},
+    {key:'negationType',lbl:'Negation',fmt:v=>(v||'—').replace(/_/g,' ')},
+    {key:'l1Speakers',lbl:'L1 Speakers',fmt:v=>fmtNum(v||0)},{key:'totalSpeakers',lbl:'Total Speakers',fmt:v=>fmtNum(v||0)},
+    {key:'unescoStatus',lbl:'Endangerment',fmt:v=>(v||'—').replace(/_/g,' ')}
+  ];
+  c.innerHTML=`<div class="tbl-scroll"><table class="comp-table"><thead><tr><th>Feature</th>${sel.map(l=>`<th>${l.name}</th>`).join('')}</tr></thead><tbody>
+    ${features.map(f=>{const vals=sel.map(l=>f.fmt?f.fmt(l[f.key]):(l[f.key]??'—'));const same=vals.every(v=>v===vals[0])&&vals[0]!=='—';return `<tr${same?' class="match"':''}><td>${f.lbl}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;}).join('')}
+  </tbody></table></div>`;
+}
 
-    container.innerHTML = `
-      <button class="btn btn-secondary btn-sm" onclick="closeLangDetail()" style="margin-bottom:var(--space-lg);">← Back to Results</button>
-      <div class="detail-panel">
-        <div class="detail-header">
-          <div>
-            <div class="detail-name">${lang.name}</div>
-            ${lang.nativeName && lang.nativeName !== lang.name ? `<div class="detail-native">${lang.nativeName}</div>` : ''}
-            ${lang.alternateNames && lang.alternateNames.length > 0 ? `<div style="font-size:var(--text-xs); color:var(--parchment-muted); margin-top:4px;">Also: ${lang.alternateNames.join(', ')}</div>` : ''}
-          </div>
-          <div style="text-align:right;">
-            <span class="family-badge" style="background:${getFamilyHex(lang.family)}22; color:${getFamilyHex(lang.family)}; font-size:var(--text-small);">${getFamilyName(lang.family)}</span>
-            <div style="margin-top:var(--space-sm);">${endangerBadge(lang.unescoStatus)}</div>
-          </div>
-        </div>
+function runTimeline() {
+  const fam=document.getElementById('timelineFamily').value;
+  const c=document.getElementById('timelineResults');
+  let langs=getAllLangs().filter(l=>l.isExtinct||l.unescoStatus==='extinct');
+  if (fam) langs=langs.filter(l=>l.family===fam);
+  langs.sort((a,b)=>(b.extinctionDate||0)-(a.extinctionDate||0));
+  if (!langs.length){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">No extinct languages for this filter.</p>';return}
+  c.innerHTML=`<div style="margin-bottom:14px;font-size:12px;color:var(--ink-low)">${langs.length} extinct language${langs.length!==1?'s':''}</div>
+  <div class="timeline">${langs.slice(0,40).map(l=>`
+    <div class="tl-item"><div class="tl-dot" style="background:${getFamilyHex(l.family)}"></div>
+    <div class="tl-period">${l.extinctionDate?`~${l.extinctionDate}`:'Date unknown'}</div>
+    <div class="tl-name">${l.name}</div>
+    <div class="tl-meta">${getFamilyName(l.family)} · ${l.region||l.macroRegion||'—'}</div></div>
+  `).join('')}</div>${langs.length>40?`<div style="color:var(--ink-low);font-size:12px;margin-top:12px">Showing 40 of ${langs.length}</div>`:''}`;
+}
 
-        <div class="detail-section">
-          <h3 class="detail-section-title">Classification</h3>
-          <div class="detail-grid">
-            <div class="detail-field"><div class="detail-label">ISO 639-3</div><div class="detail-value" style="font-family:var(--font-mono)">${lang.id}</div></div>
-            ${lang.iso639_1 ? `<div class="detail-field"><div class="detail-label">ISO 639-1</div><div class="detail-value" style="font-family:var(--font-mono)">${lang.iso639_1}</div></div>` : ''}
-            <div class="detail-field"><div class="detail-label">Family</div><div class="detail-value">${getFamilyName(lang.family)}</div></div>
-            <div class="detail-field"><div class="detail-label">Branch</div><div class="detail-value">${lang.branch || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Sub-branch</div><div class="detail-value">${lang.subbranch || '—'}</div></div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="detail-section-title">Demographics</h3>
-          <div class="detail-grid">
-            <div class="detail-field"><div class="detail-label">L1 Speakers</div><div class="detail-value">${(lang.l1Speakers || 0).toLocaleString()}</div></div>
-            <div class="detail-field"><div class="detail-label">L2 Speakers</div><div class="detail-value">${(lang.l2Speakers || 0).toLocaleString()}</div></div>
-            <div class="detail-field"><div class="detail-label">Total Speakers</div><div class="detail-value">${(lang.totalSpeakers || lang.l1Speakers || 0).toLocaleString()}</div></div>
-            <div class="detail-field"><div class="detail-label">Region</div><div class="detail-value">${lang.macroRegion || '—'}</div></div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="detail-section-title">Geography & Legal Status</h3>
-          <div class="detail-grid">
-            <div class="detail-field"><div class="detail-label">Countries</div><div class="detail-value">${countries.join(', ') || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Official In</div><div class="detail-value">${officialIn.join(', ') || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">UN Language</div><div class="detail-value">${lang.isUNLanguage ? 'Yes' : 'No'}</div></div>
-            <div class="detail-field"><div class="detail-label">EU Language</div><div class="detail-value">${lang.isEULanguage ? 'Yes' : 'No'}</div></div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="detail-section-title">Typological Features</h3>
-          <div class="detail-grid">
-            <div class="detail-field"><div class="detail-label">Word Order</div><div class="detail-value">${lang.wordOrder || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Morphological Type</div><div class="detail-value">${lang.morphType || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Case Alignment</div><div class="detail-value">${(lang.caseAlignment || '—').replace(/_/g, '-')}</div></div>
-            <div class="detail-field"><div class="detail-label">Case Count</div><div class="detail-value">${lang.caseCount ?? '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Tone System</div><div class="detail-value">${lang.toneSystem || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Gender System</div><div class="detail-value">${(lang.genderSystem || '—').replace(/_/g, ' ')}</div></div>
-            <div class="detail-field"><div class="detail-label">Evidentiality</div><div class="detail-value">${lang.evidentiality || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Vowel Harmony</div><div class="detail-value">${lang.hasVowelHarmony ? 'Yes' : 'No'}</div></div>
-            <div class="detail-field"><div class="detail-label">Clicks</div><div class="detail-value">${lang.hasClicks ? 'Yes' : 'No'}</div></div>
-            <div class="detail-field"><div class="detail-label">Ejectives</div><div class="detail-value">${lang.hasEjectives ? 'Yes' : 'No'}</div></div>
-            <div class="detail-field"><div class="detail-label">Nasal Vowels</div><div class="detail-value">${lang.hasNasalVowels ? 'Yes' : 'No'}</div></div>
-            <div class="detail-field"><div class="detail-label">Consonant Inventory</div><div class="detail-value">${lang.consonantInventory || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Vowel Inventory</div><div class="detail-value">${lang.vowelInventory || '—'}</div></div>
-            <div class="detail-field"><div class="detail-label">Definiteness</div><div class="detail-value">${(lang.definiteness || '—').replace(/_/g, ' ')}</div></div>
-            <div class="detail-field"><div class="detail-label">Negation</div><div class="detail-value">${(lang.negationType || '—').replace(/_/g, ' ')}</div></div>
-          </div>
-        </div>
-
-        ${lang.scripts && lang.scripts.length > 0 ? `
-        <div class="detail-section">
-          <h3 class="detail-section-title">Writing Systems</h3>
-          <div class="detail-grid">
-            ${lang.scripts.map(s => `
-              <div class="detail-field">
-                <div class="detail-label">${s.name}${s.isPrimary ? ' (primary)' : ''}</div>
-                <div class="detail-value">${s.type} · ${s.direction.toUpperCase()}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        ` : ''}
-      </div>
-    `;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function closeLangDetail() {
-    document.getElementById('explorerDetail').style.display = 'none';
-    document.getElementById('explorerResults').style.display = '';
-    document.querySelector('.explorer-controls').style.display = '';
-    document.getElementById('explorerChips').style.display = '';
-    document.getElementById('explorerCount').style.display = '';
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // FAMILY TREE VIEW
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  function initFamilyTree() {
-    if (typeof FAMILY_TREE === 'undefined') return;
-    renderFamilyStats();
-    renderFamilyTree();
-    document.getElementById('familySearch').addEventListener('input', renderFamilyTree);
-  }
-
-  function renderFamilyStats() {
-    const families = Object.values(FAMILY_TREE);
-    const container = document.getElementById('familyStats');
-    const top5 = families.sort((a, b) => (b.speakers || 0) - (a.speakers || 0)).slice(0, 5);
-    container.innerHTML = top5.map(f => `
-      <div class="stat-item">
-        <div class="stat-value" style="color:${f.color}">${fmtNum(f.speakers || 0)}</div>
-        <div class="stat-label">${f.name}</div>
-      </div>
-    `).join('');
-  }
-
-  function countFamilyLanguages(branches) {
-    let count = 0;
-    if (!branches) return 0;
-    Object.values(branches).forEach(b => {
-      if (b.languages) count += b.languages.length;
-      if (b.branches) count += countFamilyLanguages(b.branches);
-    });
-    return count;
-  }
-
-  function renderFamilyTree() {
-    const container = document.getElementById('familyTree');
-    const search = document.getElementById('familySearch').value.toLowerCase().trim();
-    const families = Object.values(FAMILY_TREE);
-
-    container.innerHTML = families.map(family => {
-      const langCount = countFamilyLanguages(family.branches);
-      if (search && !family.name.toLowerCase().includes(search) && !matchesSearch(family.branches, search)) return '';
-      return `
-        <div class="tree-family">
-          <div class="tree-family-header" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.tree-chevron').classList.toggle('open')">
-            <div class="tree-family-name">
-              <div class="tree-family-dot" style="background:${family.color}"></div>
-              ${family.name}
-              <span class="tree-chevron">▶</span>
-            </div>
-            <div class="tree-family-stats">
-              <span>${langCount} languages</span>
-              <span>${fmtNum(family.speakers || 0)} speakers</span>
-            </div>
-          </div>
-          <div class="tree-children">
-            ${family.branches ? renderBranches(family.branches, search) : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderBranches(branches, search) {
-    return Object.values(branches).map(branch => {
-      if (search && !branch.name.toLowerCase().includes(search) && !matchesSearch(branch.branches, search) && !(branch.languages || []).some(id => {
-        const l = LANGUAGE_DATABASE[id];
-        return l && l.name.toLowerCase().includes(search);
-      })) return '';
-
-      const hasSubBranches = branch.branches && Object.keys(branch.branches).length > 0;
-      const langs = branch.languages || [];
-
-      return `
-        <div class="tree-branch">
-          <div class="tree-branch-header" onclick="this.nextElementSibling.classList.toggle('open'); this.querySelector('.tree-chevron').classList.toggle('open')">
-            <span class="tree-chevron">▶</span>
-            ${branch.name}
-            <span style="font-size:var(--text-xs); color:var(--parchment-faint); margin-left:auto;">${hasSubBranches ? countFamilyLanguages(branch.branches) + langs.length : langs.length}</span>
-          </div>
-          <div class="tree-children">
-            ${hasSubBranches ? renderBranches(branch.branches, search) : ''}
-            ${langs.map(id => {
-              const l = typeof LANGUAGE_DATABASE !== 'undefined' ? LANGUAGE_DATABASE[id] : null;
-              if (search && l && !l.name.toLowerCase().includes(search)) return '';
-              return `<div class="tree-language" onclick="switchToView('explorer'); showLangDetail('${id}')">
-                <span>${l ? l.name : id}</span>
-                <span class="tree-language-iso">${id}</span>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function matchesSearch(branches, search) {
-    if (!branches) return false;
-    return Object.values(branches).some(b => {
-      if (b.name.toLowerCase().includes(search)) return true;
-      if (b.languages && b.languages.some(id => {
-        const l = typeof LANGUAGE_DATABASE !== 'undefined' ? LANGUAGE_DATABASE[id] : null;
-        return l && l.name.toLowerCase().includes(search);
-      })) return true;
-      return matchesSearch(b.branches, search);
-    });
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TOOLS VIEW
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  function initTools() {
-    setupToolTabs();
-    populateToolSelectors();
-    setupToolEvents();
-    initComparisonSlots();
-  }
-
-  function setupToolTabs() {
-    document.querySelectorAll('.tool-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tool-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
-        document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
-        document.getElementById('tool-' + tab.dataset.tool).classList.add('active');
-      });
-    });
-  }
-
-  function populateToolSelectors() {
-    const langs = getAllLanguages().filter(l => !l.isExtinct).sort((a, b) => a.name.localeCompare(b.name));
-    ['intelligibilityLang', 'similarityLang'].forEach(id => {
-      const sel = document.getElementById(id);
-      langs.forEach(l => { const o = document.createElement('option'); o.value = l.id; o.textContent = `${l.name} [${l.id}]`; sel.appendChild(o); });
-    });
-    const tfSel = document.getElementById('timelineFamily');
-    if (typeof FAMILY_TREE !== 'undefined') {
-      Object.values(FAMILY_TREE).forEach(f => { const o = document.createElement('option'); o.value = f.id; o.textContent = f.name; tfSel.appendChild(o); });
-    }
-  }
-
-  function setupToolEvents() {
-    document.getElementById('intelligibilityLang').addEventListener('change', runIntelligibility);
-    document.getElementById('similarityLang').addEventListener('change', runSimilarity);
-    document.getElementById('timelineFamily').addEventListener('change', runTimeline);
-    runWorldStats();
-    runTimeline();
-  }
-
-  // ─── INTELLIGIBILITY MATCHER ───
-  function runIntelligibility() {
-    const langId = document.getElementById('intelligibilityLang').value;
-    const container = document.getElementById('intelligibilityResults');
-    if (!langId) { container.innerHTML = ''; return; }
-    if (typeof INTELLIGIBILITY_EDGES === 'undefined') { container.innerHTML = '<p style="color:var(--parchment-muted)">Intelligibility data not loaded.</p>'; return; }
-
-    const edges = INTELLIGIBILITY_EDGES.filter(e => e.source === langId || e.target === langId);
-    if (edges.length === 0) { container.innerHTML = '<p style="color:var(--parchment-muted)">No intelligibility data available for this language.</p>'; return; }
-
-    const lang = LANGUAGE_DATABASE[langId];
-    container.innerHTML = `
-      <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Intelligibility from ${lang.name}</h4>
-      ${edges.map(e => {
-        const otherId = e.source === langId ? e.target : e.source;
-        const other = LANGUAGE_DATABASE[otherId];
-        if (!other) return '';
-        const forwardScore = e.source === langId ? e.score : e.reverse;
-        const reverseScore = e.source === langId ? e.reverse : e.score;
-        const color = forwardScore >= 0.8 ? 'var(--safe)' : forwardScore >= 0.6 ? 'var(--vulnerable)' : forwardScore >= 0.4 ? 'var(--amber)' : 'var(--endangered)';
-        return `
-          <div class="card" style="margin-bottom:var(--space-md); padding:var(--space-md);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-sm);">
-              <div>
-                <span style="font-weight:600;">${other.name}</span>
-                <span style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--parchment-muted); margin-left:var(--space-sm);">${otherId}</span>
-              </div>
-              <span class="badge" style="background:${color}22; color:${color};">${e.category.replace(/_/g, ' ')}</span>
-            </div>
-            <div style="margin-bottom:var(--space-xs);">
-              <div style="font-size:var(--text-xs); color:var(--parchment-muted); margin-bottom:2px;">${lang.name} → ${other.name}: ${Math.round(forwardScore * 100)}%</div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${forwardScore * 100}%; background:${color};"></div></div>
-            </div>
-            <div>
-              <div style="font-size:var(--text-xs); color:var(--parchment-muted); margin-bottom:2px;">${other.name} → ${lang.name}: ${Math.round(reverseScore * 100)}%</div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${reverseScore * 100}%; background:${color};"></div></div>
-            </div>
-            <div style="font-size:var(--text-xs); color:var(--parchment-muted); margin-top:var(--space-sm);">Modality: ${e.modality || 'spoken'}</div>
-          </div>
-        `;
-      }).join('')}
-    `;
-  }
-
-  // ─── GRAMMAR SIMILARITY ───
-  function runSimilarity() {
-    const langId = document.getElementById('similarityLang').value;
-    const container = document.getElementById('similarityResults');
-    if (!langId) { container.innerHTML = ''; return; }
-
-    const lang = LANGUAGE_DATABASE[langId];
-    const others = getAllLanguages().filter(l => l.id !== langId && !l.isExtinct);
-
-    const scores = others.map(other => {
-      let score = 0, total = 0;
-      const features = [
-        { key: 'wordOrder', weight: 15 }, { key: 'morphType', weight: 15 },
-        { key: 'caseAlignment', weight: 12 }, { key: 'toneSystem', weight: 10 },
-        { key: 'genderSystem', weight: 8 }, { key: 'evidentiality', weight: 7 },
-        { key: 'consonantInventory', weight: 5 }, { key: 'vowelInventory', weight: 5 },
-        { key: 'definiteness', weight: 5 }, { key: 'negationType', weight: 5 }
-      ];
-      features.forEach(f => {
-        if (lang[f.key] && other[f.key]) {
-          total += f.weight;
-          if (lang[f.key] === other[f.key]) score += f.weight;
-        }
-      });
-      // Boolean features
-      const bools = [
-        { key: 'hasVowelHarmony', weight: 5 }, { key: 'hasClicks', weight: 3 },
-        { key: 'hasEjectives', weight: 3 }, { key: 'hasNasalVowels', weight: 2 }
-      ];
-      bools.forEach(f => {
-        total += f.weight;
-        if (lang[f.key] === other[f.key]) score += f.weight;
-      });
-      // Case count proximity
-      if (lang.caseCount != null && other.caseCount != null) {
-        total += 8;
-        const diff = Math.abs(lang.caseCount - other.caseCount);
-        if (diff === 0) score += 8;
-        else if (diff <= 2) score += 5;
-        else if (diff <= 5) score += 2;
-      }
-
-      const pct = total > 0 ? score / total : 0;
-      return { lang: other, score: pct };
-    });
-
-    scores.sort((a, b) => b.score - a.score);
-    const top20 = scores.slice(0, 20);
-
-    container.innerHTML = `
-      <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Languages most grammatically similar to ${lang.name}</h4>
-      ${top20.map((item, i) => {
-        const color = item.score >= 0.8 ? 'var(--safe)' : item.score >= 0.6 ? 'var(--lapis-text)' : item.score >= 0.4 ? 'var(--amber-text)' : 'var(--parchment-muted)';
-        return `
-          <div class="card" style="margin-bottom:var(--space-sm); padding:var(--space-md); display:flex; align-items:center; gap:var(--space-md);">
-            <div style="font-family:var(--font-mono); font-size:var(--text-xs); color:var(--parchment-faint); width:24px; text-align:right;">${i + 1}</div>
-            <div style="flex:1;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                <span style="font-weight:600;">${item.lang.name}</span>
-                <span class="family-badge" style="background:${getFamilyHex(item.lang.family)}22; color:${getFamilyHex(item.lang.family)}; font-size:var(--text-xs);">${getFamilyName(item.lang.family)}</span>
-              </div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${item.score * 100}%; background:${color};"></div></div>
-              <div style="font-size:var(--text-xs); color:var(--parchment-muted); margin-top:2px;">${Math.round(item.score * 100)}% grammatical similarity</div>
-            </div>
-          </div>
-        `;
-      }).join('')}
-    `;
-  }
-
-  // ─── COMPARISON TOOL ───
-  function initComparisonSlots() {
-    comparisonSlots = [];
-    addComparisonSlot();
-    addComparisonSlot();
-  }
-
-  function addComparisonSlot() {
-    if (comparisonSlots.length >= 5) return;
-    const container = document.getElementById('comparisonSelectors');
-    const idx = comparisonSlots.length;
-    comparisonSlots.push('');
-    const div = document.createElement('div');
-    div.className = 'form-group';
-    div.style.minWidth = '180px';
-    div.innerHTML = `
-      <label class="form-label" for="comp-${idx}">Language ${idx + 1}</label>
-      <select id="comp-${idx}" class="form-select" onchange="comparisonSlots[${idx}]=this.value; renderComparison()">
-        <option value="">Select...</option>
-      </select>
-    `;
-    container.appendChild(div);
-    const sel = div.querySelector('select');
-    getAllLanguages().filter(l => !l.isExtinct).sort((a, b) => a.name.localeCompare(b.name)).forEach(l => {
-      const o = document.createElement('option'); o.value = l.id; o.textContent = l.name; sel.appendChild(o);
-    });
-    if (comparisonSlots.length >= 5) document.getElementById('addCompBtn').style.display = 'none';
-  }
-
-  function renderComparison() {
-    const selected = comparisonSlots.filter(s => s).map(id => LANGUAGE_DATABASE[id]).filter(Boolean);
-    const container = document.getElementById('comparisonResults');
-    if (selected.length < 2) { container.innerHTML = '<p style="color:var(--parchment-muted);">Select at least 2 languages to compare.</p>'; return; }
-
-    const features = [
-      { key: 'family', label: 'Family', fmt: v => getFamilyName(v) },
-      { key: 'wordOrder', label: 'Word Order' },
-      { key: 'morphType', label: 'Morphological Type' },
-      { key: 'caseAlignment', label: 'Case Alignment', fmt: v => (v || '—').replace(/_/g, '-') },
-      { key: 'caseCount', label: 'Case Count' },
-      { key: 'toneSystem', label: 'Tone System' },
-      { key: 'genderSystem', label: 'Gender System', fmt: v => (v || '—').replace(/_/g, ' ') },
-      { key: 'genderCount', label: 'Gender Count' },
-      { key: 'evidentiality', label: 'Evidentiality' },
-      { key: 'hasVowelHarmony', label: 'Vowel Harmony', fmt: v => v ? 'Yes' : 'No' },
-      { key: 'hasClicks', label: 'Clicks', fmt: v => v ? 'Yes' : 'No' },
-      { key: 'hasEjectives', label: 'Ejectives', fmt: v => v ? 'Yes' : 'No' },
-      { key: 'consonantInventory', label: 'Consonant Inventory' },
-      { key: 'vowelInventory', label: 'Vowel Inventory' },
-      { key: 'definiteness', label: 'Definiteness', fmt: v => (v || '—').replace(/_/g, ' ') },
-      { key: 'negationType', label: 'Negation', fmt: v => (v || '—').replace(/_/g, ' ') },
-      { key: 'l1Speakers', label: 'L1 Speakers', fmt: v => fmtNum(v || 0) },
-      { key: 'totalSpeakers', label: 'Total Speakers', fmt: v => fmtNum(v || 0) },
-      { key: 'unescoStatus', label: 'Endangerment', fmt: v => (v || '—').replace(/_/g, ' ') }
-    ];
-
-    container.innerHTML = `
-      <div class="table-scroll">
-        <table class="comparison-table">
-          <thead><tr><th>Feature</th>${selected.map(l => `<th>${l.name}</th>`).join('')}</tr></thead>
-          <tbody>
-            ${features.map(f => {
-              const vals = selected.map(l => f.fmt ? f.fmt(l[f.key]) : (l[f.key] ?? '—'));
-              const allSame = vals.every(v => v === vals[0]);
-              return `<tr${allSame && vals[0] !== '—' ? ' class="match"' : ''}>
-                <td>${f.label}</td>
-                ${vals.map(v => `<td>${v}</td>`).join('')}
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  // ─── TIMELINE ───
-  function runTimeline() {
-    const familyFilter = document.getElementById('timelineFamily').value;
-    const container = document.getElementById('timelineResults');
-    const langs = getAllLanguages().filter(l => l.isExtinct || l.unescoStatus === 'extinct');
-    const filtered = familyFilter ? langs.filter(l => l.family === familyFilter) : langs;
-    filtered.sort((a, b) => (b.extinctionDate || 0) - (a.extinctionDate || 0));
-
-    if (filtered.length === 0) { container.innerHTML = '<p style="color:var(--parchment-muted);">No extinct languages found for this filter.</p>'; return; }
-
-    container.innerHTML = `
-      <div style="margin-bottom:var(--space-md); font-size:var(--text-small); color:var(--parchment-muted);">${filtered.length} extinct language${filtered.length !== 1 ? 's' : ''}</div>
-      <div class="timeline">
-        ${filtered.slice(0, 40).map(l => `
-          <div class="timeline-item">
-            <div class="timeline-dot" style="background:${getFamilyHex(l.family)}"></div>
-            <div class="timeline-period">${l.extinctionDate ? `~${l.extinctionDate}` : 'Date unknown'}</div>
-            <div class="timeline-name">${l.name}</div>
-            <div style="font-size:var(--text-xs); color:var(--parchment-muted);">${getFamilyName(l.family)} · ${l.region || l.macroRegion || '—'}</div>
-          </div>
-        `).join('')}
-      </div>
-      ${filtered.length > 40 ? `<div style="color:var(--parchment-muted); font-size:var(--text-small); margin-top:var(--space-md);">Showing 40 of ${filtered.length}</div>` : ''}
-    `;
-  }
-
-  // ─── WORLD STATS ───
-  function runWorldStats() {
-    const container = document.getElementById('worldStats');
-    const langs = getAllLanguages();
-    if (langs.length === 0) { container.innerHTML = '<p style="color:var(--parchment-muted)">Data not loaded.</p>'; return; }
-
-    // Family distribution
-    const familyCounts = {};
-    langs.forEach(l => { familyCounts[l.family] = (familyCounts[l.family] || 0) + 1; });
-    const famEntries = Object.entries(familyCounts).sort((a, b) => b[1] - a[1]);
-    const maxFam = famEntries[0] ? famEntries[0][1] : 1;
-
-    // Word order distribution
-    const woCounts = {};
-    langs.forEach(l => { if (l.wordOrder) woCounts[l.wordOrder] = (woCounts[l.wordOrder] || 0) + 1; });
-    const woEntries = Object.entries(woCounts).sort((a, b) => b[1] - a[1]);
-    const maxWo = woEntries[0] ? woEntries[0][1] : 1;
-
-    // Endangerment
-    const endangerCounts = {};
-    langs.forEach(l => { const s = l.unescoStatus || 'unknown'; endangerCounts[s] = (endangerCounts[s] || 0) + 1; });
-
-    // Morph type
-    const morphCounts = {};
-    langs.forEach(l => { if (l.morphType) morphCounts[l.morphType] = (morphCounts[l.morphType] || 0) + 1; });
-    const morphEntries = Object.entries(morphCounts).sort((a, b) => b[1] - a[1]);
-    const maxMorph = morphEntries[0] ? morphEntries[0][1] : 1;
-
-    container.innerHTML = `
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(350px, 1fr)); gap:var(--space-xl);">
-        <div class="card">
-          <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Languages by Family</h4>
-          ${famEntries.slice(0, 12).map(([fam, count]) => `
-            <div style="margin-bottom:var(--space-sm);">
-              <div style="display:flex; justify-content:space-between; font-size:var(--text-xs); margin-bottom:2px;">
-                <span>${getFamilyName(fam)}</span><span>${count}</span>
-              </div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${(count / maxFam) * 100}%; background:${getFamilyHex(fam)};"></div></div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="card">
-          <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Word Order Distribution</h4>
-          ${woEntries.map(([wo, count]) => `
-            <div style="margin-bottom:var(--space-sm);">
-              <div style="display:flex; justify-content:space-between; font-size:var(--text-xs); margin-bottom:2px;">
-                <span>${wo}</span><span>${count}</span>
-              </div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${(count / maxWo) * 100}%; background:var(--lapis);"></div></div>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="card">
-          <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Endangerment Status</h4>
-          ${Object.entries(endangerCounts).map(([status, count]) => {
-            const colors = { safe:'var(--safe)', vulnerable:'var(--vulnerable)', definitely_endangered:'var(--endangered)', severely_endangered:'var(--severely-endangered)', critically_endangered:'var(--critically-endangered)', extinct:'var(--extinct)' };
-            return `<div style="display:flex; justify-content:space-between; padding:var(--space-xs) 0; font-size:var(--text-small);">
-              <span style="color:${colors[status] || 'var(--parchment-muted)'}">${status.replace(/_/g, ' ')}</span>
-              <span style="font-weight:600;">${count}</span>
-            </div>`;
-          }).join('')}
-        </div>
-
-        <div class="card">
-          <h4 style="font-family:var(--font-label); font-weight:700; margin-bottom:var(--space-md);">Morphological Type</h4>
-          ${morphEntries.map(([morph, count]) => `
-            <div style="margin-bottom:var(--space-sm);">
-              <div style="display:flex; justify-content:space-between; font-size:var(--text-xs); margin-bottom:2px;">
-                <span>${morph}</span><span>${count}</span>
-              </div>
-              <div class="similarity-bar"><div class="similarity-fill" style="width:${(count / maxMorph) * 100}%; background:var(--amber);"></div></div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-  </script>
-
+function runWorldStats() {
+  const c=document.getElementById('worldStats');
+  const langs=getAllLangs();
+  if (!langs.length){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
+  const tally=(arr,key)=>{const o={};arr.forEach(l=>{if(l[key])o[l[key]]=(o[l[key]]||0)+1});return Object.entries(o).sort((a,b)=>b[1]-a[1])};
+  const famE=tally(langs,'family'); const maxF=famE[0]?famE[0][1]:1;
+  const woE=tally(langs,'wordOrder'); const maxW=woE[0]?woE[0][1]:1;
+  const morphE=tally(langs,'morphType'); const maxM=morphE[0]?morphE[0][1]:1;
+  const endC={}; langs.forEach(l=>{const s=l.unescoStatus||'unknown';endC[s]=(endC[s]||0)+1});
+  const endColors={safe:'var(--safe)',vulnerable:'var(--vuln)',definitely_endangered:'var(--endanger)',severely_endangered:'var(--severe)',critically_endangered:'var(--critical)',extinct:'var(--extinct)'};
+  c.innerHTML=`<div class="stats-grid">
+    <div class="stats-card"><div class="stats-card-title">Languages by Family</div>${famE.slice(0,12).map(([f,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${getFamilyName(f)}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxF)*100}%;background:${getFamilyHex(f)}"></div></div></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-card-title">Word Order Distribution</div>${woE.map(([w,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${w}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxW)*100}%;background:var(--cyan)"></div></div></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-card-title">Endangerment Status</div>${Object.entries(endC).map(([s,n])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:${endColors[s]||'var(--ink-mid)'}">${s.replace(/_/g,' ')}</span><span style="font-weight:600;color:var(--ink)">${n}</span></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-card-title">Morphological Type</div>${morphE.map(([m,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${m}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxM)*100}%;background:var(--violet)"></div></div></div>`).join('')}</div>
+  </div>`;
+}
+</script>
 </body>
 </html>
