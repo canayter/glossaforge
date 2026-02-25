@@ -206,8 +206,8 @@ main { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
 }
 #view-map.active { display:block }
 
-.map-wrap { position:relative; width:100%; height:100% }
-#mapContainer { position:absolute; inset:0; background:#0a0a14 }
+.map-wrap { position:relative; width:100%; height:calc(100vh - 56px) }
+#mapContainer { width:100%; height:calc(100vh - 56px); background:#0a0a14 }
 
 .map-float-top {
   position:absolute; top:14px; left:14px; z-index:500;
@@ -832,12 +832,13 @@ function switchToView(viewId) {
   if (target) { target.classList.add('active'); currentView = viewId; }
   document.querySelectorAll('[data-view="' + viewId + '"]').forEach(l => l.classList.add('active'));
   if (viewId === 'map') {
-    // Critical Leaflet fix: invalidate after display:none -> display:block transition
-    requestAnimationFrame(() => { if (leafletMap) leafletMap.invalidateSize(); });
+    // Always call initMap — it handles both first-init and revisit invalidation
+    if (!viewsLoaded['map']) { viewsLoaded['map']=true; initMap(); }
+    else { initMap(); } // revisit: just invalidates
   } else {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!viewsLoaded[viewId]) lazyLoadView(viewId);
   }
-  if (!viewsLoaded[viewId]) lazyLoadView(viewId);
 }
 
 document.querySelectorAll('[data-view]').forEach(el => {
@@ -884,7 +885,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ═══ MAP ═══
 function initMap() {
-  if (leafletMap) { setTimeout(()=>leafletMap.invalidateSize(),50); return; }
+  if (leafletMap) {
+    leafletMap.invalidateSize(true);
+    requestAnimationFrame(()=>leafletMap.invalidateSize(true));
+    return;
+  }
   leafletMap = L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,0],2);
   L.control.zoom({position:'bottomright'}).addTo(leafletMap);
   L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
@@ -895,9 +900,11 @@ function initMap() {
   renderMapMarkers();
   renderMapLegend();
   setupMapEvents();
-  // Double invalidate — catches both immediate and post-transition layout
-  setTimeout(()=>leafletMap.invalidateSize(),100);
-  setTimeout(()=>leafletMap.invalidateSize(),500);
+  // Force invalidate at multiple points — catches layout settling after display:block
+  leafletMap.invalidateSize(true);
+  requestAnimationFrame(()=>leafletMap.invalidateSize(true));
+  setTimeout(()=>leafletMap.invalidateSize(true),100);
+  setTimeout(()=>leafletMap.invalidateSize(true),400);
 }
 
 function updateMapTiles() {
