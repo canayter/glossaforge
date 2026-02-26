@@ -725,6 +725,12 @@ let mapMarkers=[];
 
 function initMap(){
   if(leafletMap) return;
+  if(typeof L === 'undefined' || typeof L.map !== 'function'){
+    const el = document.getElementById('mapContainer');
+    el.style.cssText += ';display:flex;align-items:center;justify-content:center;background:#0f1117';
+    el.innerHTML = '<div style="color:#a8adb8;text-align:center;font-family:sans-serif;padding:2rem"><p style="margin-bottom:8px;font-size:1rem">Map library failed to load.</p><p style="font-size:0.8rem;opacity:0.6">Open browser DevTools → Console for details.</p></div>';
+    return;
+  }
   leafletMap=L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,10],2);
   L.control.zoom({position:'bottomright'}).addTo(leafletMap);
   L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
