@@ -1,798 +1,682 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="GlossaForge — Geospatial linguistics toolkit. Explore world languages, families, typology, and mutual intelligibility.">
-  <meta name="theme-color" content="#00d4ff">
-  <title>GlossaForge</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Leaflet Map — pinned to CDNJS with SHA-512 SRI -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <style>
-/* ═══════════════════════════════════════════════════════
-   TERMINUS — Design System
-   ═══════════════════════════════════════════════════════ */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="GlossaForge — Interactive world language map. Explore 500+ languages by family, typology, and endangerment.">
+<meta name="theme-color" content="#00d4ff">
+<title>GlossaForge — World Language Map</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+/* ═══ DESIGN SYSTEM ═══ */
 :root {
-  --void:    #06060e;
-  --base:    #0d0d18;
-  --raised:  #12121f;
-  --surface: #181828;
-  --lift:    #1e1e30;
-  --hover:   #252538;
-  --active:  #2c2c42;
-  --border:  rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
-
-  --cyan:      #00d4ff;
-  --cyan-dim:  rgba(0,212,255,0.10);
-  --cyan-glow: rgba(0,212,255,0.30);
-
-  --violet:     #8b5cf6;
-  --violet-dim: rgba(139,92,246,0.12);
-
-  --ink:    #eeeef5;
-  --ink-mid:#9898b0;
-  --ink-low:#5a5a72;
-  --ink-dim:#2e2e44;
-
-  --safe:     #34d399;
-  --vuln:     #fbbf24;
-  --endanger: #fb923c;
-  --severe:   #f87171;
-  --critical: #ef4444;
-  --extinct:  #52525b;
-
-  --font-head: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 24px; --r-full: 9999px;
-  --ease: cubic-bezier(0.16,1,0.3,1);
-  --fast: 140ms var(--ease);
-  --norm: 240ms var(--ease);
+  --void:#06060e; --base:#0d0d18; --raised:#12121f; --surface:#181828;
+  --lift:#1e1e30; --hover:#252538; --active:#2c2c42;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --cyan:#00d4ff; --cyan-dim:rgba(0,212,255,0.10); --cyan-glow:rgba(0,212,255,0.28);
+  --violet:#8b5cf6;
+  --ink:#eeeef5; --ink-mid:#9898b0; --ink-low:#5a5a72; --ink-dim:#2e2e44;
+  --safe:#34d399; --vuln:#fbbf24; --endanger:#fb923c;
+  --severe:#f87171; --critical:#ef4444; --extinct:#52525b;
+  --font-h:'Space Grotesk',system-ui,sans-serif;
+  --font-b:'Inter',system-ui,sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+  --r:8px; --r-lg:14px; --r-xl:20px; --r-full:9999px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --hdr:52px;
 }
-
 [data-theme="light"] {
-  --void: #f4f4f8; --base: #ededf3; --raised: #e6e6ee; --surface: #ffffff;
-  --lift: #ffffff; --hover: #dddde8; --active: #d4d4e0;
-  --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.13);
-  --ink: #111120; --ink-mid: #4a4a60; --ink-low: #7a7a90; --ink-dim: #d0d0de;
+  --void:#f0f0f5; --base:#e8e8f0; --raised:#ffffff; --surface:#ffffff;
+  --lift:#ffffff; --hover:#dddde8; --active:#d0d0df;
+  --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.15);
+  --ink:#111120; --ink-mid:#4a4a60; --ink-low:#7070a0; --ink-dim:#d0d0e0;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font-b);font-size:14px;color:var(--ink);background:var(--void);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--cyan);text-decoration:none}
+::selection{background:var(--cyan);color:#000}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
-html { scroll-behavior:smooth; -webkit-text-size-adjust:100% }
-body {
-  font-family:var(--font-body); font-size:15px; color:var(--ink);
-  background:var(--void); line-height:1.6; min-height:100vh;
-  overflow-x:hidden; -webkit-font-smoothing:antialiased;
-}
-img,svg { display:block; max-width:100% }
-button,input,select,textarea { font:inherit; color:inherit }
-a { color:var(--cyan); text-decoration:none }
-::selection { background:var(--cyan); color:#000 }
-:focus-visible { outline:2px solid var(--cyan); outline-offset:2px; border-radius:var(--r-sm) }
-.sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
-
-/* ── HEADER ── */
-.site-header {
-  position:sticky; top:0; z-index:900; height:56px;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 24px;
-  background:rgba(6,6,14,0.82); backdrop-filter:blur(20px);
+/* ═══ HEADER ═══ */
+.site-hdr {
+  position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:1000;
+  display:flex;align-items:center;gap:10px;padding:0 14px;
+  background:rgba(6,6,14,0.88);backdrop-filter:blur(18px);
   border-bottom:1px solid var(--border);
 }
-[data-theme="light"] .site-header { background:rgba(244,244,248,0.85) }
+[data-theme="light"] .site-hdr{background:rgba(240,240,245,0.90)}
+.logo{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-h);font-size:1.05rem;font-weight:700;
+  letter-spacing:-0.02em;color:var(--ink);white-space:nowrap;cursor:pointer;
+}
+.logo em{font-style:normal;color:var(--cyan)}
+.hdr-search{
+  flex:1;max-width:260px;
+  display:flex;align-items:center;gap:6px;
+  background:var(--raised);border:1px solid var(--border2);
+  border-radius:var(--r-full);padding:0 12px;height:34px;
+}
+.hdr-search input{background:none;border:none;outline:none;font-size:13px;color:var(--ink);flex:1;min-width:0}
+.hdr-search input::placeholder{color:var(--ink-low)}
+.hdr-search svg{flex-shrink:0;opacity:.5}
+.hdr-sel{
+  background:var(--raised);border:1px solid var(--border);
+  border-radius:var(--r-full);padding:4px 10px;
+  font-size:12px;color:var(--ink-mid);cursor:pointer;outline:none;
+  white-space:nowrap;
+}
+.hdr-sel:focus{border-color:var(--cyan)}
+.hdr-end{display:flex;align-items:center;gap:6px;margin-left:auto}
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r);
+  background:var(--raised);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:background 120ms;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--hover)}
+.hdr-count{
+  font-size:11px;color:var(--ink-low);white-space:nowrap;
+  padding:4px 10px;background:var(--raised);border:1px solid var(--border);
+  border-radius:var(--r-full);
+}
 
-.logo {
-  display:flex; align-items:center; gap:10px;
-  font-family:var(--font-head); font-size:1.15rem; font-weight:700;
-  letter-spacing:-0.02em; color:var(--ink); cursor:pointer; text-decoration:none;
+/* ═══ MAP ═══ */
+#mapContainer{
+  position:fixed;top:var(--hdr);left:0;right:0;bottom:0;z-index:1;
+  background:#07090c;
 }
-.logo span { color:var(--cyan) }
-.logo-sub {
-  font-family:var(--font-body); font-size:11px; font-weight:500;
-  color:var(--ink-low); letter-spacing:0.04em; text-transform:uppercase;
-}
+/* Leaflet tile layer loads into here */
+.leaflet-container{background:#07090c}
+[data-theme="light"] .leaflet-container{background:#c8d8e8}
 
-/* ── PILL NAV ── */
-.pill-nav {
-  position:absolute; left:50%; transform:translateX(-50%);
-  display:flex; align-items:center; gap:2px;
-  background:var(--raised); border:1px solid var(--border);
-  border-radius:var(--r-full); padding:4px;
+/* ═══ MAP OVERLAY CONTROLS ═══ */
+.map-filters{
+  position:fixed;top:calc(var(--hdr) + 10px);left:12px;z-index:500;
+  display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100vw - 180px);
 }
-.pill-nav .pn {
-  padding:6px 16px; border-radius:var(--r-full);
-  font-family:var(--font-head); font-size:13px; font-weight:500;
-  color:var(--ink-mid); cursor:pointer; border:none; background:none;
-  transition:all var(--fast); white-space:nowrap;
+.mf-chip{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(13,13,24,0.88);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);border-radius:var(--r-full);
+  padding:4px 10px;font-size:11px;color:var(--ink-mid);
 }
-.pill-nav .pn:hover { color:var(--ink); background:var(--hover) }
-.pill-nav .pn.active { color:#000; background:var(--cyan); font-weight:600 }
-[data-theme="light"] .pill-nav .pn.active { color:#fff }
+[data-theme="light"] .mf-chip{background:rgba(255,255,255,0.90)}
+.mf-chip select{
+  background:none;border:none;outline:none;
+  font:inherit;color:inherit;cursor:pointer;font-size:11px;
+}
+.mf-reset{
+  background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);
+  border-radius:var(--r-full);padding:4px 10px;
+  font-size:11px;color:#f87171;cursor:pointer;
+  display:none;white-space:nowrap;
+}
+.mf-reset:hover{background:rgba(239,68,68,0.20)}
+.mf-extinct{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(13,13,24,0.88);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);border-radius:var(--r-full);
+  padding:4px 10px;font-size:11px;color:var(--ink-low);cursor:pointer;
+}
+[data-theme="light"] .mf-extinct{background:rgba(255,255,255,0.90)}
 
-.header-end { display:flex; align-items:center; gap:8px }
-.icon-btn {
-  width:36px; height:36px; border-radius:var(--r-md);
-  background:var(--raised); border:1px solid var(--border);
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  font-size:15px; transition:all var(--fast);
+.map-layers{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:500;
+  display:flex;gap:3px;
+  background:rgba(13,13,24,0.90);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);border-radius:var(--r-full);padding:4px;
+  white-space:nowrap;
 }
-.icon-btn:hover { background:var(--hover); border-color:var(--border2) }
+[data-theme="light"] .map-layers{background:rgba(255,255,255,0.90)}
+.ml-btn{
+  padding:5px 14px;border-radius:var(--r-full);
+  font-size:12px;font-weight:500;color:var(--ink-low);
+  cursor:pointer;border:none;background:none;transition:all 100ms;
+}
+.ml-btn:hover{color:var(--ink)}
+.ml-btn.active{background:var(--cyan);color:#000;font-weight:600}
+[data-theme="light"] .ml-btn.active{color:#fff}
 
-/* ── MOBILE NAV ── */
-.mobile-nav {
-  display:none; position:fixed; bottom:0; left:0; right:0; z-index:900;
-  background:rgba(13,13,24,0.94); backdrop-filter:blur(20px);
-  border-top:1px solid var(--border);
-  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
-  justify-content:space-around;
+.map-legend{
+  position:fixed;bottom:70px;right:12px;z-index:500;
+  background:rgba(13,13,24,0.90);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);border-radius:var(--r-lg);
+  padding:10px 12px;min-width:130px;max-height:260px;overflow-y:auto;
+  font-size:11px;
 }
-[data-theme="light"] .mobile-nav { background:rgba(237,237,243,0.94) }
-.mob-link {
-  display:flex; flex-direction:column; align-items:center; gap:2px;
-  padding:4px 10px; border-radius:var(--r-md);
-  font-size:10px; font-weight:500; color:var(--ink-low);
-  cursor:pointer; border:none; background:none; transition:all var(--fast);
-}
-.mob-link .mi { font-size:18px; line-height:1 }
-.mob-link:hover,.mob-link.active { color:var(--cyan) }
-
-/* ── VIEWS ── */
-main { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
-.views-wrap { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
-.view { display:none }
-.view.active { display:block; animation:fadeIn 0.25s var(--ease) }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-/* ── HOME ── */
-.home-hero { text-align:center; padding:64px 0 48px }
-.home-hero h1 {
-  font-family:var(--font-head); font-size:clamp(2.2rem,5vw,3.6rem);
-  font-weight:700; letter-spacing:-0.04em; line-height:1.1;
-  color:var(--ink); margin-bottom:16px;
-}
-.home-hero h1 em { font-style:normal; color:var(--cyan) }
-.home-hero p { font-size:16px; color:var(--ink-mid); max-width:560px; margin:0 auto 40px; line-height:1.7 }
-
-.stat-row {
-  display:flex; flex-wrap:wrap; justify-content:center;
-  background:var(--raised); border:1px solid var(--border);
-  border-radius:var(--r-xl); overflow:hidden; margin:0 auto 56px; max-width:720px;
-}
-.stat-cell {
-  flex:1; min-width:120px; padding:20px 16px; text-align:center;
-  border-right:1px solid var(--border);
-}
-.stat-cell:last-child { border-right:none }
-.stat-val {
-  font-family:var(--font-head); font-size:1.9rem; font-weight:700;
-  color:var(--cyan); letter-spacing:-0.03em; line-height:1; margin-bottom:4px;
-}
-.stat-lbl { font-size:11px; font-weight:500; color:var(--ink-low); text-transform:uppercase; letter-spacing:0.06em }
-
-.feat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px }
-.feat-card {
-  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
-  padding:24px; cursor:pointer; transition:all var(--norm);
-  display:flex; flex-direction:column;
-}
-.feat-card:hover {
-  border-color:var(--border2); background:var(--surface);
-  transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.35);
-}
-.feat-icon { font-size:28px; margin-bottom:16px }
-.feat-title { font-family:var(--font-head); font-size:1rem; font-weight:600; color:var(--ink); margin-bottom:8px }
-.feat-desc { font-size:13px; color:var(--ink-mid); line-height:1.55; flex:1 }
-.feat-cta { margin-top:16px; font-size:12px; font-weight:600; color:var(--cyan) }
-
-/* ── SECTION HEADER ── */
-.sec-head { margin-bottom:28px }
-.sec-head h2 {
-  font-family:var(--font-head); font-size:clamp(1.4rem,3vw,1.9rem);
-  font-weight:700; letter-spacing:-0.03em; color:var(--ink); margin-bottom:6px;
-}
-.sec-head p { font-size:14px; color:var(--ink-mid); max-width:560px }
-
-/* ── MAP VIEW ── */
-#view-map {
-  display:none;
-  position:fixed; top:56px; left:0; right:0; bottom:0;
-  overflow:hidden;
-}
-#view-map.active { display:block }
-
-.map-wrap { position:relative; width:100%; height:calc(100vh - 56px) }
-#mapContainer { width:100%; height:calc(100vh - 56px); background:#0a0a14 }
-
-.map-float-top {
-  position:absolute; top:14px; left:14px; z-index:500;
-  display:flex; gap:8px; align-items:center;
-}
-.map-search-box {
-  display:flex; align-items:center; gap:8px;
-  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-lg);
-  padding:0 14px; height:40px; min-width:220px;
-}
-[data-theme="light"] .map-search-box { background:rgba(255,255,255,0.9) }
-.map-search-box input {
-  background:none; border:none; outline:none;
-  font-size:13px; color:var(--ink); flex:1;
-}
-.map-search-box input::placeholder { color:var(--ink-low) }
-.map-search-icon { color:var(--ink-low); font-size:14px }
-
-.map-adv-selects {
-  position:absolute; top:62px; left:14px; z-index:500;
-  display:flex; gap:6px; flex-wrap:wrap; align-items:center;
-}
-.map-adv-sel {
-  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-full);
-  padding:5px 12px; font-size:11px; color:var(--ink-mid);
-}
-[data-theme="light"] .map-adv-sel { background:rgba(255,255,255,0.88) }
-.map-adv-sel select {
-  background:none; border:none; outline:none;
-  font:inherit; color:inherit; cursor:pointer;
-}
-.map-extinct-wrap {
-  display:flex; align-items:center; gap:6px;
-  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-full);
-  padding:5px 12px; font-size:11px; color:var(--ink-low); cursor:pointer;
-}
-[data-theme="light"] .map-extinct-wrap { background:rgba(255,255,255,0.88) }
-.map-reset-btn {
-  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-full);
-  padding:5px 12px; font-size:11px; color:var(--ink-low);
-  cursor:pointer; transition:all var(--fast);
-}
-[data-theme="light"] .map-reset-btn { background:rgba(255,255,255,0.88) }
-.map-reset-btn:hover { color:var(--ink) }
-
-.map-count {
-  position:absolute; top:14px; right:14px; z-index:500;
-  background:rgba(13,13,24,0.88); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-full);
-  padding:6px 14px; font-size:12px; color:var(--ink-mid);
-}
-[data-theme="light"] .map-count { background:rgba(255,255,255,0.88) }
-
-.map-layers {
-  position:absolute; bottom:32px; left:50%; transform:translateX(-50%); z-index:500;
-  display:flex; gap:4px;
-  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-full); padding:4px;
-}
-[data-theme="light"] .map-layers { background:rgba(255,255,255,0.9) }
-.map-layer-btn {
-  padding:6px 18px; border-radius:var(--r-full);
-  font-size:12px; font-weight:500; color:var(--ink-low);
-  cursor:pointer; border:none; background:none; transition:all var(--fast);
-}
-.map-layer-btn:hover { color:var(--ink) }
-.map-layer-btn.active { background:var(--cyan); color:#000; font-weight:600 }
-[data-theme="light"] .map-layer-btn.active { color:#fff }
-
-.map-legend {
-  position:absolute; bottom:90px; right:14px; z-index:500;
-  background:rgba(13,13,24,0.9); backdrop-filter:blur(12px);
-  border:1px solid var(--border2); border-radius:var(--r-lg);
-  padding:12px 14px; min-width:140px; max-height:280px; overflow-y:auto;
-}
-[data-theme="light"] .map-legend { background:rgba(255,255,255,0.9) }
-.legend-title { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:8px }
-.legend-row { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-mid); margin-bottom:5px }
-.legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0 }
+[data-theme="light"] .map-legend{background:rgba(255,255,255,0.90)}
+.leg-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-low);margin-bottom:7px}
+.leg-row{display:flex;align-items:center;gap:6px;color:var(--ink-mid);margin-bottom:4px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* Leaflet popup */
-.leaflet-popup-content-wrapper {
-  background:var(--raised) !important; border:1px solid var(--border2) !important;
-  border-radius:var(--r-lg) !important; box-shadow:0 8px 24px rgba(0,0,0,.5) !important;
-  color:var(--ink) !important;
+.leaflet-popup-content-wrapper{background:var(--raised)!important;border:1px solid var(--border2)!important;border-radius:var(--r-lg)!important;box-shadow:0 8px 24px rgba(0,0,0,.6)!important;color:var(--ink)!important}
+.leaflet-popup-tip{background:var(--raised)!important}
+.leaflet-popup-content{margin:14px!important;font-family:var(--font-b)!important;font-size:13px!important}
+.pp-name{font-family:var(--font-h);font-size:.95rem;font-weight:700;margin-bottom:2px}
+.pp-fam{font-size:11px;font-weight:600;margin-bottom:8px}
+.pp-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-top:1px solid var(--border)}
+.pp-row span:first-child{color:var(--ink-low);font-size:11px}
+.pp-row span:last-child{font-size:11px;font-weight:500}
+.pp-btn{
+  display:block;margin-top:10px;padding:6px 12px;text-align:center;
+  background:var(--cyan-dim);border:1px solid var(--cyan);border-radius:var(--r);
+  font-size:11px;font-weight:600;color:var(--cyan);cursor:pointer;
 }
-.leaflet-popup-tip { background:var(--raised) !important }
-.leaflet-popup-content { margin:16px !important; font-family:var(--font-body) !important; font-size:13px !important }
-.map-popup h3 { font-family:var(--font-head); font-size:1rem; font-weight:600; margin-bottom:4px }
-.popup-family { font-size:12px; font-weight:500; margin-bottom:10px }
-.popup-row { display:flex; justify-content:space-between; gap:16px; padding:4px 0; border-top:1px solid var(--border) }
-.popup-row span:first-child { color:var(--ink-low); font-size:11px }
-.popup-row span:last-child { font-size:12px; font-weight:500 }
-.popup-link { display:block; margin-top:10px; font-size:11px; font-weight:600; color:var(--cyan) }
+.pp-btn:hover{background:rgba(0,212,255,.2)}
 
-/* ── FORMS ── */
-.field-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:5px }
-.inp {
-  width:100%; padding:9px 14px; background:var(--raised);
-  border:1px solid var(--border); border-radius:var(--r-md);
-  font-size:14px; color:var(--ink); transition:border-color var(--fast); outline:none;
+/* ═══ DETAIL PANEL ═══ */
+.detail-panel{
+  position:fixed;top:var(--hdr);right:0;width:380px;bottom:0;z-index:700;
+  background:var(--base);border-left:1px solid var(--border2);
+  overflow-y:auto;
+  transform:translateX(100%);transition:transform .28s var(--ease);
 }
-.inp:focus { border-color:var(--cyan) }
-.inp::placeholder { color:var(--ink-low) }
-.sel {
-  padding:9px 14px; background:var(--raised);
-  border:1px solid var(--border); border-radius:var(--r-md);
-  font-size:13px; color:var(--ink); cursor:pointer; outline:none;
-  transition:border-color var(--fast);
+.detail-panel.open{transform:translateX(0)}
+.dp-head{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--base);border-bottom:1px solid var(--border);
 }
-.sel:focus { border-color:var(--cyan) }
+.dp-close{
+  width:28px;height:28px;border-radius:var(--r);
+  background:var(--raised);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.dp-close:hover{background:var(--hover)}
+.dp-body{padding:16px}
+.dp-name{font-family:var(--font-h);font-size:1.4rem;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-bottom:2px}
+.dp-native{font-size:13px;color:var(--ink-low);margin-bottom:3px}
+.dp-alts{font-size:11px;color:var(--ink-dim);margin-bottom:12px}
+.dp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:18px}
+.fam-tag{padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600}
+.badge{padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600}
+.badge-safe{background:rgba(52,211,153,.12);color:var(--safe)}
+.badge-vulnerable{background:rgba(251,191,36,.12);color:var(--vuln)}
+.badge-endangered{background:rgba(251,146,60,.12);color:var(--endanger)}
+.badge-severely{background:rgba(248,113,113,.12);color:var(--severe)}
+.badge-critical{background:rgba(239,68,68,.12);color:var(--critical)}
+.badge-extinct{background:rgba(82,82,91,.12);color:var(--extinct)}
+.dp-sec{margin-bottom:18px}
+.dp-sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-low);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dp-field{background:var(--raised);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px}
+.dp-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-low);margin-bottom:2px}
+.dp-val{font-size:12px;font-weight:500;color:var(--ink)}
+.dp-field-wide{grid-column:1/-1}
+.dp-cite{font-size:10px;color:var(--ink-dim);margin-top:3px;font-style:italic}
 
-/* ── CHIPS ── */
-.chip-row { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px }
-.chip {
-  padding:4px 12px; border-radius:var(--r-full);
-  font-size:12px; font-weight:500;
-  background:var(--raised); border:1px solid var(--border);
-  color:var(--ink-mid); cursor:pointer; transition:all var(--fast);
+/* ═══ MENU DRAWER ═══ */
+.menu-drawer{
+  position:fixed;inset:0;z-index:800;
+  background:var(--base);
+  display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s var(--ease);
 }
-.chip:hover { border-color:var(--border2); color:var(--ink) }
-.chip.active { background:var(--cyan-dim); border-color:var(--cyan); color:var(--cyan) }
+.menu-drawer.open{transform:translateY(0)}
+.md-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:var(--hdr);border-bottom:1px solid var(--border);
+  flex-shrink:0;background:var(--base);
+}
+.md-logo{font-family:var(--font-h);font-size:1rem;font-weight:700;color:var(--ink)}
+.md-logo em{font-style:normal;color:var(--cyan)}
+.md-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;
+  overflow-x:auto;
+}
+.md-tab{
+  padding:12px 20px;font-family:var(--font-h);font-size:13px;font-weight:500;
+  color:var(--ink-low);cursor:pointer;border:none;background:none;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  white-space:nowrap;transition:all 120ms;
+}
+.md-tab:hover{color:var(--ink)}
+.md-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.md-body{flex:1;overflow-y:auto;padding:20px 24px}
 
-/* ── EXPLORER ── */
-.explorer-top { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; align-items:flex-end }
-.explorer-search-wrap { flex:1; min-width:200px }
-.result-meta { font-size:12px; color:var(--ink-low); margin-bottom:12px }
+/* ═══ SHARED COMPONENTS ═══ */
+.sec-h2{font-family:var(--font-h);font-size:1.4rem;font-weight:700;letter-spacing:-.025em;color:var(--ink);margin-bottom:4px}
+.sec-sub{font-size:13px;color:var(--ink-mid);margin-bottom:20px;max-width:560px}
+.inp{
+  width:100%;padding:8px 12px;background:var(--raised);
+  border:1px solid var(--border);border-radius:var(--r);
+  font-size:13px;color:var(--ink);outline:none;transition:border-color 120ms;
+}
+.inp:focus{border-color:var(--cyan)}
+.inp::placeholder{color:var(--ink-low)}
+.sel{
+  padding:8px 12px;background:var(--raised);
+  border:1px solid var(--border);border-radius:var(--r);
+  font-size:13px;color:var(--ink);cursor:pointer;outline:none;
+}
+.sel:focus{border-color:var(--cyan)}
+.fl-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-low);margin-bottom:5px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:var(--r);font-family:var(--font-h);font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all 120ms}
+.btn-primary{background:var(--cyan);color:#000;border-color:var(--cyan)}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{background:var(--raised);color:var(--ink);border-color:var(--border)}
+.btn-ghost:hover{background:var(--hover)}
+.btn-sm{padding:5px 12px;font-size:12px}
 
-.lang-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px }
-.lang-card {
-  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
-  padding:16px; cursor:pointer; transition:all var(--fast);
+/* ═══ EXPLORER ═══ */
+.expl-top{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;align-items:flex-end}
+.expl-search-wrap{flex:1;min-width:180px}
+.res-meta{font-size:12px;color:var(--ink-low);margin-bottom:10px}
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.lang-card{
+  background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:14px;cursor:pointer;transition:all 120ms;
 }
-.lang-card:hover { border-color:var(--border2); background:var(--surface); transform:translateY(-1px) }
-.lang-name { font-family:var(--font-head); font-size:0.95rem; font-weight:600; color:var(--ink); margin-bottom:2px }
-.lang-native { font-size:12px; color:var(--ink-low); margin-bottom:8px }
-.lang-badges { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px }
-.fam-tag { padding:2px 8px; border-radius:var(--r-full); font-size:11px; font-weight:600 }
-.badge { padding:2px 8px; border-radius:var(--r-full); font-size:11px; font-weight:600 }
-.badge-safe { background:rgba(52,211,153,.12); color:var(--safe) }
-.badge-vulnerable { background:rgba(251,191,36,.12); color:var(--vuln) }
-.badge-endangered { background:rgba(251,146,60,.12); color:var(--endanger) }
-.badge-severely { background:rgba(248,113,113,.12); color:var(--severe) }
-.badge-critical { background:rgba(239,68,68,.12); color:var(--critical) }
-.badge-extinct { background:rgba(82,82,91,.12); color:var(--extinct) }
-.lang-foot { display:flex; justify-content:space-between; font-size:11px; color:var(--ink-low) }
-.lang-iso { font-family:var(--font-mono); font-size:11px; color:var(--ink-low) }
+.lang-card:hover{border-color:var(--border2);background:var(--surface);transform:translateY(-1px)}
+.lc-name{font-family:var(--font-h);font-size:.9rem;font-weight:600;color:var(--ink);margin-bottom:1px}
+.lc-native{font-size:11px;color:var(--ink-low);margin-bottom:6px}
+.lc-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.lc-foot{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low)}
+.lc-iso{font-family:var(--font-m);font-size:11px;color:var(--ink-low)}
 
-/* ── DETAIL ── */
-.detail-back {
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:13px; font-weight:500; color:var(--ink-mid);
-  cursor:pointer; margin-bottom:24px; background:var(--raised);
-  border:1px solid var(--border); border-radius:var(--r-md);
-  padding:7px 14px; transition:all var(--fast);
-}
-.detail-back:hover { border-color:var(--border2); color:var(--ink) }
-.detail-wrap { max-width:900px }
-.detail-name {
-  font-family:var(--font-head); font-size:clamp(1.6rem,4vw,2.4rem);
-  font-weight:700; letter-spacing:-0.03em; color:var(--ink); margin-bottom:4px;
-}
-.detail-sub { font-size:14px; color:var(--ink-mid); margin-bottom:4px }
-.detail-alts { font-size:12px; color:var(--ink-low); margin-bottom:16px }
-.detail-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:28px }
-.detail-sec { margin-bottom:28px }
-.detail-sec-title {
-  font-family:var(--font-head); font-size:13px; font-weight:600;
-  text-transform:uppercase; letter-spacing:.08em; color:var(--ink-low);
-  margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border);
-}
-.detail-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px }
-.detail-field { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-md); padding:10px 14px }
-.detail-lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low); margin-bottom:3px }
-.detail-val { font-size:13px; font-weight:500; color:var(--ink) }
+/* ═══ FAMILIES TREE ═══ */
+.tree-fam{background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:7px;overflow:hidden}
+.tree-fam-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;transition:background 120ms;user-select:none}
+.tree-fam-hd:hover{background:var(--hover)}
+.tree-fam-left{display:flex;align-items:center;gap:8px;font-family:var(--font-h);font-size:.9rem;font-weight:600;color:var(--ink)}
+.tree-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tree-chev{font-size:9px;color:var(--ink-low);transition:transform 160ms}
+.tree-chev.open{transform:rotate(90deg)}
+.tree-stats{font-size:11px;color:var(--ink-low);display:flex;gap:12px}
+.tree-body{display:none;border-top:1px solid var(--border)}
+.tree-body.open{display:block}
+.tree-branch{padding:5px 14px 5px 28px;border-bottom:1px solid var(--border)}
+.tree-branch:last-child{border-bottom:none}
+.tree-br-hd{display:flex;align-items:center;gap:6px;padding:5px 0;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-mid);user-select:none}
+.tree-br-hd:hover{color:var(--ink)}
+.tree-sub{display:none;padding-left:12px}
+.tree-sub.open{display:block}
+.tree-lang{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:5px;font-size:12px;color:var(--ink-mid);cursor:pointer}
+.tree-lang:hover{background:var(--hover);color:var(--ink)}
+.tree-lang-iso{font-family:var(--font-m);font-size:10px;color:var(--ink-dim)}
 
-/* ── FAMILIES ── */
-.tree-fam {
-  background:var(--raised); border:1px solid var(--border);
-  border-radius:var(--r-lg); margin-bottom:8px; overflow:hidden;
-}
-.tree-fam-head {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 18px; cursor:pointer; transition:background var(--fast); user-select:none;
-}
-.tree-fam-head:hover { background:var(--hover) }
-.tree-fam-left { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:0.95rem; font-weight:600; color:var(--ink) }
-.tree-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0 }
-.tree-chevron { font-size:10px; color:var(--ink-low); transition:transform var(--fast); margin-left:4px }
-.tree-chevron.open { transform:rotate(90deg) }
-.tree-fam-stats { font-size:12px; color:var(--ink-low); display:flex; gap:16px }
-.tree-body { display:none; border-top:1px solid var(--border) }
-.tree-body.open { display:block }
-.tree-branch { padding:6px 16px 6px 32px; border-bottom:1px solid var(--border) }
-.tree-branch:last-child { border-bottom:none }
-.tree-branch-head {
-  display:flex; align-items:center; gap:8px; padding:7px 0;
-  cursor:pointer; font-size:13px; font-weight:600; color:var(--ink-mid);
-  transition:color var(--fast); user-select:none;
-}
-.tree-branch-head:hover { color:var(--ink) }
-.tree-sub-body { display:none; padding-left:16px }
-.tree-sub-body.open { display:block }
-.tree-lang {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:5px 8px; border-radius:var(--r-sm);
-  font-size:12px; color:var(--ink-mid); cursor:pointer; transition:all var(--fast);
-}
-.tree-lang:hover { background:var(--hover); color:var(--ink) }
-.tree-lang-iso { font-family:var(--font-mono); font-size:10px; color:var(--ink-dim) }
+/* ═══ TOOLS ═══ */
+.tool-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto}
+.tool-tab{padding:9px 18px;font-family:var(--font-h);font-size:13px;font-weight:500;color:var(--ink-low);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all 120ms}
+.tool-tab:hover{color:var(--ink)}
+.tool-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tool-panel{display:none}
+.tool-panel.active{display:block}
+.tool-h{font-family:var(--font-h);font-size:1rem;font-weight:600;margin-bottom:5px;color:var(--ink)}
+.tool-sub{font-size:13px;color:var(--ink-mid);margin-bottom:18px;max-width:540px;line-height:1.6}
+.bar-wrap{background:var(--raised);border-radius:var(--r-full);height:5px;overflow:hidden;flex:1}
+.bar-fill{height:100%;border-radius:var(--r-full);transition:width .4s var(--ease)}
+.res-card{background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:7px}
+.res-card:hover{border-color:var(--border2)}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border)}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px}
+.comp-table th{background:var(--surface);padding:9px 12px;text-align:left;font-family:var(--font-h);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-low);border-bottom:1px solid var(--border)}
+.comp-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--ink-mid)}
+.comp-table td:first-child{color:var(--ink-low);font-size:11px}
+.comp-table tr.match td{color:var(--ink);background:rgba(0,212,255,.04)}
+.comp-table tr:last-child td{border-bottom:none}
+.tl-wrap{position:relative;padding-left:22px}
+.tl-wrap::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;padding:6px 0 6px 18px;margin-bottom:1px}
+.tl-dot{position:absolute;left:-17px;top:12px;width:8px;height:8px;border-radius:50%}
+.tl-period{font-family:var(--font-m);font-size:10px;color:var(--ink-low);margin-bottom:1px}
+.tl-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:1px}
+.tl-meta{font-size:10px;color:var(--ink-low)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.stats-card{background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px}
+.stats-ct{font-family:var(--font-h);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px}
+.s-row{margin-bottom:8px}
+.s-bar-top{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;color:var(--ink-mid)}
 
-/* ── TOOLS ── */
-.tool-tabs {
-  display:flex; gap:4px; margin-bottom:24px;
-  border-bottom:1px solid var(--border); padding-bottom:0;
-}
-.tool-tab {
-  padding:10px 20px; font-family:var(--font-head); font-size:13px; font-weight:500;
-  color:var(--ink-low); cursor:pointer; border:none; background:none;
-  border-bottom:2px solid transparent; margin-bottom:-1px; transition:all var(--fast);
-}
-.tool-tab:hover { color:var(--ink) }
-.tool-tab.active { color:var(--cyan); border-bottom-color:var(--cyan) }
-.tool-panel { display:none }
-.tool-panel.active { display:block; animation:fadeIn .2s var(--ease) }
-.tool-h { font-family:var(--font-head); font-size:1.1rem; font-weight:600; margin-bottom:6px; color:var(--ink) }
-.tool-sub { font-size:13px; color:var(--ink-mid); margin-bottom:20px; max-width:560px }
+/* ═══ SOURCES ═══ */
+.src-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:24px}
+.src-card{background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px}
+.src-name{font-family:var(--font-h);font-size:.9rem;font-weight:600;margin-bottom:5px;color:var(--ink)}
+.src-desc{font-size:12px;color:var(--ink-mid);line-height:1.55;margin-bottom:7px}
+.src-url{font-family:var(--font-m);font-size:11px;color:var(--cyan)}
+.src-ref{font-size:11px;color:var(--ink-low);font-style:italic;margin-bottom:3px}
+.know-sec{margin-bottom:28px}
+.know-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-low);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
 
-.bar-wrap { background:var(--raised); border-radius:var(--r-full); height:5px; overflow:hidden; flex:1 }
-.bar-fill { height:100%; border-radius:var(--r-full); transition:width .4s var(--ease) }
-
-.res-card {
-  background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg);
-  padding:14px 16px; margin-bottom:8px; transition:border-color var(--fast);
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .hdr-sel{display:none}
+  .hdr-search{max-width:none;flex:1}
+  .map-filters{max-width:calc(100vw - 60px)}
+  .mf-chip select{max-width:90px}
+  .detail-panel{width:100%;right:0;border-left:none;border-top:1px solid var(--border2)}
+  .map-layers{bottom:70px;font-size:11px}
+  .map-legend{display:none}
+  .md-body{padding:16px}
+  .expl-top{flex-direction:column}
 }
-.res-card:hover { border-color:var(--border2) }
-
-.tbl-scroll { overflow-x:auto; border-radius:var(--r-lg); border:1px solid var(--border) }
-.comp-table { width:100%; border-collapse:collapse; font-size:13px }
-.comp-table th {
-  background:var(--surface); padding:10px 14px; text-align:left;
-  font-family:var(--font-head); font-size:11px; font-weight:600;
-  text-transform:uppercase; letter-spacing:.06em; color:var(--ink-low);
-  border-bottom:1px solid var(--border);
+@media(max-width:480px){
+  .site-hdr{padding:0 10px;gap:6px}
+  .logo{font-size:.95rem}
+  .map-filters{top:calc(var(--hdr)+8px);left:8px;gap:4px}
+  .mf-chip{padding:3px 8px}
 }
-.comp-table td { padding:9px 14px; border-bottom:1px solid var(--border); color:var(--ink-mid) }
-.comp-table td:first-child { color:var(--ink-low); font-size:12px }
-.comp-table tr.match td { color:var(--ink); background:rgba(0,212,255,.04) }
-.comp-table tr:last-child td { border-bottom:none }
-
-.timeline { position:relative; padding-left:24px }
-.timeline::before { content:''; position:absolute; left:6px; top:0; bottom:0; width:1px; background:var(--border) }
-.tl-item { position:relative; padding:8px 0 8px 20px; margin-bottom:2px }
-.tl-dot { position:absolute; left:-18px; top:13px; width:8px; height:8px; border-radius:50% }
-.tl-period { font-family:var(--font-mono); font-size:11px; color:var(--ink-low); margin-bottom:2px }
-.tl-name { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:1px }
-.tl-meta { font-size:11px; color:var(--ink-low) }
-
-.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:20px }
-.stats-card { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg); padding:20px }
-.stats-card-title { font-family:var(--font-head); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:14px }
-.stats-row-item { margin-bottom:10px }
-.stats-bar-top { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; color:var(--ink-mid) }
-
-/* ── KNOWLEDGE ── */
-.know-sec { margin-bottom:32px }
-.know-sec-title {
-  font-family:var(--font-head); font-size:13px; font-weight:600;
-  text-transform:uppercase; letter-spacing:.08em; color:var(--ink-low);
-  margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border);
-}
-.source-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px }
-.source-card { background:var(--raised); border:1px solid var(--border); border-radius:var(--r-lg); padding:18px }
-.source-name { font-family:var(--font-head); font-size:0.9rem; font-weight:600; margin-bottom:6px; color:var(--ink) }
-.source-desc { font-size:12px; color:var(--ink-mid); line-height:1.55; margin-bottom:8px }
-.source-url { font-family:var(--font-mono); font-size:11px; color:var(--cyan) }
-
-/* ── FOOTER ── */
-.site-footer {
-  text-align:center; padding:24px;
-  font-size:11px; color:var(--ink-low);
-  border-top:1px solid var(--border); margin-top:32px;
-}
-
-/* ── BUTTONS ── */
-.btn {
-  display:inline-flex; align-items:center; gap:6px;
-  padding:8px 18px; border-radius:var(--r-md);
-  font-family:var(--font-head); font-size:13px; font-weight:600;
-  cursor:pointer; border:1px solid transparent; transition:all var(--fast);
-}
-.btn-primary { background:var(--cyan); color:#000; border-color:var(--cyan) }
-.btn-primary:hover { opacity:.88; box-shadow:0 0 20px var(--cyan-glow) }
-.btn-ghost { background:var(--raised); color:var(--ink); border-color:var(--border) }
-.btn-ghost:hover { background:var(--hover); border-color:var(--border2) }
-.btn-sm { padding:5px 14px; font-size:12px }
-
-/* ── RESPONSIVE ── */
-@media (max-width:768px) {
-  .pill-nav { display:none }
-  .mobile-nav { display:flex }
-  main,.views-wrap { padding:20px 16px 100px }
-  .home-hero { padding:32px 0 28px }
-  .stat-row { max-width:100% }
-  .stat-cell { min-width:80px; padding:14px 8px }
-  .stat-val { font-size:1.4rem }
-  .map-adv-selects { display:none }
-  .map-layers { bottom:80px }
-  .logo-sub { display:none }
-}
-@media (max-width:480px) {
-  .stat-cell { flex-basis:50% }
-  .stat-cell:nth-child(2) { border-right:none }
-  .stat-cell:nth-child(3),.stat-cell:nth-child(4) { border-top:1px solid var(--border) }
-  .stat-cell:nth-child(5) { border-top:1px solid var(--border); flex-basis:100%; border-right:none }
-}
-  </style>
+</style>
 </head>
 <body>
+<a class="sr-only" href="#mapContainer">Skip to map</a>
 
-<a class="sr-only" href="#main-content">Skip to content</a>
-
-<!-- HEADER -->
-<header class="site-header">
-  <a class="logo" onclick="switchToView('home')" href="#">
-    Glossa<span>Forge</span>
-    <span class="logo-sub">Geospatial Linguistics</span>
-  </a>
-  <nav class="pill-nav" aria-label="Main navigation">
-    <button class="pn active" data-view="home">Home</button>
-    <button class="pn" data-view="map">Map</button>
-    <button class="pn" data-view="explorer">Explorer</button>
-    <button class="pn" data-view="families">Families</button>
-    <button class="pn" data-view="tools">Tools</button>
-    <button class="pn" data-view="knowledge">Sources</button>
-  </nav>
-  <div class="header-end">
-    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+<!-- ═══ HEADER ═══ -->
+<header class="site-hdr">
+  <div class="logo" onclick="closeAll()" title="GlossaForge — back to map">
+    Glossa<em>Forge</em>
+  </div>
+  <div class="hdr-search">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="mapSearch" placeholder="Search language or ISO code…" autocomplete="off" maxlength="100">
+  </div>
+  <select class="hdr-sel" id="hdFamily" aria-label="Filter by family">
+    <option value="">All Families</option>
+  </select>
+  <select class="hdr-sel" id="hdRegion" aria-label="Filter by region">
+    <option value="">All Regions</option>
+  </select>
+  <select class="hdr-sel" id="hdStatus" aria-label="Filter by status">
+    <option value="">Any Status</option>
+    <option value="safe">Safe</option>
+    <option value="vulnerable">Vulnerable</option>
+    <option value="definitely_endangered">Endangered</option>
+    <option value="severely_endangered">Severely Endangered</option>
+    <option value="critically_endangered">Critically Endangered</option>
+    <option value="extinct">Extinct</option>
+  </select>
+  <div class="hdr-end">
+    <span class="hdr-count" id="hdrCount">—</span>
+    <button class="icon-btn" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+    <button class="icon-btn" id="menuBtn" aria-label="Open menu" title="Explorer, Families, Tools, Sources">☰</button>
   </div>
 </header>
 
-<!-- MOBILE NAV -->
-<nav class="mobile-nav" aria-label="Mobile navigation">
-  <button class="mob-link active" data-view="home"><span class="mi">🏠</span>Home</button>
-  <button class="mob-link" data-view="map"><span class="mi">🗺</span>Map</button>
-  <button class="mob-link" data-view="explorer"><span class="mi">🔍</span>Explorer</button>
-  <button class="mob-link" data-view="families"><span class="mi">🌳</span>Families</button>
-  <button class="mob-link" data-view="tools"><span class="mi">🧰</span>Tools</button>
-  <button class="mob-link" data-view="knowledge"><span class="mi">📚</span>Sources</button>
+<!-- ═══ MAP (always rendered) ═══ -->
+<div id="mapContainer" role="application" aria-label="World language map"></div>
+
+<!-- ═══ FLOATING MAP FILTER ROW (extra filters) ═══ -->
+<div class="map-filters" id="mapFilters">
+  <div class="mf-chip">
+    <span>Order:</span>
+    <select id="fWordOrder" aria-label="Filter by word order">
+      <option value="">Any</option>
+      <option value="SOV">SOV</option>
+      <option value="SVO">SVO</option>
+      <option value="VSO">VSO</option>
+      <option value="VOS">VOS</option>
+      <option value="OVS">OVS</option>
+      <option value="OSV">OSV</option>
+    </select>
+  </div>
+  <div class="mf-chip">
+    <span>Morph:</span>
+    <select id="fMorph" aria-label="Filter by morphological type">
+      <option value="">Any</option>
+      <option value="isolating">Isolating</option>
+      <option value="agglutinative">Agglutinative</option>
+      <option value="fusional">Fusional</option>
+      <option value="polysynthetic">Polysynthetic</option>
+    </select>
+  </div>
+  <div class="mf-chip">
+    <span>Tone:</span>
+    <select id="fTone" aria-label="Filter by tone system">
+      <option value="">Any</option>
+      <option value="none">No tone</option>
+      <option value="simple">Simple</option>
+      <option value="complex">Complex</option>
+    </select>
+  </div>
+  <label class="mf-extinct" title="Show extinct languages on map">
+    <input type="checkbox" id="fExtinct" style="accent-color:var(--cyan)">
+    Extinct
+  </label>
+  <button class="mf-reset" id="resetBtn" onclick="resetFilters()">✕ Reset</button>
+</div>
+
+<!-- ═══ MAP LAYER SWITCHER ═══ -->
+<nav class="map-layers" aria-label="Map colour mode">
+  <button class="ml-btn active" data-layer="family">Family</button>
+  <button class="ml-btn" data-layer="endangerment">Status</button>
+  <button class="ml-btn" data-layer="wordorder">Word Order</button>
+  <button class="ml-btn" data-layer="morphology">Morphology</button>
+  <button class="ml-btn" data-layer="tone">Tone</button>
 </nav>
 
-<!-- HOME (inside main) -->
-<main id="main-content">
-  <section id="view-home" class="view active">
-    <div class="home-hero">
-      <h1>Glossa<em>Forge</em></h1>
-      <p>Explore the world's languages — their families, geography, typology, endangerment, and connections. An evidence-based toolkit for linguists, polyglots, and the curious.</p>
-    </div>
-    <div class="stat-row" id="homeStats">
-      <div class="stat-cell"><div class="stat-val" id="statLangs">—</div><div class="stat-lbl">Languages</div></div>
-      <div class="stat-cell"><div class="stat-val" id="statFamilies">—</div><div class="stat-lbl">Families</div></div>
-      <div class="stat-cell"><div class="stat-val" id="statSpeakers">—</div><div class="stat-lbl">Speakers</div></div>
-      <div class="stat-cell"><div class="stat-val" id="statEndangered">—</div><div class="stat-lbl">Endangered</div></div>
-      <div class="stat-cell"><div class="stat-val" id="statExtinct">—</div><div class="stat-lbl">Extinct</div></div>
-    </div>
-    <div class="feat-grid">
-      <div class="feat-card" onclick="switchToView('map')">
-        <div class="feat-icon">🗺️</div>
-        <div class="feat-title">World Map</div>
-        <p class="feat-desc">Interactive map of 500+ languages. Color by family, endangerment, word order, or morphology. Filter and search in real time.</p>
-        <span class="feat-cta">Open Map →</span>
-      </div>
-      <div class="feat-card" onclick="switchToView('explorer')">
-        <div class="feat-icon">🔍</div>
-        <div class="feat-title">Language Explorer</div>
-        <p class="feat-desc">Search and filter by name, family, region, typological features, or endangerment status. View full typological profiles.</p>
-        <span class="feat-cta">Explore →</span>
-      </div>
-      <div class="feat-card" onclick="switchToView('families')">
-        <div class="feat-icon">🌳</div>
-        <div class="feat-title">Family Trees</div>
-        <p class="feat-desc">Hierarchical view of all language families — from Indo-European to isolates. Browse branches and individual languages.</p>
-        <span class="feat-cta">View Families →</span>
-      </div>
-      <div class="feat-card" onclick="switchToView('tools')">
-        <div class="feat-icon">🧰</div>
-        <div class="feat-title">Linguistics Tools</div>
-        <p class="feat-desc">Mutual intelligibility matcher, grammatical similarity finder, side-by-side comparison, historical timeline, and world statistics.</p>
-        <span class="feat-cta">Open Tools →</span>
-      </div>
-      <div class="feat-card" onclick="switchToView('knowledge')">
-        <div class="feat-icon">📚</div>
-        <div class="feat-title">Sources &amp; Methods</div>
-        <p class="feat-desc">Data sources, methodology notes, and academic references. Built on Glottolog, WALS, PHOIBLE, and UNESCO Atlas.</p>
-        <span class="feat-cta">View Sources →</span>
-      </div>
-    </div>
-  </section>
-</main>
+<!-- ═══ LEGEND ═══ -->
+<div id="mapLegend" class="map-legend" aria-label="Map legend"></div>
 
-<!-- MAP (fixed, full viewport) -->
-<section id="view-map" class="view">
-  <div class="map-wrap">
-    <div id="mapContainer"></div>
-    <div class="map-float-top">
-      <div class="map-search-box">
-        <span class="map-search-icon">⌕</span>
-        <input type="text" id="mapSearch" placeholder="Search language or ISO code…" autocomplete="off">
-      </div>
-    </div>
-    <div class="map-adv-selects" id="mapAdvFilters">
-      <div class="map-adv-sel"><select id="mapFamily"><option value="">All Families</option></select></div>
-      <div class="map-adv-sel"><select id="mapRegion"><option value="">All Regions</option></select></div>
-      <div class="map-adv-sel"><select id="mapWordOrder"><option value="">Word Order</option></select></div>
-      <div class="map-adv-sel"><select id="mapMorphType"><option value="">Morphology</option></select></div>
-      <div class="map-adv-sel"><select id="mapEndangerment">
-        <option value="">Any Status</option>
-        <option value="safe">Safe</option>
-        <option value="vulnerable">Vulnerable</option>
-        <option value="definitely_endangered">Endangered</option>
-        <option value="severely_endangered">Severely Endangered</option>
-        <option value="critically_endangered">Critically Endangered</option>
-        <option value="extinct">Extinct</option>
-      </select></div>
-      <div class="map-adv-sel"><select id="mapTone"><option value="">Tone</option></select></div>
-      <label class="map-extinct-wrap"><input type="checkbox" id="mapShowExtinct" style="accent-color:var(--cyan)"> Show extinct</label>
-      <button class="map-reset-btn" onclick="resetMapFilters()">Reset</button>
-    </div>
-    <div class="map-count" id="mapFilterCount"></div>
-    <div class="map-layers">
-      <button class="map-layer-btn active" data-layer="family">Family</button>
-      <button class="map-layer-btn" data-layer="endangerment">Endangerment</button>
-      <button class="map-layer-btn" data-layer="wordorder">Word Order</button>
-      <button class="map-layer-btn" data-layer="morphology">Morphology</button>
-      <button class="map-layer-btn" data-layer="tone">Tone</button>
-    </div>
-    <div id="mapLegend" class="map-legend"></div>
+<!-- ═══ LANGUAGE DETAIL PANEL ═══ -->
+<aside id="detailPanel" class="detail-panel" aria-label="Language detail">
+  <div class="dp-head">
+    <span id="dpTitle" style="font-family:var(--font-h);font-size:.9rem;font-weight:600;color:var(--ink-mid)">Language detail</span>
+    <button class="dp-close" onclick="closeDetail()" aria-label="Close detail panel">✕</button>
   </div>
-</section>
+  <div class="dp-body" id="dpBody"></div>
+</aside>
 
-<!-- OTHER VIEWS -->
-<div class="views-wrap">
+<!-- ═══ MENU DRAWER ═══ -->
+<div id="menuDrawer" class="menu-drawer" role="dialog" aria-label="GlossaForge menu">
+  <div class="md-head">
+    <span class="md-logo">Glossa<em>Forge</em></span>
+    <button class="icon-btn" onclick="closeMenu()" aria-label="Close menu">✕</button>
+  </div>
+  <nav class="md-tabs" role="tablist">
+    <button class="md-tab active" data-drawer="explorer" role="tab">Explorer</button>
+    <button class="md-tab" data-drawer="families" role="tab">Families</button>
+    <button class="md-tab" data-drawer="tools" role="tab">Tools</button>
+    <button class="md-tab" data-drawer="sources" role="tab">Sources</button>
+  </nav>
+  <div class="md-body">
 
-  <!-- EXPLORER -->
-  <section id="view-explorer" class="view">
-    <div class="sec-head"><h2>Language Explorer</h2><p>Search and filter 500+ world languages. Click any card for a full typological profile.</p></div>
-    <div class="explorer-top">
-      <div class="explorer-search-wrap">
-        <div class="field-label">Search</div>
-        <input class="inp" type="text" id="explorerSearch" placeholder="Name, ISO code, or alternate name…">
+    <!-- EXPLORER -->
+    <div id="drawer-explorer" class="md-view">
+      <div class="sec-h2">Language Explorer</div>
+      <p class="sec-sub">Search and filter 500+ world languages. Click any card for a full typological profile.</p>
+      <div class="expl-top">
+        <div class="expl-search-wrap">
+          <div class="fl-lbl">Search</div>
+          <input class="inp" type="text" id="exSearch" placeholder="Name, ISO code, or alternate name…" maxlength="100">
+        </div>
+        <div>
+          <div class="fl-lbl">Family</div>
+          <select class="sel" id="exFamily"><option value="">All</option></select>
+        </div>
+        <div>
+          <div class="fl-lbl">Region</div>
+          <select class="sel" id="exRegion"><option value="">All</option></select>
+        </div>
+        <div>
+          <div class="fl-lbl">Status</div>
+          <select class="sel" id="exStatus">
+            <option value="">Any</option>
+            <option value="safe">Safe</option>
+            <option value="vulnerable">Vulnerable</option>
+            <option value="definitely_endangered">Endangered</option>
+            <option value="severely_endangered">Severely Endangered</option>
+            <option value="critically_endangered">Critically Endangered</option>
+            <option value="extinct">Extinct</option>
+          </select>
+        </div>
       </div>
-      <div><div class="field-label">Family</div><select class="sel" id="explorerFamily"><option value="">All</option></select></div>
-      <div><div class="field-label">Region</div><select class="sel" id="explorerRegion"><option value="">All</option></select></div>
-      <div><div class="field-label">Status</div>
-        <select class="sel" id="explorerEndanger">
-          <option value="">Any</option>
-          <option value="safe">Safe</option>
-          <option value="vulnerable">Vulnerable</option>
-          <option value="definitely_endangered">Endangered</option>
-          <option value="severely_endangered">Severely Endangered</option>
-          <option value="critically_endangered">Critically Endangered</option>
-          <option value="extinct">Extinct</option>
-        </select>
+      <div class="res-meta" id="exCount"></div>
+      <div class="lang-grid" id="exResults"></div>
+    </div>
+
+    <!-- FAMILIES -->
+    <div id="drawer-families" class="md-view" style="display:none">
+      <div class="sec-h2">Language Families</div>
+      <p class="sec-sub">Hierarchical view of all language families, branches, and individual languages.</p>
+      <div style="max-width:360px;margin-bottom:16px">
+        <input class="inp" type="text" id="famSearch" placeholder="Search family or language name…" maxlength="100">
+      </div>
+      <div id="famTree"></div>
+    </div>
+
+    <!-- TOOLS -->
+    <div id="drawer-tools" class="md-view" style="display:none">
+      <div class="sec-h2">Linguistics Tools</div>
+      <p class="sec-sub">Intelligibility matching, grammar similarity, side-by-side comparison, timeline, and world statistics.</p>
+      <div class="tool-tabs" role="tablist">
+        <button class="tool-tab active" data-tool="intelligibility">Intelligibility</button>
+        <button class="tool-tab" data-tool="similarity">Grammar Similarity</button>
+        <button class="tool-tab" data-tool="comparison">Comparison</button>
+        <button class="tool-tab" data-tool="timeline">Timeline</button>
+        <button class="tool-tab" data-tool="wstats">World Stats</button>
+      </div>
+      <div id="tool-intelligibility" class="tool-panel active" role="tabpanel">
+        <div class="tool-h">Mutual Intelligibility Matcher</div>
+        <p class="tool-sub">Select a language to see which others its speakers can understand — and to what degree. Based on Gooskens (2007), Tang &amp; van Heuven (2009).</p>
+        <div style="max-width:380px;margin-bottom:18px">
+          <div class="fl-lbl">Select Language</div>
+          <select class="sel" id="intLang" style="width:100%"><option value="">Choose a language…</option></select>
+        </div>
+        <div id="intResults"></div>
+      </div>
+      <div id="tool-similarity" class="tool-panel" role="tabpanel">
+        <div class="tool-h">Grammatical Similarity Finder</div>
+        <p class="tool-sub">Find languages that share grammatical features across families. Scored via WALS-derived typological features.</p>
+        <div style="max-width:380px;margin-bottom:18px">
+          <div class="fl-lbl">Select Language</div>
+          <select class="sel" id="simLang" style="width:100%"><option value="">Choose a language…</option></select>
+        </div>
+        <div id="simResults"></div>
+      </div>
+      <div id="tool-comparison" class="tool-panel" role="tabpanel">
+        <div class="tool-h">Language Comparison</div>
+        <p class="tool-sub">Select 2–5 languages for a side-by-side typological comparison. Matching features are highlighted.</p>
+        <div id="compSelectors" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addCompSlot()" id="addCompBtn">+ Add Language</button>
+        <div id="compResults" style="margin-top:18px"></div>
+      </div>
+      <div id="tool-timeline" class="tool-panel" role="tabpanel">
+        <div class="tool-h">Historical Timeline</div>
+        <p class="tool-sub">Extinct and historical languages with their approximate dates of last attestation.</p>
+        <div style="max-width:280px;margin-bottom:18px">
+          <div class="fl-lbl">Filter by Family</div>
+          <select class="sel" id="tlFamily" style="width:100%"><option value="">All Families</option></select>
+        </div>
+        <div id="tlResults"></div>
+      </div>
+      <div id="tool-wstats" class="tool-panel" role="tabpanel">
+        <div class="tool-h">World Language Statistics</div>
+        <p class="tool-sub">Global overview of language diversity, distribution, and endangerment.</p>
+        <div id="wstatsResults"></div>
       </div>
     </div>
-    <div class="chip-row" id="explorerChips"></div>
-    <div class="result-meta" id="explorerCount"></div>
-    <div class="lang-grid" id="explorerResults"></div>
-    <div id="explorerDetail" style="display:none"></div>
-  </section>
 
-  <!-- FAMILIES -->
-  <section id="view-families" class="view">
-    <div class="sec-head"><h2>Language Families</h2><p>Hierarchical view of the world's language families, branches, and individual languages.</p></div>
-    <div style="max-width:400px;margin-bottom:24px">
-      <div class="field-label">Search</div>
-      <input class="inp" type="text" id="familySearch" placeholder="Search family or language name…">
-    </div>
-    <div class="stat-row" id="familyStats" style="max-width:600px;margin-bottom:28px"></div>
-    <div id="familyTree"></div>
-  </section>
-
-  <!-- TOOLS -->
-  <section id="view-tools" class="view">
-    <div class="sec-head"><h2>Linguistics Tools</h2><p>Analyze languages with matching, comparison, and visualization tools.</p></div>
-    <div class="tool-tabs" role="tablist">
-      <button class="tool-tab active" data-tool="intelligibility" role="tab" aria-selected="true">Intelligibility</button>
-      <button class="tool-tab" data-tool="similarity" role="tab" aria-selected="false">Grammar Similarity</button>
-      <button class="tool-tab" data-tool="comparison" role="tab" aria-selected="false">Comparison</button>
-      <button class="tool-tab" data-tool="timeline" role="tab" aria-selected="false">Timeline</button>
-      <button class="tool-tab" data-tool="stats" role="tab" aria-selected="false">World Stats</button>
-    </div>
-    <div id="tool-intelligibility" class="tool-panel active" role="tabpanel">
-      <div class="tool-h">Mutual Intelligibility Matcher</div>
-      <p class="tool-sub">Select a language to see which others its speakers can understand — and to what degree. Intelligibility is often asymmetric.</p>
-      <div style="max-width:400px;margin-bottom:20px"><div class="field-label">Select Language</div><select class="sel" id="intelligibilityLang" style="width:100%"><option value="">Choose a language…</option></select></div>
-      <div id="intelligibilityResults"></div>
-    </div>
-    <div id="tool-similarity" class="tool-panel" role="tabpanel">
-      <div class="tool-h">Grammatical Similarity Finder</div>
-      <p class="tool-sub">Find languages that share grammatical features — even across unrelated families. Scored across word order, morphology, case alignment, tone, gender, and more.</p>
-      <div style="max-width:400px;margin-bottom:20px"><div class="field-label">Select Language</div><select class="sel" id="similarityLang" style="width:100%"><option value="">Choose a language…</option></select></div>
-      <div id="similarityResults"></div>
-    </div>
-    <div id="tool-comparison" class="tool-panel" role="tabpanel">
-      <div class="tool-h">Language Comparison</div>
-      <p class="tool-sub">Select 2–5 languages for a side-by-side typological comparison. Matching features are highlighted.</p>
-      <div id="comparisonSelectors" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
-      <button class="btn btn-ghost btn-sm" onclick="addComparisonSlot()" id="addCompBtn">+ Add Language</button>
-      <div id="comparisonResults" style="margin-top:20px"></div>
-    </div>
-    <div id="tool-timeline" class="tool-panel" role="tabpanel">
-      <div class="tool-h">Historical Timeline</div>
-      <p class="tool-sub">Extinct and historical languages across time. Filter by family.</p>
-      <div style="max-width:300px;margin-bottom:20px"><div class="field-label">Filter by Family</div><select class="sel" id="timelineFamily" style="width:100%"><option value="">All Families</option></select></div>
-      <div id="timelineResults"></div>
-    </div>
-    <div id="tool-stats" class="tool-panel" role="tabpanel">
-      <div class="tool-h">World Language Statistics</div>
-      <p class="tool-sub">Global overview of language diversity, distribution, and endangerment.</p>
-      <div id="worldStats"></div>
-    </div>
-  </section>
-
-  <!-- KNOWLEDGE -->
-  <section id="view-knowledge" class="view">
-    <div class="sec-head"><h2>Sources &amp; Methodology</h2><p>Data provenance, scoring methodology, and academic references.</p></div>
-    <div class="know-sec">
-      <div class="know-sec-title">Data Sources</div>
-      <div class="source-grid">
-        <div class="source-card"><div class="source-name">Glottolog</div><p class="source-desc">Comprehensive catalogue of the world's languages, language families, and dialects. Provides ISO 639-3 codes, geographic coordinates, and family classification.</p><span class="source-url">glottolog.org</span></div>
-        <div class="source-card"><div class="source-name">WALS — World Atlas of Language Structures</div><p class="source-desc">Database of structural properties of languages. Primary source for typological features like word order, morphological type, and case alignment.</p><span class="source-url">wals.info</span></div>
-        <div class="source-card"><div class="source-name">PHOIBLE</div><p class="source-desc">Repository of cross-linguistic phonological inventory data. Source for consonant/vowel inventory sizes, click sounds, ejectives, and tonal information.</p><span class="source-url">phoible.org</span></div>
-        <div class="source-card"><div class="source-name">UNESCO Atlas of World's Languages in Danger</div><p class="source-desc">Classification of languages by endangerment: vulnerable, definitely endangered, severely endangered, critically endangered, and extinct.</p><span class="source-url">unesco.org/languages-atlas</span></div>
-        <div class="source-card"><div class="source-name">Ethnologue</div><p class="source-desc">Reference publication cataloging all known living languages. Source for speaker population estimates, country-level distribution, and EGIDS vitality levels.</p><span class="source-url">ethnologue.com</span></div>
-        <div class="source-card"><div class="source-name">Academic Literature</div><p class="source-desc">Mutual intelligibility scores from Gooskens (2007), Tang &amp; van Heuven (2009), and Golubovic &amp; Gooskens (2020).</p></div>
+    <!-- SOURCES -->
+    <div id="drawer-sources" class="md-view" style="display:none">
+      <div class="sec-h2">Sources &amp; Methodology</div>
+      <p class="sec-sub">Data provenance, scoring methodology, and academic references. All typological data derives from peer-reviewed databases and published literature.</p>
+      <div class="know-sec">
+        <div class="know-title">Primary Databases</div>
+        <div class="src-grid">
+          <div class="src-card">
+            <div class="src-name">Glottolog 5.0</div>
+            <p class="src-desc">Comprehensive catalogue of all known language families, languages, and dialects. Source for ISO 639-3 codes, family classification, and geographic coordinates.</p>
+            <div class="src-url">glottolog.org</div>
+            <div class="src-ref">Hammarström, H., Forkel, R., Haspelmath, M. &amp; Bank, S. (2024). <em>Glottolog 5.0.</em> Leipzig: MPI-EVA.</div>
+          </div>
+          <div class="src-card">
+            <div class="src-name">WALS — World Atlas of Language Structures</div>
+            <p class="src-desc">Cross-linguistic database of structural (typological) properties. Primary source for word order, morphological type, case alignment, gender, and evidentiality data.</p>
+            <div class="src-url">wals.info</div>
+            <div class="src-ref">Dryer, M. S. &amp; Haspelmath, M. (eds.) (2013). <em>WALS Online.</em> Leipzig: MPI-EVA.</div>
+          </div>
+          <div class="src-card">
+            <div class="src-name">PHOIBLE 2.0</div>
+            <p class="src-desc">Repository of cross-linguistic phonological inventory data. Source for consonant/vowel inventory sizes, click phonemes, ejectives, tonal classifications, and nasal vowels.</p>
+            <div class="src-url">phoible.org</div>
+            <div class="src-ref">Moran, S. &amp; McCloy, D. (eds.) (2019). <em>PHOIBLE 2.0.</em> Jena: MPI-SHH.</div>
+          </div>
+          <div class="src-card">
+            <div class="src-name">UNESCO Atlas of the World's Languages in Danger</div>
+            <p class="src-desc">Classification of languages by endangerment: safe, vulnerable, definitely endangered, severely endangered, critically endangered, and dormant/extinct. Used for all unescoStatus values.</p>
+            <div class="src-url">unesco.org/languages-atlas</div>
+            <div class="src-ref">Moseley, C. (ed.) (2010). <em>Atlas of the World's Languages in Danger</em>, 3rd ed. Paris: UNESCO.</div>
+          </div>
+          <div class="src-card">
+            <div class="src-name">Ethnologue, 27th Edition</div>
+            <p class="src-desc">Reference catalogue of all known living languages. Source for speaker population estimates, country-level distribution, and EGIDS vitality levels.</p>
+            <div class="src-url">ethnologue.com</div>
+            <div class="src-ref">Eberhard, D. M., Simons, G. F. &amp; Fennig, C. D. (eds.) (2024). <em>Ethnologue</em>, 27th ed. Dallas: SIL International.</div>
+          </div>
+          <div class="src-card">
+            <div class="src-name">UniMorph / SIGMORPHON</div>
+            <p class="src-desc">Cross-linguistic morphological database. Secondary source for morphological type and case system complexity.</p>
+            <div class="src-url">unimorph.github.io</div>
+            <div class="src-ref">Batsuren, K. et al. (2022). UniMorph 4.0. <em>LREC 2022 Proceedings</em>.</div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="know-sec">
-      <div class="know-sec-title">Grammatical Similarity Score</div>
-      <div style="background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);max-width:700px">
-        <div class="tbl-scroll">
+      <div class="know-sec">
+        <div class="know-title">Mutual Intelligibility Sources</div>
+        <div style="background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;font-size:13px;color:var(--ink-mid);line-height:1.7">
+          <p style="margin-bottom:10px">Intelligibility scores represent the percentage of content a native speaker can understand without prior study of the target language. Scores are <strong style="color:var(--ink)">directional</strong> — Portuguese → Spanish intelligibility differs from Spanish → Portuguese.</p>
+          <p style="margin-bottom:8px"><strong style="color:var(--ink)">Key literature:</strong></p>
+          <ul style="padding-left:18px;list-style:disc">
+            <li>Gooskens, C. (2007). The contribution of linguistic factors to the intelligibility of closely related languages. <em>Journal of Multilingual and Multicultural Development</em>, 28(6), 445–467.</li>
+            <li style="margin-top:6px">Tang, C. &amp; van Heuven, V. J. (2009). Mutual intelligibility of Chinese dialects experimentally tested. <em>Lingua</em>, 119(5), 709–732.</li>
+            <li style="margin-top:6px">Golubovic, J. &amp; Gooskens, C. (2020). Mutual intelligibility between West South Slavic languages. <em>Russian Linguistics</em>, 39(3), 351–373.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="know-sec">
+        <div class="know-title">Grammatical Similarity Score — Weight Table</div>
+        <div class="tbl-wrap">
           <table class="comp-table">
-            <thead><tr><th>Feature</th><th>Weight</th><th>Rationale</th></tr></thead>
+            <thead><tr><th>Feature</th><th>Weight</th><th>Source</th></tr></thead>
             <tbody>
-              <tr><td>Word Order</td><td>15%</td><td>SOV, SVO, VSO, etc.</td></tr>
-              <tr><td>Morphological Type</td><td>15%</td><td>Isolating, agglutinative, fusional, polysynthetic</td></tr>
-              <tr><td>Case Alignment</td><td>12%</td><td>Nominative-accusative, ergative-absolutive, etc.</td></tr>
-              <tr><td>Case Count</td><td>8%</td><td>Number of grammatical cases</td></tr>
-              <tr><td>Tone System</td><td>10%</td><td>None, simple, complex</td></tr>
-              <tr><td>Gender System</td><td>8%</td><td>None, 2-gender, 3-gender, classifier, noun class</td></tr>
-              <tr><td>Evidentiality</td><td>7%</td><td>Grammaticalized source-of-information marking</td></tr>
-              <tr><td>Vowel Harmony</td><td>5%</td><td>Presence of vowel harmony system</td></tr>
-              <tr><td>Consonant Inventory</td><td>5%</td><td>Small, average, large, very large</td></tr>
-              <tr><td>Vowel Inventory</td><td>5%</td><td>Small, average, large</td></tr>
-              <tr><td>Definiteness</td><td>5%</td><td>Article system type</td></tr>
-              <tr><td>Negation Type</td><td>5%</td><td>Negation strategy</td></tr>
+              <tr><td>Word Order (SOV/SVO/VSO…)</td><td>15%</td><td>WALS ch. 81A</td></tr>
+              <tr><td>Morphological Type</td><td>15%</td><td>WALS ch. 26A</td></tr>
+              <tr><td>Case Alignment</td><td>12%</td><td>WALS ch. 98A</td></tr>
+              <tr><td>Case Count</td><td>8%</td><td>WALS ch. 49A</td></tr>
+              <tr><td>Tone System</td><td>10%</td><td>PHOIBLE / WALS ch. 13A</td></tr>
+              <tr><td>Gender/Noun Class System</td><td>8%</td><td>WALS ch. 30A</td></tr>
+              <tr><td>Evidentiality</td><td>7%</td><td>WALS ch. 77A</td></tr>
+              <tr><td>Vowel Harmony</td><td>5%</td><td>WALS ch. 116A</td></tr>
+              <tr><td>Consonant Inventory Size</td><td>5%</td><td>PHOIBLE / WALS ch. 1A</td></tr>
+              <tr><td>Vowel Inventory Size</td><td>5%</td><td>PHOIBLE / WALS ch. 2A</td></tr>
+              <tr><td>Definiteness Strategy</td><td>5%</td><td>WALS ch. 37A</td></tr>
+              <tr><td>Negation Strategy</td><td>5%</td><td>WALS ch. 143A</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <div class="know-sec">
-      <div class="know-sec-title">Mutual Intelligibility Scores</div>
-      <div style="background:var(--raised);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;max-width:700px;font-size:13px;color:var(--ink-mid);line-height:1.65">
-        Scores represent the percentage of content a listener can understand without prior study. Scores are <strong style="color:var(--ink)">directional</strong> — a Portuguese speaker may understand more Spanish than vice versa.
-        Categories: <strong style="color:var(--ink)">Very High</strong> (80%+), <strong style="color:var(--ink)">High</strong> (60–79%), <strong style="color:var(--ink)">Moderate</strong> (40–59%), <strong style="color:var(--ink)">Low</strong> (20–39%), <strong style="color:var(--ink)">Minimal</strong> (&lt;20%).
+      <div class="know-sec">
+        <div class="know-title">Glossary</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+          <div class="src-card"><div class="src-name">UNESCO Status</div><p class="src-desc"><strong>Safe</strong>: spoken in all domains, intergenerational transmission secure. <strong>Vulnerable</strong>: mostly spoken by adults. <strong>Definitely endangered</strong>: children no longer learn as native. <strong>Severely endangered</strong>: very few speakers, often elderly. <strong>Critically endangered</strong>: near extinction. <strong>Extinct</strong>: no native speakers remain.</p></div>
+          <div class="src-card"><div class="src-name">Word Order</div><p class="src-desc">Canonical order of Subject (S), Verb (V), and Object (O) in declarative clauses. SOV (e.g. Japanese), SVO (English), VSO (Welsh), VOS (Malagasy), OVS (Hixkaryana), OSV (rare). Source: WALS 81A.</p></div>
+          <div class="src-card"><div class="src-name">Morphological Type</div><p class="src-desc"><strong>Isolating</strong>: words are typically single morphemes (Mandarin). <strong>Agglutinative</strong>: morphemes stack with clear boundaries (Turkish). <strong>Fusional</strong>: morphemes blend together (Russian). <strong>Polysynthetic</strong>: entire sentences encoded in one word (Inuktitut).</p></div>
+          <div class="src-card"><div class="src-name">ISO 639-3</div><p class="src-desc">Three-letter code identifying individual human languages, maintained by SIL International. GlossaForge uses ISO 639-3 as primary language identifiers (e.g., eng = English, cmn = Mandarin Chinese).</p></div>
+          <div class="src-card"><div class="src-name">Glottocode</div><p class="src-desc">Unique identifier from the Glottolog catalogue. Unlike ISO 639-3, glottocodes also cover dialects, proto-languages, and language families at any node in the tree.</p></div>
+          <div class="src-card"><div class="src-name">Evidentiality</div><p class="src-desc">Grammaticalized encoding of the source of information: whether the speaker witnessed the event, heard about it, or inferred it. Found grammatically in languages like Quechua, Bulgarian, and Turkish.</p></div>
+          <div class="src-card"><div class="src-name">Case Alignment</div><p class="src-desc"><strong>Nominative-accusative</strong>: subject of transitive and intransitive verbs share one form (Latin, Russian). <strong>Ergative-absolutive</strong>: subject of intransitive and object of transitive share one form (Basque, Chechen).</p></div>
+          <div class="src-card"><div class="src-name">Mutual Intelligibility</div><p class="src-desc">Degree to which speakers of one language can understand speakers of another without prior study. Ranges from 0 (none) to 1 (complete). Values here are from empirical listening tests reported in peer-reviewed linguistics research.</p></div>
+        </div>
       </div>
     </div>
-  </section>
 
-</div><!-- /views-wrap -->
+  </div><!-- /md-body -->
+</div><!-- /menu-drawer -->
 
-<footer class="site-footer">
-  GlossaForge — Data from Glottolog · WALS · PHOIBLE · UNESCO Atlas
-</footer>
-
-<!-- DATA -->
+<!-- DATA FILES -->
 <script src="data/families.js"></script>
 <script src="data/languages.js"></script>
 <script src="data/intelligibility.js"></script>
@@ -802,475 +686,546 @@ main { padding:32px 24px; max-width:1440px; margin:0 auto; padding-bottom:80px }
 <script>
 'use strict';
 
-let currentView = 'home';
-let leafletMap = null;
-let mapMarkers = [];
-let mapLayerMode = 'family';
-let comparisonSlots = [];
-let viewsLoaded = { home: true };
-let explorerActiveChips = [];
-let darkTiles, lightTiles;
+// ── HELPERS ──
+function getAllLangs(){return typeof LANGUAGE_DATABASE!=='undefined'?Object.values(LANGUAGE_DATABASE):[]}
+function getLang(id){return typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null}
+function getFamName(id){return(typeof FAMILY_TREE!=='undefined'&&FAMILY_TREE[id])?FAMILY_TREE[id].name:id||'—'}
+function fmtN(n){if(!n)return'0';if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n)}
+function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+const FHEX={indoEuropean:'#60a5fa',sinoTibetan:'#f87171',nigerCongo:'#34d399',afroasiatic:'#fbbf24',austronesian:'#a78bfa',dravidian:'#fb923c',turkic:'#22d3ee',uralic:'#e879f9',japonic:'#f472b6',koreanic:'#818cf8',taiKadai:'#2dd4bf',austroasiatic:'#a3e635',kartvelian:'#fb7185',mongolic:'#c084fc',semitic:'#fde68a'};
+function getFHex(id){return FHEX[id]||'#71717a'}
+
+function endangBadge(s){
+  const m={safe:['Safe','badge-safe'],vulnerable:['Vulnerable','badge-vulnerable'],definitely_endangered:['Endangered','badge-endangered'],severely_endangered:['Severely End.','badge-severely'],critically_endangered:['Critical','badge-critical'],extinct:['Extinct','badge-extinct']};
+  const[l,c]=m[s]||['—',''];
+  return`<span class="badge ${c}">${l}</span>`;
+}
 
 // ── THEME ──
-(function() {
-  const saved = localStorage.getItem('gf-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  const btn = document.getElementById('themeToggle');
-  btn.textContent = saved === 'light' ? '☀️' : '🌙';
-  btn.addEventListener('click', () => {
-    const cur = document.documentElement.getAttribute('data-theme');
-    const nxt = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nxt);
-    localStorage.setItem('gf-theme', nxt);
-    btn.textContent = nxt === 'light' ? '☀️' : '🌙';
-    if (leafletMap) updateMapTiles();
+(function(){
+  const saved=localStorage.getItem('gf-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',saved);
+  const btn=document.getElementById('themeToggle');
+  btn.textContent=saved==='light'?'☀️':'🌙';
+  btn.addEventListener('click',()=>{
+    const cur=document.documentElement.getAttribute('data-theme');
+    const nxt=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',nxt);
+    localStorage.setItem('gf-theme',nxt);
+    btn.textContent=nxt==='light'?'☀️':'🌙';
+    updateTiles();
   });
 })();
 
-// ── NAVIGATION ──
-function switchToView(viewId) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.pn, .mob-link').forEach(l => l.classList.remove('active'));
-  const target = document.getElementById('view-' + viewId);
-  if (target) { target.classList.add('active'); currentView = viewId; }
-  document.querySelectorAll('[data-view="' + viewId + '"]').forEach(l => l.classList.add('active'));
-  if (viewId === 'map') {
-    // Always call initMap — it handles both first-init and revisit invalidation
-    if (!viewsLoaded['map']) { viewsLoaded['map']=true; initMap(); }
-    else { initMap(); } // revisit: just invalidates
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (!viewsLoaded[viewId]) lazyLoadView(viewId);
-  }
-}
+// ── MAP ──
+let leafletMap=null,darkTiles,lightTiles;
+let mapLayerMode='family';
+let mapMarkers=[];
 
-document.querySelectorAll('[data-view]').forEach(el => {
-  el.addEventListener('click', () => switchToView(el.dataset.view));
-});
-
-function lazyLoadView(id) {
-  viewsLoaded[id] = true;
-  if (id === 'map') initMap();
-  else if (id === 'explorer') initExplorer();
-  else if (id === 'families') initFamilyTree();
-  else if (id === 'tools') initTools();
-}
-
-// ── HELPERS ──
-function fmtNum(n) {
-  if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
-  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
-  return String(n||0);
-}
-function getAllLangs() { return typeof LANGUAGE_DATABASE!=='undefined' ? Object.values(LANGUAGE_DATABASE) : []; }
-function getFamilyName(id) { return (typeof FAMILY_TREE!=='undefined'&&FAMILY_TREE[id]) ? FAMILY_TREE[id].name : id; }
-const FHEX = {indoEuropean:'#60a5fa',sinoTibetan:'#f87171',nigerCongo:'#34d399',afroasiatic:'#fbbf24',austronesian:'#a78bfa',dravidian:'#fb923c',turkic:'#22d3ee',uralic:'#e879f9',japonic:'#f472b6',koreanic:'#818cf8',taiKadai:'#2dd4bf',austroasiatic:'#a3e635'};
-function getFamilyHex(id) { return FHEX[id] || '#71717a'; }
-function endangerBadge(s) {
-  const m = {safe:['Safe','badge-safe'],vulnerable:['Vulnerable','badge-vulnerable'],definitely_endangered:['Endangered','badge-endangered'],severely_endangered:['Severely End.','badge-severely'],critically_endangered:['Critical','badge-critical'],extinct:['Extinct','badge-extinct']};
-  const [l,c] = m[s]||['—',''];
-  return `<span class="badge ${c}">${l}</span>`;
-}
-
-// ── HOME STATS ──
-window.addEventListener('DOMContentLoaded', () => {
-  const langs = getAllLangs();
-  if (langs.length) {
-    document.getElementById('statLangs').textContent = langs.length;
-    document.getElementById('statFamilies').textContent = new Set(langs.map(l=>l.family)).size;
-    document.getElementById('statSpeakers').textContent = fmtNum(langs.reduce((s,l)=>s+(l.totalSpeakers||l.l1Speakers||0),0));
-    document.getElementById('statEndangered').textContent = langs.filter(l=>l.unescoStatus&&l.unescoStatus!=='safe'&&l.unescoStatus!=='extinct').length;
-    document.getElementById('statExtinct').textContent = langs.filter(l=>l.isExtinct||l.unescoStatus==='extinct').length;
-  }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-});
-
-// ═══ MAP ═══
-function initMap() {
-  if (leafletMap) {
-    leafletMap.invalidateSize(true);
-    requestAnimationFrame(()=>leafletMap.invalidateSize(true));
-    return;
-  }
-  leafletMap = L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,0],2);
+function initMap(){
+  if(leafletMap) return;
+  leafletMap=L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,10],2);
   L.control.zoom({position:'bottomright'}).addTo(leafletMap);
   L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
-  darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18});
-  lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18});
-  (document.documentElement.getAttribute('data-theme')!=='light' ? darkTiles : lightTiles).addTo(leafletMap);
-  populateMapFilters();
-  renderMapMarkers();
-  renderMapLegend();
+  darkTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
+  lightTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
+  const isDark=document.documentElement.getAttribute('data-theme')!=='light';
+  (isDark?darkTiles:lightTiles).addTo(leafletMap);
+  populateHeaderFilters();
+  renderMarkers();
+  renderLegend();
   setupMapEvents();
-  // Force invalidate at multiple points — catches layout settling after display:block
-  leafletMap.invalidateSize(true);
-  requestAnimationFrame(()=>leafletMap.invalidateSize(true));
-  setTimeout(()=>leafletMap.invalidateSize(true),100);
-  setTimeout(()=>leafletMap.invalidateSize(true),400);
 }
 
-function updateMapTiles() {
-  if (!leafletMap) return;
-  if (document.documentElement.getAttribute('data-theme')!=='light') { leafletMap.removeLayer(lightTiles); darkTiles.addTo(leafletMap); }
-  else { leafletMap.removeLayer(darkTiles); lightTiles.addTo(leafletMap); }
+function updateTiles(){
+  if(!leafletMap)return;
+  if(document.documentElement.getAttribute('data-theme')!=='light'){
+    if(leafletMap.hasLayer(lightTiles))leafletMap.removeLayer(lightTiles);
+    darkTiles.addTo(leafletMap);
+  } else {
+    if(leafletMap.hasLayer(darkTiles))leafletMap.removeLayer(darkTiles);
+    lightTiles.addTo(leafletMap);
+  }
 }
 
-function populateMapFilters() {
-  const langs = getAllLangs();
-  const add = (id, arr, lFn) => { const s=document.getElementById(id); arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lFn?lFn(v):v;s.appendChild(o)}); };
-  add('mapFamily',[...new Set(langs.map(l=>l.family))].sort(),getFamilyName);
-  add('mapRegion',[...new Set(langs.map(l=>l.macroRegion).filter(Boolean))].sort());
-  add('mapWordOrder',[...new Set(langs.map(l=>l.wordOrder).filter(Boolean))].sort());
-  add('mapMorphType',[...new Set(langs.map(l=>l.morphType).filter(Boolean))].sort());
-  add('mapTone',[...new Set(langs.map(l=>l.toneSystem).filter(Boolean))].sort());
-}
-
-function getMapFiltered() {
-  let langs = getAllLangs();
-  const q = v => document.getElementById(v).value;
-  const search = q('mapSearch').toLowerCase().trim();
-  const extinct = document.getElementById('mapShowExtinct').checked;
-  if (!extinct) langs = langs.filter(l=>!l.isExtinct&&l.unescoStatus!=='extinct');
-  if (search) langs = langs.filter(l=>l.name.toLowerCase().includes(search)||l.id.toLowerCase().includes(search)||(l.nativeName&&l.nativeName.toLowerCase().includes(search))||(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))));
-  if (q('mapFamily')) langs=langs.filter(l=>l.family===q('mapFamily'));
-  if (q('mapRegion')) langs=langs.filter(l=>l.macroRegion===q('mapRegion'));
-  if (q('mapWordOrder')) langs=langs.filter(l=>l.wordOrder===q('mapWordOrder'));
-  if (q('mapMorphType')) langs=langs.filter(l=>l.morphType===q('mapMorphType'));
-  if (q('mapEndangerment')) langs=langs.filter(l=>l.unescoStatus===q('mapEndangerment'));
-  if (q('mapTone')) langs=langs.filter(l=>l.toneSystem===q('mapTone'));
-  return langs;
-}
-
-function getMarkerColor(l) {
-  if (mapLayerMode==='family') return getFamilyHex(l.family);
-  if (mapLayerMode==='endangerment') return ({safe:'#34d399',vulnerable:'#fbbf24',definitely_endangered:'#fb923c',severely_endangered:'#f87171',critically_endangered:'#ef4444',extinct:'#52525b'})[l.unescoStatus]||'#71717a';
-  if (mapLayerMode==='wordorder') return ({SOV:'#60a5fa',SVO:'#34d399',VSO:'#fbbf24',VOS:'#f87171',OVS:'#a78bfa',OSV:'#fb923c'})[l.wordOrder]||'#71717a';
-  if (mapLayerMode==='morphology') return ({isolating:'#60a5fa',agglutinative:'#34d399',fusional:'#fbbf24',polysynthetic:'#f87171',introflexive:'#a78bfa'})[l.morphType]||'#71717a';
-  if (mapLayerMode==='tone') return ({none:'#71717a',simple:'#fbbf24',complex:'#f87171'})[l.toneSystem]||'#71717a';
-  return '#71717a';
-}
-
-function renderMapMarkers() {
-  mapMarkers.forEach(m=>leafletMap.removeLayer(m)); mapMarkers=[];
-  const langs=getMapFiltered();
-  document.getElementById('mapFilterCount').textContent=langs.length+' language'+(langs.length!==1?'s':'')+' shown';
-  langs.forEach(lang=>{
-    if (!lang.lat||!lang.lon) return;
-    const r=Math.max(4,Math.min(14,Math.log10(lang.totalSpeakers||lang.l1Speakers||1000)*2));
-    const col=getMarkerColor(lang);
-    const m=L.circleMarker([lang.lat,lang.lon],{radius:r,fillColor:col,color:col,weight:1,opacity:.85,fillOpacity:.5});
-    m.bindPopup(`<div class="map-popup">
-      <h3>${lang.name}</h3>
-      ${lang.nativeName&&lang.nativeName!==lang.name?`<div style="color:var(--ink-low);font-size:11px;margin-bottom:4px">${lang.nativeName}</div>`:''}
-      <div class="popup-family" style="color:${col}">${getFamilyName(lang.family)}</div>
-      <div class="popup-row"><span>ISO 639-3</span><span style="font-family:var(--font-mono)">${lang.id}</span></div>
-      <div class="popup-row"><span>L1 Speakers</span><span>${fmtNum(lang.l1Speakers||0)}</span></div>
-      <div class="popup-row"><span>Total Speakers</span><span>${fmtNum(lang.totalSpeakers||lang.l1Speakers||0)}</span></div>
-      <div class="popup-row"><span>Status</span><span>${lang.unescoStatus||'—'}</span></div>
-      <div class="popup-row"><span>Word Order</span><span>${lang.wordOrder||'—'}</span></div>
-      <div class="popup-row"><span>Morphology</span><span>${lang.morphType||'—'}</span></div>
-      <a class="popup-link" href="#" onclick="event.preventDefault();switchToView('explorer');showLangDetail('${lang.id}')">Full Profile →</a>
-    </div>`,{maxWidth:260});
-    m.addTo(leafletMap); mapMarkers.push(m);
+function populateHeaderFilters(){
+  const langs=getAllLangs();
+  const fams=[...new Set(langs.map(l=>l.family))].sort();
+  const regs=[...new Set(langs.map(l=>l.macroRegion).filter(Boolean))].sort();
+  const hdF=document.getElementById('hdFamily');
+  const hdR=document.getElementById('hdRegion');
+  const exF=document.getElementById('exFamily');
+  const exR=document.getElementById('exRegion');
+  fams.forEach(f=>{
+    [hdF,exF].forEach(s=>{const o=document.createElement('option');o.value=f;o.textContent=getFamName(f);s.appendChild(o)});
+  });
+  regs.forEach(r=>{
+    [hdR,exR].forEach(s=>{const o=document.createElement('option');o.value=r;o.textContent=r;s.appendChild(o)});
   });
 }
 
-function renderMapLegend() {
+function getFiltered(){
+  const langs=getAllLangs();
+  const search=document.getElementById('mapSearch').value.toLowerCase().trim();
+  const fam=document.getElementById('hdFamily').value;
+  const reg=document.getElementById('hdRegion').value;
+  const status=document.getElementById('hdStatus').value;
+  const wordOrder=document.getElementById('fWordOrder').value;
+  const morph=document.getElementById('fMorph').value;
+  const tone=document.getElementById('fTone').value;
+  const showExtinct=document.getElementById('fExtinct').checked;
+  return langs.filter(l=>{
+    if(!showExtinct&&(l.isExtinct||l.unescoStatus==='extinct'))return false;
+    if(search&&!l.name.toLowerCase().includes(search)&&!l.id.toLowerCase().includes(search)&&!(l.nativeName&&l.nativeName.toLowerCase().includes(search))&&!(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))))return false;
+    if(fam&&l.family!==fam)return false;
+    if(reg&&l.macroRegion!==reg)return false;
+    if(status&&l.unescoStatus!==status)return false;
+    if(wordOrder&&l.wordOrder!==wordOrder)return false;
+    if(morph&&l.morphType!==morph)return false;
+    if(tone&&l.toneSystem!==tone)return false;
+    return true;
+  });
+}
+
+function getMarkerColor(l){
+  switch(mapLayerMode){
+    case'family':return getFHex(l.family);
+    case'endangerment':return({safe:'#34d399',vulnerable:'#fbbf24',definitely_endangered:'#fb923c',severely_endangered:'#f87171',critically_endangered:'#ef4444',extinct:'#52525b'})[l.unescoStatus]||'#71717a';
+    case'wordorder':return({SOV:'#60a5fa',SVO:'#34d399',VSO:'#fbbf24',VOS:'#f87171',OVS:'#a78bfa',OSV:'#fb923c'})[l.wordOrder]||'#71717a';
+    case'morphology':return({isolating:'#60a5fa',agglutinative:'#34d399',fusional:'#fbbf24',polysynthetic:'#f87171',introflexive:'#a78bfa'})[l.morphType]||'#71717a';
+    case'tone':return({none:'#71717a',simple:'#fbbf24',complex:'#f87171'})[l.toneSystem]||'#71717a';
+    default:return'#71717a';
+  }
+}
+
+function renderMarkers(){
+  if(!leafletMap)return;
+  mapMarkers.forEach(m=>leafletMap.removeLayer(m));
+  mapMarkers=[];
+  const langs=getFiltered();
+  document.getElementById('hdrCount').textContent=langs.length+' lang'+(langs.length!==1?'s':'');
+  // Update reset button visibility
+  const hasFilter=document.getElementById('mapSearch').value||document.getElementById('hdFamily').value||document.getElementById('hdRegion').value||document.getElementById('hdStatus').value||document.getElementById('fWordOrder').value||document.getElementById('fMorph').value||document.getElementById('fTone').value||document.getElementById('fExtinct').checked;
+  document.getElementById('resetBtn').style.display=hasFilter?'block':'none';
+  langs.forEach(lang=>{
+    if(!lang.lat||!lang.lon)return;
+    const r=Math.max(4,Math.min(13,Math.log10(lang.totalSpeakers||lang.l1Speakers||1000)*2));
+    const col=getMarkerColor(lang);
+    const m=L.circleMarker([lang.lat,lang.lon],{radius:r,fillColor:col,color:col,weight:1,opacity:.8,fillOpacity:.45,bubblingMouseEvents:false});
+    m.on('click',()=>openDetail(lang.id));
+    m.bindTooltip(`<strong>${lang.name}</strong><br><span style="font-size:10px;color:#aaa">${getFamName(lang.family)}</span>`,{sticky:true,className:'',offset:[0,-4]});
+    m.addTo(leafletMap);
+    mapMarkers.push(m);
+  });
+}
+
+function renderLegend(){
   const lg=document.getElementById('mapLegend');
   let rows=[];
-  if (mapLayerMode==='family') {
-    (typeof FAMILY_TREE!=='undefined'?Object.values(FAMILY_TREE):[]).slice(0,12).forEach(f=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${f.color}"></div>${f.name}</div>`));
-    rows.push(`<div class="legend-row"><div class="legend-dot" style="background:#71717a"></div>Other</div>`);
-  } else if (mapLayerMode==='endangerment') {
-    [['#34d399','Safe'],['#fbbf24','Vulnerable'],['#fb923c','Endangered'],['#f87171','Severely End.'],['#ef4444','Critical'],['#52525b','Extinct']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
-  } else if (mapLayerMode==='wordorder') {
-    [['#60a5fa','SOV'],['#34d399','SVO'],['#fbbf24','VSO'],['#f87171','VOS'],['#a78bfa','OVS'],['#fb923c','OSV']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
-  } else if (mapLayerMode==='morphology') {
-    [['#60a5fa','Isolating'],['#34d399','Agglutinative'],['#fbbf24','Fusional'],['#f87171','Polysynthetic']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
-  } else if (mapLayerMode==='tone') {
-    [['#71717a','No Tone'],['#fbbf24','Simple'],['#f87171','Complex']].forEach(([c,l])=>rows.push(`<div class="legend-row"><div class="legend-dot" style="background:${c}"></div>${l}</div>`));
+  if(mapLayerMode==='family'){
+    const shown=(typeof FAMILY_TREE!=='undefined'?Object.values(FAMILY_TREE):[]).slice(0,14);
+    shown.forEach(f=>rows.push(`<div class="leg-row"><div class="leg-dot" style="background:${f.color}"></div>${f.name}</div>`));
+    rows.push(`<div class="leg-row"><div class="leg-dot" style="background:#71717a"></div>Other</div>`);
+  } else if(mapLayerMode==='endangerment'){
+    [['#34d399','Safe'],['#fbbf24','Vulnerable'],['#fb923c','Endangered'],['#f87171','Severely End.'],['#ef4444','Critical'],['#52525b','Extinct']].forEach(([c,l])=>rows.push(`<div class="leg-row"><div class="leg-dot" style="background:${c}"></div>${l}</div>`));
+  } else if(mapLayerMode==='wordorder'){
+    [['#60a5fa','SOV'],['#34d399','SVO'],['#fbbf24','VSO'],['#f87171','VOS'],['#a78bfa','OVS'],['#fb923c','OSV'],['#71717a','Other']].forEach(([c,l])=>rows.push(`<div class="leg-row"><div class="leg-dot" style="background:${c}"></div>${l}</div>`));
+  } else if(mapLayerMode==='morphology'){
+    [['#60a5fa','Isolating'],['#34d399','Agglutinative'],['#fbbf24','Fusional'],['#f87171','Polysynthetic'],['#71717a','Other']].forEach(([c,l])=>rows.push(`<div class="leg-row"><div class="leg-dot" style="background:${c}"></div>${l}</div>`));
+  } else if(mapLayerMode==='tone'){
+    [['#71717a','No tone'],['#fbbf24','Simple tone'],['#f87171','Complex tone']].forEach(([c,l])=>rows.push(`<div class="leg-row"><div class="leg-dot" style="background:${c}"></div>${l}</div>`));
   }
-  lg.innerHTML=`<div class="legend-title">${mapLayerMode.charAt(0).toUpperCase()+mapLayerMode.slice(1)}</div>${rows.join('')}`;
+  const title=mapLayerMode==='wordorder'?'Word Order':mapLayerMode==='morphology'?'Morphology':mapLayerMode.charAt(0).toUpperCase()+mapLayerMode.slice(1);
+  lg.innerHTML=`<div class="leg-title">${title}</div>${rows.join('')}`;
 }
 
-function setupMapEvents() {
-  ['mapSearch','mapFamily','mapRegion','mapWordOrder','mapMorphType','mapEndangerment','mapTone'].forEach(id=>{
-    document.getElementById(id).addEventListener(id==='mapSearch'?'input':'change',renderMapMarkers);
+function setupMapEvents(){
+  ['mapSearch','hdFamily','hdRegion','hdStatus','fWordOrder','fMorph','fTone'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener(id==='mapSearch'?'input':'change',renderMarkers);
   });
-  document.getElementById('mapShowExtinct').addEventListener('change',renderMapMarkers);
-  document.querySelectorAll('.map-layer-btn').forEach(btn=>{
+  document.getElementById('fExtinct').addEventListener('change',renderMarkers);
+  document.querySelectorAll('.ml-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      document.querySelectorAll('.map-layer-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); mapLayerMode=btn.dataset.layer;
-      renderMapMarkers(); renderMapLegend();
+      document.querySelectorAll('.ml-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      mapLayerMode=btn.dataset.layer;
+      renderMarkers();
+      renderLegend();
     });
   });
 }
 
-function resetMapFilters() {
-  ['mapSearch','mapFamily','mapRegion','mapWordOrder','mapMorphType','mapEndangerment','mapTone'].forEach(id=>{document.getElementById(id).value='';});
-  document.getElementById('mapShowExtinct').checked=false;
-  renderMapMarkers();
+function resetFilters(){
+  ['mapSearch','hdFamily','hdRegion','hdStatus','fWordOrder','fMorph','fTone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fExtinct').checked=false;
+  renderMarkers();
 }
 
-// ═══ EXPLORER ═══
-function initExplorer() {
+// ── DETAIL PANEL ──
+function openDetail(langId){
+  const lang=getLang(langId);
+  if(!lang)return;
+  const col=getFHex(lang.family);
+  const countries=(lang.countries||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c).join(', ');
+  const officialIn=(lang.officialIn||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c).join(', ');
+  document.getElementById('dpTitle').textContent=lang.name;
+  document.getElementById('dpBody').innerHTML=`
+    <div class="dp-name">${esc(lang.name)}</div>
+    ${lang.nativeName&&lang.nativeName!==lang.name?`<div class="dp-native">${esc(lang.nativeName)}</div>`:''}
+    ${lang.alternateNames&&lang.alternateNames.length?`<div class="dp-alts">Also known as: ${lang.alternateNames.map(esc).join(', ')}</div>`:''}
+    <div class="dp-tags">
+      <span class="fam-tag" style="background:${col}18;color:${col}">${esc(getFamName(lang.family))}</span>
+      ${endangBadge(lang.unescoStatus)}
+      ${lang.isUNLanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">UN</span>':''}
+      ${lang.isEULanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">EU</span>':''}
+      ${lang.isExtinct?'<span class="badge badge-extinct">Extinct</span>':''}
+    </div>
+    <div class="dp-sec">
+      <div class="dp-sec-title">Classification <span style="font-size:9px;font-weight:400;opacity:.6">— Glottolog / ISO 639-3</span></div>
+      <div class="dp-grid">
+        <div class="dp-field"><div class="dp-lbl">ISO 639-3</div><div class="dp-val" style="font-family:var(--font-m)">${esc(lang.id)}</div></div>
+        ${lang.iso639_1?`<div class="dp-field"><div class="dp-lbl">ISO 639-1</div><div class="dp-val" style="font-family:var(--font-m)">${esc(lang.iso639_1)}</div></div>`:''}
+        <div class="dp-field"><div class="dp-lbl">Family</div><div class="dp-val">${esc(getFamName(lang.family))}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Branch</div><div class="dp-val">${esc(lang.branch||'—')}</div></div>
+        ${lang.subbranch?`<div class="dp-field"><div class="dp-lbl">Sub-branch</div><div class="dp-val">${esc(lang.subbranch)}</div></div>`:''}
+      </div>
+    </div>
+    <div class="dp-sec">
+      <div class="dp-sec-title">Demographics <span style="font-size:9px;font-weight:400;opacity:.6">— Ethnologue 27th ed. / Glottolog</span></div>
+      <div class="dp-grid">
+        <div class="dp-field"><div class="dp-lbl">L1 Speakers</div><div class="dp-val">${(lang.l1Speakers||0).toLocaleString()}</div></div>
+        <div class="dp-field"><div class="dp-lbl">L2 Speakers</div><div class="dp-val">${(lang.l2Speakers||0).toLocaleString()}</div></div>
+        <div class="dp-field dp-field-wide"><div class="dp-lbl">Total Speakers</div><div class="dp-val">${((lang.totalSpeakers||lang.l1Speakers||0)).toLocaleString()}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Region</div><div class="dp-val">${esc(lang.region||lang.macroRegion||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Primary Country</div><div class="dp-val">${esc(lang.primaryCountry||'—')}</div></div>
+      </div>
+      ${countries?`<div style="margin-top:6px;font-size:11px;color:var(--ink-low)"><span style="font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:9px">Spoken in: </span>${esc(countries)}</div>`:''}
+      ${officialIn?`<div style="margin-top:4px;font-size:11px;color:var(--ink-low)"><span style="font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:9px">Official in: </span>${esc(officialIn)}</div>`:''}
+    </div>
+    <div class="dp-sec">
+      <div class="dp-sec-title">Endangerment <span style="font-size:9px;font-weight:400;opacity:.6">— UNESCO Atlas 3rd ed.</span></div>
+      <div class="dp-grid">
+        <div class="dp-field dp-field-wide"><div class="dp-lbl">UNESCO Status</div><div class="dp-val">${(lang.unescoStatus||'safe').replace(/_/g,' ')}</div></div>
+        ${lang.extinctionDate?`<div class="dp-field"><div class="dp-lbl">Last Attested</div><div class="dp-val">${lang.extinctionDate}</div></div>`:''}
+      </div>
+    </div>
+    <div class="dp-sec">
+      <div class="dp-sec-title">Typological Features <span style="font-size:9px;font-weight:400;opacity:.6">— WALS / PHOIBLE</span></div>
+      <div class="dp-grid">
+        <div class="dp-field"><div class="dp-lbl">Word Order</div><div class="dp-val">${esc(lang.wordOrder||'—')}</div><div class="dp-cite">WALS 81A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Morphology</div><div class="dp-val">${esc(lang.morphType||'—')}</div><div class="dp-cite">WALS 26A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Case Alignment</div><div class="dp-val">${(lang.caseAlignment||'—').replace(/_/g,'-')}</div><div class="dp-cite">WALS 98A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Case Count</div><div class="dp-val">${lang.caseCount!=null?lang.caseCount:'—'}</div><div class="dp-cite">WALS 49A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Tone System</div><div class="dp-val">${esc(lang.toneSystem||'—')}</div><div class="dp-cite">PHOIBLE</div></div>
+        <div class="dp-field"><div class="dp-lbl">Gender System</div><div class="dp-val">${(lang.genderSystem||'—').replace(/_/g,' ')}</div><div class="dp-cite">WALS 30A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Evidentiality</div><div class="dp-val">${esc(lang.evidentiality||'—')}</div><div class="dp-cite">WALS 77A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Vowel Harmony</div><div class="dp-val">${lang.hasVowelHarmony?'Yes':'No'}</div><div class="dp-cite">WALS 116A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Clicks</div><div class="dp-val">${lang.hasClicks?'Yes':'No'}</div><div class="dp-cite">PHOIBLE</div></div>
+        <div class="dp-field"><div class="dp-lbl">Ejectives</div><div class="dp-val">${lang.hasEjectives?'Yes':'No'}</div><div class="dp-cite">PHOIBLE</div></div>
+        <div class="dp-field"><div class="dp-lbl">Nasal Vowels</div><div class="dp-val">${lang.hasNasalVowels?'Yes':'No'}</div><div class="dp-cite">PHOIBLE</div></div>
+        <div class="dp-field"><div class="dp-lbl">Consonants</div><div class="dp-val">${esc(lang.consonantInventory||'—')}</div><div class="dp-cite">PHOIBLE 1A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Vowels</div><div class="dp-val">${esc(lang.vowelInventory||'—')}</div><div class="dp-cite">PHOIBLE 2A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Definiteness</div><div class="dp-val">${(lang.definiteness||'—').replace(/_/g,' ')}</div><div class="dp-cite">WALS 37A</div></div>
+        <div class="dp-field"><div class="dp-lbl">Negation</div><div class="dp-val">${(lang.negationType||'—').replace(/_/g,' ')}</div><div class="dp-cite">WALS 143A</div></div>
+      </div>
+    </div>
+    ${lang.scripts&&lang.scripts.length?`
+    <div class="dp-sec">
+      <div class="dp-sec-title">Writing Systems</div>
+      <div class="dp-grid">
+        ${lang.scripts.map(s=>`<div class="dp-field"><div class="dp-lbl">${esc(s.name)}${s.isPrimary?' (primary)':''}</div><div class="dp-val">${esc(s.type)} · ${esc(s.direction.toUpperCase())}</div></div>`).join('')}
+      </div>
+    </div>`:''}
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost btn-sm" onclick="closeDetail();openMenu('explorer');showExplDetail('${esc(lang.id)}')">Full Explorer Profile →</button>
+    </div>
+  `;
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+// ── MENU DRAWER ──
+let drawerLoaded={};
+function openMenu(tab){
+  closeDetail();
+  document.getElementById('menuDrawer').classList.add('open');
+  switchDrawerTab(tab||'explorer');
+  if(!drawerLoaded.explorer){drawerLoaded.explorer=true;initExplorer();}
+}
+function closeMenu(){
+  document.getElementById('menuDrawer').classList.remove('open');
+}
+function closeAll(){
+  closeDetail();
+  closeMenu();
+}
+
+function switchDrawerTab(tab){
+  document.querySelectorAll('.md-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.drawer===tab);
+  });
+  document.querySelectorAll('.md-view').forEach(v=>{
+    v.style.display=v.id==='drawer-'+tab?'block':'none';
+  });
+  if(tab==='families'&&!drawerLoaded.families){drawerLoaded.families=true;initFamilyTree();}
+  if(tab==='tools'&&!drawerLoaded.tools){drawerLoaded.tools=true;initTools();}
+  if(tab==='sources'&&!drawerLoaded.sources){drawerLoaded.sources=true;}
+}
+
+document.querySelectorAll('.md-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>switchDrawerTab(tab.dataset.drawer));
+});
+document.getElementById('menuBtn').addEventListener('click',()=>openMenu());
+
+// ── EXPLORER ──
+let exActiveChips=[];
+function initExplorer(){
+  ['exSearch','exFamily','exRegion','exStatus'].forEach(id=>{
+    document.getElementById(id).addEventListener(id==='exSearch'?'input':'change',renderExplorer);
+  });
+  renderExplorer();
+}
+
+function getExFiltered(){
   const langs=getAllLangs();
-  const add=(id,arr,lFn)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=lFn?lFn(v):v;s.appendChild(o)});};
-  add('explorerFamily',[...new Set(langs.map(l=>l.family))].sort(),getFamilyName);
-  add('explorerRegion',[...new Set(langs.map(l=>l.macroRegion).filter(Boolean))].sort());
-  const qf=['SVO','SOV','VSO','Tonal','Agglutinative','Fusional','Polysynthetic','Has Clicks','Has Ejectives'];
-  document.getElementById('explorerChips').innerHTML=qf.map(q=>`<button class="chip" onclick="toggleChip(this,'${q}')">${q}</button>`).join('');
-  ['explorerSearch','explorerFamily','explorerRegion','explorerEndanger'].forEach(id=>{
-    document.getElementById(id).addEventListener(id==='explorerSearch'?'input':'change',renderExplorerResults);
+  const search=document.getElementById('exSearch').value.toLowerCase().trim();
+  const fam=document.getElementById('exFamily').value;
+  const reg=document.getElementById('exRegion').value;
+  const status=document.getElementById('exStatus').value;
+  return langs.filter(l=>{
+    if(search&&!l.name.toLowerCase().includes(search)&&!l.id.toLowerCase().includes(search)&&!(l.nativeName&&l.nativeName.toLowerCase().includes(search))&&!(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))))return false;
+    if(fam&&l.family!==fam)return false;
+    if(reg&&l.macroRegion!==reg)return false;
+    if(status&&l.unescoStatus!==status)return false;
+    return true;
   });
-  renderExplorerResults();
 }
 
-function toggleChip(el,f) {
-  el.classList.toggle('active');
-  if (el.classList.contains('active')) explorerActiveChips.push(f);
-  else explorerActiveChips=explorerActiveChips.filter(x=>x!==f);
-  renderExplorerResults();
-}
-
-function getExplorerFiltered() {
-  let langs=getAllLangs();
-  const q=id=>document.getElementById(id).value;
-  const search=q('explorerSearch').toLowerCase().trim();
-  if (search) langs=langs.filter(l=>l.name.toLowerCase().includes(search)||l.id.toLowerCase().includes(search)||(l.nativeName&&l.nativeName.toLowerCase().includes(search))||(l.alternateNames&&l.alternateNames.some(a=>a.toLowerCase().includes(search))));
-  if (q('explorerFamily')) langs=langs.filter(l=>l.family===q('explorerFamily'));
-  if (q('explorerRegion')) langs=langs.filter(l=>l.macroRegion===q('explorerRegion'));
-  if (q('explorerEndanger')) langs=langs.filter(l=>l.unescoStatus===q('explorerEndanger'));
-  explorerActiveChips.forEach(chip=>{
-    if (chip==='SVO') langs=langs.filter(l=>l.wordOrder==='SVO');
-    else if (chip==='SOV') langs=langs.filter(l=>l.wordOrder==='SOV');
-    else if (chip==='VSO') langs=langs.filter(l=>l.wordOrder==='VSO');
-    else if (chip==='Tonal') langs=langs.filter(l=>l.toneSystem&&l.toneSystem!=='none');
-    else if (chip==='Agglutinative') langs=langs.filter(l=>l.morphType==='agglutinative');
-    else if (chip==='Fusional') langs=langs.filter(l=>l.morphType==='fusional');
-    else if (chip==='Polysynthetic') langs=langs.filter(l=>l.morphType==='polysynthetic');
-    else if (chip==='Has Clicks') langs=langs.filter(l=>l.hasClicks);
-    else if (chip==='Has Ejectives') langs=langs.filter(l=>l.hasEjectives);
-  });
-  return langs;
-}
-
-function renderExplorerResults() {
-  const langs=getExplorerFiltered();
-  document.getElementById('explorerCount').textContent=langs.length+' language'+(langs.length!==1?'s':'')+' found';
+function renderExplorer(){
+  // Check if explorer detail is showing
+  const detDiv=document.getElementById('exDetail');
+  if(detDiv&&detDiv.style.display==='block')return;
+  const langs=getExFiltered();
+  document.getElementById('exCount').textContent=langs.length+' language'+(langs.length!==1?'s':'')+' found';
   const toShow=langs.slice(0,60);
-  document.getElementById('explorerResults').innerHTML=toShow.map(l=>`
-    <div class="lang-card" onclick="showLangDetail('${l.id}')" tabindex="0" role="button">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-        <div><div class="lang-name">${l.name}</div>${l.nativeName&&l.nativeName!==l.name?`<div class="lang-native">${l.nativeName}</div>`:''}</div>
-        <span class="lang-iso">${l.id}</span>
+  document.getElementById('exResults').innerHTML=toShow.map(l=>`
+    <div class="lang-card" onclick="showExplDetail('${esc(l.id)}')" tabindex="0" role="button" aria-label="${esc(l.name)}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px">
+        <div><div class="lc-name">${esc(l.name)}</div>${l.nativeName&&l.nativeName!==l.name?`<div class="lc-native">${esc(l.nativeName)}</div>`:''}</div>
+        <span class="lc-iso">${esc(l.id)}</span>
       </div>
-      <div class="lang-badges">
-        <span class="fam-tag" style="background:${getFamilyHex(l.family)}18;color:${getFamilyHex(l.family)}">${getFamilyName(l.family)}</span>
-        ${endangerBadge(l.unescoStatus)}
+      <div class="lc-badges">
+        <span class="fam-tag" style="background:${getFHex(l.family)}18;color:${getFHex(l.family)}">${esc(getFamName(l.family))}</span>
+        ${endangBadge(l.unescoStatus)}
       </div>
-      <div class="lang-foot"><span>${fmtNum(l.totalSpeakers||l.l1Speakers||0)} speakers</span><span>${l.wordOrder||'—'} · ${l.morphType||'—'}</span></div>
+      <div class="lc-foot">
+        <span>${fmtN(l.totalSpeakers||l.l1Speakers||0)} speakers</span>
+        <span>${esc(l.wordOrder||'—')} · ${esc(l.morphType||'—')}</span>
+      </div>
     </div>
-  `).join('')+(langs.length>60?`<div style="text-align:center;padding:20px;color:var(--ink-low);font-size:13px;grid-column:1/-1">Showing 60 of ${langs.length} — refine search to see more</div>`:'');
+  `).join('')+(langs.length>60?`<div style="text-align:center;padding:18px;color:var(--ink-low);font-size:12px;grid-column:1/-1">Showing 60 of ${langs.length} — refine search to see more</div>`:'');
+  // Ensure detail div exists
+  if(!document.getElementById('exDetail')){
+    const d=document.createElement('div');d.id='exDetail';d.style.display='none';
+    document.getElementById('exResults').after(d);
+  }
 }
 
-function showLangDetail(langId) {
-  const lang=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[langId]:null;
-  if (!lang) return;
-  document.getElementById('explorerResults').style.display='none';
-  document.getElementById('explorerCount').style.display='none';
-  document.getElementById('explorerChips').style.display='none';
-  document.querySelector('.explorer-top').style.display='none';
-  const countries=(lang.countries||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c);
-  const officialIn=(lang.officialIn||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c);
-  const d=document.getElementById('explorerDetail');
+function showExplDetail(langId){
+  const lang=getLang(langId);
+  if(!lang)return;
+  // Hide grid, show detail
+  document.getElementById('exResults').style.display='none';
+  document.getElementById('exCount').style.display='none';
+  const topEl=document.querySelector('.expl-top');
+  if(topEl)topEl.style.display='none';
+  let d=document.getElementById('exDetail');
+  if(!d){d=document.createElement('div');d.id='exDetail';document.getElementById('exResults').after(d);}
   d.style.display='block';
-  d.innerHTML=`<div class="detail-wrap">
-    <button class="detail-back" onclick="closeLangDetail()">← Back to results</button>
-    <div class="detail-name">${lang.name}</div>
-    ${lang.nativeName&&lang.nativeName!==lang.name?`<div class="detail-sub">${lang.nativeName}</div>`:''}
-    ${lang.alternateNames&&lang.alternateNames.length?`<div class="detail-alts">Also: ${lang.alternateNames.join(', ')}</div>`:''}
-    <div class="detail-tags">
-      <span class="fam-tag" style="background:${getFamilyHex(lang.family)}18;color:${getFamilyHex(lang.family)};padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">${getFamilyName(lang.family)}</span>
-      ${endangerBadge(lang.unescoStatus)}
-      ${lang.isUNLanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">UN Language</span>':''}
-      ${lang.isEULanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">EU Language</span>':''}
+  const col=getFHex(lang.family);
+  const countries=(lang.countries||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c).join(', ');
+  const officialIn=(lang.officialIn||[]).map(c=>(typeof COUNTRY_DATA!=='undefined'&&COUNTRY_DATA[c])?COUNTRY_DATA[c].name:c).join(', ');
+  d.innerHTML=`
+    <button onclick="closeExplDetail()" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:var(--ink-mid);cursor:pointer;margin-bottom:18px;background:var(--raised);border:1px solid var(--border);border-radius:var(--r);padding:6px 12px">← Back to results</button>
+    <div style="max-width:860px">
+      <div style="font-family:var(--font-h);font-size:1.7rem;font-weight:700;letter-spacing:-.03em;color:var(--ink);margin-bottom:3px">${esc(lang.name)}</div>
+      ${lang.nativeName&&lang.nativeName!==lang.name?`<div style="font-size:14px;color:var(--ink-low);margin-bottom:3px">${esc(lang.nativeName)}</div>`:''}
+      ${lang.alternateNames&&lang.alternateNames.length?`<div style="font-size:11px;color:var(--ink-dim);margin-bottom:12px">Also: ${lang.alternateNames.map(esc).join(', ')}</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px">
+        <span class="fam-tag" style="background:${col}18;color:${col};padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600">${esc(getFamName(lang.family))}</span>
+        ${endangBadge(lang.unescoStatus)}
+        ${lang.isUNLanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">UN Language</span>':''}
+        ${lang.isEULanguage?'<span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">EU Language</span>':''}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-bottom:20px">
+        <div class="dp-field"><div class="dp-lbl">ISO 639-3</div><div class="dp-val" style="font-family:var(--font-m)">${esc(lang.id)}</div></div>
+        ${lang.iso639_1?`<div class="dp-field"><div class="dp-lbl">ISO 639-1</div><div class="dp-val" style="font-family:var(--font-m)">${esc(lang.iso639_1)}</div></div>`:''}
+        <div class="dp-field"><div class="dp-lbl">Branch</div><div class="dp-val">${esc(lang.branch||'—')}</div></div>
+        ${lang.subbranch?`<div class="dp-field"><div class="dp-lbl">Sub-branch</div><div class="dp-val">${esc(lang.subbranch)}</div></div>`:''}
+        <div class="dp-field"><div class="dp-lbl">L1 Speakers</div><div class="dp-val">${(lang.l1Speakers||0).toLocaleString()}</div></div>
+        <div class="dp-field"><div class="dp-lbl">L2 Speakers</div><div class="dp-val">${(lang.l2Speakers||0).toLocaleString()}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Total Speakers</div><div class="dp-val">${(lang.totalSpeakers||lang.l1Speakers||0).toLocaleString()}</div></div>
+        <div class="dp-field"><div class="dp-lbl">UNESCO Status</div><div class="dp-val">${(lang.unescoStatus||'safe').replace(/_/g,' ')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Region</div><div class="dp-val">${esc(lang.macroRegion||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Word Order</div><div class="dp-val">${esc(lang.wordOrder||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Morphology</div><div class="dp-val">${esc(lang.morphType||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Case Alignment</div><div class="dp-val">${(lang.caseAlignment||'—').replace(/_/g,'-')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Case Count</div><div class="dp-val">${lang.caseCount!=null?lang.caseCount:'—'}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Tone System</div><div class="dp-val">${esc(lang.toneSystem||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Gender System</div><div class="dp-val">${(lang.genderSystem||'—').replace(/_/g,' ')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Evidentiality</div><div class="dp-val">${esc(lang.evidentiality||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Vowel Harmony</div><div class="dp-val">${lang.hasVowelHarmony?'Yes':'No'}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Clicks</div><div class="dp-val">${lang.hasClicks?'Yes':'No'}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Ejectives</div><div class="dp-val">${lang.hasEjectives?'Yes':'No'}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Nasal Vowels</div><div class="dp-val">${lang.hasNasalVowels?'Yes':'No'}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Consonants</div><div class="dp-val">${esc(lang.consonantInventory||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Vowels</div><div class="dp-val">${esc(lang.vowelInventory||'—')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Definiteness</div><div class="dp-val">${(lang.definiteness||'—').replace(/_/g,' ')}</div></div>
+        <div class="dp-field"><div class="dp-lbl">Negation</div><div class="dp-val">${(lang.negationType||'—').replace(/_/g,' ')}</div></div>
+      </div>
+      ${countries?`<div style="font-size:12px;color:var(--ink-low);margin-bottom:6px"><strong style="text-transform:uppercase;font-size:9px;letter-spacing:.06em">Spoken in: </strong>${esc(countries)}</div>`:''}
+      ${officialIn?`<div style="font-size:12px;color:var(--ink-low);margin-bottom:16px"><strong style="text-transform:uppercase;font-size:9px;letter-spacing:.06em">Official in: </strong>${esc(officialIn)}</div>`:''}
+      ${lang.scripts&&lang.scripts.length?`<div style="margin-top:6px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-low);margin-bottom:8px">Writing Systems</div><div style="display:flex;gap:8px;flex-wrap:wrap">${lang.scripts.map(s=>`<div class="dp-field"><div class="dp-lbl">${esc(s.name)}</div><div class="dp-val">${esc(s.type)} · ${esc(s.direction.toUpperCase())}</div></div>`).join('')}</div></div>`:''}
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--ink-dim)">
+        Classification: Glottolog 5.0 · Demographics: Ethnologue 27th ed. · Typology: WALS, PHOIBLE 2.0 · Endangerment: UNESCO Atlas 3rd ed.
+      </div>
     </div>
-    <div class="detail-sec"><div class="detail-sec-title">Classification</div><div class="detail-grid">
-      <div class="detail-field"><div class="detail-lbl">ISO 639-3</div><div class="detail-val" style="font-family:var(--font-mono)">${lang.id}</div></div>
-      ${lang.iso639_1?`<div class="detail-field"><div class="detail-lbl">ISO 639-1</div><div class="detail-val" style="font-family:var(--font-mono)">${lang.iso639_1}</div></div>`:''}
-      <div class="detail-field"><div class="detail-lbl">Family</div><div class="detail-val">${getFamilyName(lang.family)}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Branch</div><div class="detail-val">${lang.branch||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Sub-branch</div><div class="detail-val">${lang.subbranch||'—'}</div></div>
-    </div></div>
-    <div class="detail-sec"><div class="detail-sec-title">Demographics</div><div class="detail-grid">
-      <div class="detail-field"><div class="detail-lbl">L1 Speakers</div><div class="detail-val">${(lang.l1Speakers||0).toLocaleString()}</div></div>
-      <div class="detail-field"><div class="detail-lbl">L2 Speakers</div><div class="detail-val">${(lang.l2Speakers||0).toLocaleString()}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Total Speakers</div><div class="detail-val">${(lang.totalSpeakers||lang.l1Speakers||0).toLocaleString()}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Region</div><div class="detail-val">${lang.macroRegion||'—'}</div></div>
-    </div></div>
-    ${countries.length||officialIn.length?`<div class="detail-sec"><div class="detail-sec-title">Geography & Legal Status</div><div class="detail-grid">
-      ${countries.length?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-lbl">Countries</div><div class="detail-val">${countries.join(', ')}</div></div>`:''}
-      ${officialIn.length?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-lbl">Official In</div><div class="detail-val">${officialIn.join(', ')}</div></div>`:''}
-    </div></div>`:''}
-    <div class="detail-sec"><div class="detail-sec-title">Typological Features</div><div class="detail-grid">
-      <div class="detail-field"><div class="detail-lbl">Word Order</div><div class="detail-val">${lang.wordOrder||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Morphological Type</div><div class="detail-val">${lang.morphType||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Case Alignment</div><div class="detail-val">${(lang.caseAlignment||'—').replace(/_/g,'-')}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Case Count</div><div class="detail-val">${lang.caseCount??'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Tone System</div><div class="detail-val">${lang.toneSystem||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Gender System</div><div class="detail-val">${(lang.genderSystem||'—').replace(/_/g,' ')}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Evidentiality</div><div class="detail-val">${lang.evidentiality||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Vowel Harmony</div><div class="detail-val">${lang.hasVowelHarmony?'Yes':'No'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Clicks</div><div class="detail-val">${lang.hasClicks?'Yes':'No'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Ejectives</div><div class="detail-val">${lang.hasEjectives?'Yes':'No'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Nasal Vowels</div><div class="detail-val">${lang.hasNasalVowels?'Yes':'No'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Consonant Inventory</div><div class="detail-val">${lang.consonantInventory||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Vowel Inventory</div><div class="detail-val">${lang.vowelInventory||'—'}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Definiteness</div><div class="detail-val">${(lang.definiteness||'—').replace(/_/g,' ')}</div></div>
-      <div class="detail-field"><div class="detail-lbl">Negation</div><div class="detail-val">${(lang.negationType||'—').replace(/_/g,' ')}</div></div>
-    </div></div>
-    ${lang.scripts&&lang.scripts.length?`<div class="detail-sec"><div class="detail-sec-title">Writing Systems</div><div class="detail-grid">
-      ${lang.scripts.map(s=>`<div class="detail-field"><div class="detail-lbl">${s.name}${s.isPrimary?' (primary)':''}</div><div class="detail-val">${s.type} · ${s.direction.toUpperCase()}</div></div>`).join('')}
-    </div></div>`:''}
-  </div>`;
-  window.scrollTo({top:0,behavior:'smooth'});
+  `;
 }
 
-function closeLangDetail() {
-  document.getElementById('explorerDetail').style.display='none';
-  document.getElementById('explorerResults').style.display='';
-  document.getElementById('explorerCount').style.display='';
-  document.getElementById('explorerChips').style.display='';
-  document.querySelector('.explorer-top').style.display='';
+function closeExplDetail(){
+  const d=document.getElementById('exDetail');
+  if(d)d.style.display='none';
+  document.getElementById('exResults').style.display='';
+  document.getElementById('exCount').style.display='';
+  const topEl=document.querySelector('.expl-top');
+  if(topEl)topEl.style.display='';
 }
 
-// ═══ FAMILIES ═══
-function initFamilyTree() {
-  if (typeof FAMILY_TREE==='undefined') return;
-  const top5=Object.values(FAMILY_TREE).sort((a,b)=>(b.speakers||0)-(a.speakers||0)).slice(0,5);
-  document.getElementById('familyStats').innerHTML=top5.map(f=>`<div class="stat-cell"><div class="stat-val" style="color:${f.color};font-size:1.3rem">${fmtNum(f.speakers||0)}</div><div class="stat-lbl">${f.name}</div></div>`).join('');
-  renderFamilyTree();
-  document.getElementById('familySearch').addEventListener('input',renderFamilyTree);
+// ── FAMILIES ──
+function initFamilyTree(){
+  if(typeof FAMILY_TREE==='undefined')return;
+  renderFamTree();
+  document.getElementById('famSearch').addEventListener('input',renderFamTree);
 }
 
-function countBL(branches) {
-  let n=0; if (!branches) return 0;
+function countBL(branches){
+  let n=0;if(!branches)return 0;
   Object.values(branches).forEach(b=>{if(b.languages)n+=b.languages.length;if(b.branches)n+=countBL(b.branches)});
   return n;
 }
 
-function renderFamilyTree() {
-  const search=document.getElementById('familySearch').value.toLowerCase().trim();
-  document.getElementById('familyTree').innerHTML=Object.values(FAMILY_TREE).map(fam=>{
+function renderFamTree(){
+  const search=document.getElementById('famSearch').value.toLowerCase().trim();
+  if(typeof FAMILY_TREE==='undefined')return;
+  document.getElementById('famTree').innerHTML=Object.values(FAMILY_TREE).map(fam=>{
     const lc=countBL(fam.branches);
-    if (search&&!fam.name.toLowerCase().includes(search)&&!bmatch(fam.branches,search)) return '';
-    return `<div class="tree-fam">
-      <div class="tree-fam-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chevron').classList.toggle('open')">
-        <div class="tree-fam-left"><div class="tree-dot" style="background:${fam.color}"></div>${fam.name}<span class="tree-chevron">▶</span></div>
-        <div class="tree-fam-stats"><span>${lc} langs</span><span>${fmtNum(fam.speakers||0)} speakers</span></div>
+    if(search&&!fam.name.toLowerCase().includes(search)&&!famBMatch(fam.branches,search))return'';
+    return`<div class="tree-fam">
+      <div class="tree-fam-hd" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chev').classList.toggle('open')">
+        <div class="tree-fam-left"><div class="tree-dot" style="background:${fam.color}"></div>${esc(fam.name)}<span class="tree-chev">▶</span></div>
+        <div class="tree-stats"><span>${lc} langs</span><span>${fmtN(fam.speakers||0)} speakers</span></div>
       </div>
       <div class="tree-body">${fam.branches?renderBranches(fam.branches,search):''}</div>
     </div>`;
   }).join('');
 }
 
-function renderBranches(branches,search) {
+function renderBranches(branches,search){
   return Object.values(branches).map(b=>{
-    const hasSub=b.branches&&Object.keys(b.branches).length>0;
     const langs=b.languages||[];
-    if (search&&!b.name.toLowerCase().includes(search)&&!bmatch(b.branches,search)&&!langs.some(id=>{const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;return l&&l.name.toLowerCase().includes(search)})) return '';
-    return `<div class="tree-branch">
-      <div class="tree-branch-head" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chevron').classList.toggle('open')">
-        <span class="tree-chevron" style="font-size:9px;color:var(--ink-low)">▶</span>
-        ${b.name}
-        <span style="font-size:11px;color:var(--ink-dim);margin-left:auto">${hasSub?countBL(b.branches)+langs.length:langs.length}</span>
+    if(search&&!b.name.toLowerCase().includes(search)&&!famBMatch(b.branches,search)&&!langs.some(id=>{const l=getLang(id);return l&&l.name.toLowerCase().includes(search)}))return'';
+    return`<div class="tree-branch">
+      <div class="tree-br-hd" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.tree-chev').classList.toggle('open')">
+        <span class="tree-chev" style="font-size:9px">▶</span>${esc(b.name)}
+        <span style="font-size:10px;color:var(--ink-dim);margin-left:auto">${b.branches?countBL(b.branches)+langs.length:langs.length}</span>
       </div>
-      <div class="tree-sub-body">
-        ${hasSub?renderBranches(b.branches,search):''}
+      <div class="tree-sub">
+        ${b.branches?renderBranches(b.branches,search):''}
         ${langs.map(id=>{
-          const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;
-          if (search&&l&&!l.name.toLowerCase().includes(search)) return '';
-          return `<div class="tree-lang" onclick="switchToView('explorer');showLangDetail('${id}')"><span>${l?l.name:id}</span><span class="tree-lang-iso">${id}</span></div>`;
+          const l=getLang(id);
+          if(search&&l&&!l.name.toLowerCase().includes(search))return'';
+          return`<div class="tree-lang" onclick="switchDrawerTab('explorer');showExplDetail('${esc(id)}')"><span>${l?esc(l.name):esc(id)}</span><span class="tree-lang-iso">${esc(id)}</span></div>`;
         }).join('')}
       </div>
     </div>`;
   }).join('');
 }
 
-function bmatch(branches,search) {
-  if (!branches) return false;
-  return Object.values(branches).some(b=>
-    b.name.toLowerCase().includes(search)||
-    (b.languages||[]).some(id=>{const l=typeof LANGUAGE_DATABASE!=='undefined'?LANGUAGE_DATABASE[id]:null;return l&&l.name.toLowerCase().includes(search)})||
-    bmatch(b.branches,search)
-  );
+function famBMatch(branches,search){
+  if(!branches)return false;
+  return Object.values(branches).some(b=>b.name.toLowerCase().includes(search)||(b.languages||[]).some(id=>{const l=getLang(id);return l&&l.name.toLowerCase().includes(search)})||famBMatch(b.branches,search));
 }
 
-// ═══ TOOLS ═══
-function initTools() {
+// ── TOOLS ──
+let compSlots=[];
+function initTools(){
   document.querySelectorAll('.tool-tab').forEach(tab=>{
     tab.addEventListener('click',()=>{
       document.querySelectorAll('.tool-tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
       document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
-      tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+      tab.classList.add('active');tab.setAttribute('aria-selected','true');
       document.getElementById('tool-'+tab.dataset.tool).classList.add('active');
     });
   });
   const langs=getAllLangs().filter(l=>!l.isExtinct).sort((a,b)=>a.name.localeCompare(b.name));
-  ['intelligibilityLang','similarityLang'].forEach(id=>{
+  ['intLang','simLang'].forEach(id=>{
     const s=document.getElementById(id);
     langs.forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=`${l.name} [${l.id}]`;s.appendChild(o)});
   });
-  if (typeof FAMILY_TREE!=='undefined') {
-    const s=document.getElementById('timelineFamily');
+  if(typeof FAMILY_TREE!=='undefined'){
+    const s=document.getElementById('tlFamily');
     Object.values(FAMILY_TREE).forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.name;s.appendChild(o)});
   }
-  document.getElementById('intelligibilityLang').addEventListener('change',runIntelligibility);
-  document.getElementById('similarityLang').addEventListener('change',runSimilarity);
-  document.getElementById('timelineFamily').addEventListener('change',runTimeline);
-  initComparisonSlots(); runWorldStats(); runTimeline();
+  document.getElementById('intLang').addEventListener('change',runIntelligibility);
+  document.getElementById('simLang').addEventListener('change',runSimilarity);
+  document.getElementById('tlFamily').addEventListener('change',runTimeline);
+  compSlots=[];addCompSlot();addCompSlot();
+  runTimeline();runWorldStats();
 }
 
-function runIntelligibility() {
-  const id=document.getElementById('intelligibilityLang').value;
-  const c=document.getElementById('intelligibilityResults');
-  if (!id){c.innerHTML='';return}
-  if (typeof INTELLIGIBILITY_EDGES==='undefined'){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
+function runIntelligibility(){
+  const id=document.getElementById('intLang').value;
+  const c=document.getElementById('intResults');
+  if(!id){c.innerHTML='';return}
+  if(typeof INTELLIGIBILITY_EDGES==='undefined'){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
   const edges=INTELLIGIBILITY_EDGES.filter(e=>e.source===id||e.target===id);
-  if (!edges.length){c.innerHTML='<p style="color:var(--ink-low)">No intelligibility data for this language.</p>';return}
-  const lang=LANGUAGE_DATABASE[id];
+  if(!edges.length){c.innerHTML='<p style="color:var(--ink-low)">No intelligibility data for this language.</p>';return}
+  const lang=getLang(id);
   c.innerHTML=edges.map(e=>{
     const othId=e.source===id?e.target:e.source;
-    const oth=LANGUAGE_DATABASE[othId]; if (!oth) return '';
+    const oth=getLang(othId);if(!oth)return'';
     const fwd=e.source===id?e.score:e.reverse;
     const rev=e.source===id?e.reverse:e.score;
     const col=fwd>=.8?'var(--safe)':fwd>=.6?'var(--vuln)':fwd>=.4?'var(--endanger)':'var(--severe)';
-    return `<div class="res-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div><span style="font-weight:600;font-size:14px">${oth.name}</span><span style="font-family:var(--font-mono);font-size:10px;color:var(--ink-low);margin-left:8px">${othId}</span></div>
+    return`<div class="res-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+        <div><span style="font-weight:600;font-size:13px">${esc(oth.name)}</span><span style="font-family:var(--font-m);font-size:10px;color:var(--ink-low);margin-left:7px">${esc(othId)}</span></div>
         <span class="badge" style="background:${col}18;color:${col}">${e.category.replace(/_/g,' ')}</span>
       </div>
-      <div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:4px"><span>${lang.name} → ${oth.name}</span><span style="color:var(--ink)">${Math.round(fwd*100)}%</span></div>
+      <div style="margin-bottom:7px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:3px"><span>${esc(lang.name)} → ${esc(oth.name)}</span><span style="color:var(--ink)">${Math.round(fwd*100)}%</span></div>
         <div class="bar-wrap"><div class="bar-fill" style="width:${fwd*100}%;background:${col}"></div></div>
       </div>
       <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:4px"><span>${oth.name} → ${lang.name}</span><span style="color:var(--ink)">${Math.round(rev*100)}%</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-low);margin-bottom:3px"><span>${esc(oth.name)} → ${esc(lang.name)}</span><span style="color:var(--ink)">${Math.round(rev*100)}%</span></div>
         <div class="bar-wrap"><div class="bar-fill" style="width:${rev*100}%;background:${col}"></div></div>
       </div>
-      <div style="font-size:11px;color:var(--ink-low);margin-top:8px">Modality: ${e.modality||'spoken'}</div>
+      <div style="font-size:10px;color:var(--ink-low);margin-top:7px">Modality: ${esc(e.modality||'spoken')}</div>
     </div>`;
   }).join('');
 }
 
-function runSimilarity() {
-  const id=document.getElementById('similarityLang').value;
-  const c=document.getElementById('similarityResults');
-  if (!id){c.innerHTML='';return}
-  const lang=LANGUAGE_DATABASE[id];
+function runSimilarity(){
+  const id=document.getElementById('simLang').value;
+  const c=document.getElementById('simResults');
+  if(!id){c.innerHTML='';return}
+  const lang=getLang(id);
   const features=[{key:'wordOrder',w:15},{key:'morphType',w:15},{key:'caseAlignment',w:12},{key:'toneSystem',w:10},{key:'genderSystem',w:8},{key:'evidentiality',w:7},{key:'consonantInventory',w:5},{key:'vowelInventory',w:5},{key:'definiteness',w:5},{key:'negationType',w:5}];
   const bools=[{key:'hasVowelHarmony',w:5},{key:'hasClicks',w:3},{key:'hasEjectives',w:3},{key:'hasNasalVowels',w:2}];
   const scores=getAllLangs().filter(l=>l.id!==id&&!l.isExtinct).map(oth=>{
@@ -1278,19 +1233,19 @@ function runSimilarity() {
     features.forEach(f=>{if(lang[f.key]&&oth[f.key]){tot+=f.w;if(lang[f.key]===oth[f.key])sc+=f.w}});
     bools.forEach(f=>{tot+=f.w;if(lang[f.key]===oth[f.key])sc+=f.w});
     if(lang.caseCount!=null&&oth.caseCount!=null){tot+=8;const d=Math.abs(lang.caseCount-oth.caseCount);if(d===0)sc+=8;else if(d<=2)sc+=5;else if(d<=5)sc+=2}
-    return {lang:oth,score:tot>0?sc/tot:0};
+    return{lang:oth,score:tot>0?sc/tot:0};
   }).sort((a,b)=>b.score-a.score).slice(0,20);
-  c.innerHTML=`<div style="margin-bottom:14px;font-size:13px;color:var(--ink-mid)">Most grammatically similar to <strong style="color:var(--ink)">${lang.name}</strong></div>`+
+  c.innerHTML=`<div style="margin-bottom:12px;font-size:13px;color:var(--ink-mid)">Most grammatically similar to <strong style="color:var(--ink)">${esc(lang.name)}</strong></div>`+
   scores.map((item,i)=>{
     const col=item.score>=.8?'var(--safe)':item.score>=.6?'var(--cyan)':item.score>=.4?'var(--vuln)':'var(--ink-low)';
-    return `<div class="res-card" style="display:flex;align-items:center;gap:12px">
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink-dim);width:20px;text-align:right">${i+1}</div>
+    return`<div class="res-card" style="display:flex;align-items:center;gap:10px">
+      <div style="font-family:var(--font-m);font-size:11px;color:var(--ink-dim);width:20px;text-align:right">${i+1}</div>
       <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-          <span style="font-weight:600;font-size:13px">${item.lang.name}</span>
-          <span class="fam-tag" style="background:${getFamilyHex(item.lang.family)}18;color:${getFamilyHex(item.lang.family)};padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600">${getFamilyName(item.lang.family)}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-weight:600;font-size:13px">${esc(item.lang.name)}</span>
+          <span class="fam-tag" style="background:${getFHex(item.lang.family)}18;color:${getFHex(item.lang.family)};padding:2px 7px;border-radius:999px;font-size:10px;font-weight:600">${esc(getFamName(item.lang.family))}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:7px">
           <div class="bar-wrap"><div class="bar-fill" style="width:${item.score*100}%;background:${col}"></div></div>
           <span style="font-size:11px;color:${col};white-space:nowrap">${Math.round(item.score*100)}%</span>
         </div>
@@ -1299,76 +1254,88 @@ function runSimilarity() {
   }).join('');
 }
 
-function initComparisonSlots() { comparisonSlots=[]; addComparisonSlot(); addComparisonSlot(); }
-
-function addComparisonSlot() {
-  if (comparisonSlots.length>=5) return;
-  const idx=comparisonSlots.length; comparisonSlots.push('');
-  const div=document.createElement('div'); div.style.minWidth='170px';
-  div.innerHTML=`<div class="field-label">Language ${idx+1}</div><select class="sel" id="comp-${idx}" onchange="comparisonSlots[${idx}]=this.value;renderComparison()"><option value="">Select…</option></select>`;
-  document.getElementById('comparisonSelectors').appendChild(div);
+function addCompSlot(){
+  if(compSlots.length>=5)return;
+  const idx=compSlots.length;compSlots.push('');
+  const div=document.createElement('div');div.style.minWidth='160px';
+  div.innerHTML=`<div class="fl-lbl">Language ${idx+1}</div><select class="sel" id="comp-${idx}" onchange="compSlots[${idx}]=this.value;renderComp()"><option value="">Select…</option></select>`;
+  document.getElementById('compSelectors').appendChild(div);
   const s=div.querySelector('select');
   getAllLangs().filter(l=>!l.isExtinct).sort((a,b)=>a.name.localeCompare(b.name)).forEach(l=>{const o=document.createElement('option');o.value=l.id;o.textContent=l.name;s.appendChild(o)});
-  if (comparisonSlots.length>=5) document.getElementById('addCompBtn').style.display='none';
+  if(compSlots.length>=5)document.getElementById('addCompBtn').style.display='none';
 }
 
-function renderComparison() {
-  const sel=comparisonSlots.filter(s=>s).map(id=>LANGUAGE_DATABASE[id]).filter(Boolean);
-  const c=document.getElementById('comparisonResults');
-  if (sel.length<2){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">Select at least 2 languages to compare.</p>';return}
+function renderComp(){
+  const sel=compSlots.filter(s=>s).map(id=>getLang(id)).filter(Boolean);
+  const c=document.getElementById('compResults');
+  if(sel.length<2){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">Select at least 2 languages to compare.</p>';return}
   const features=[
-    {key:'family',lbl:'Family',fmt:v=>getFamilyName(v)},
+    {key:'family',lbl:'Family',fmt:v=>getFamName(v)},
     {key:'wordOrder',lbl:'Word Order'},{key:'morphType',lbl:'Morphological Type'},
     {key:'caseAlignment',lbl:'Case Alignment',fmt:v=>(v||'—').replace(/_/g,'-')},
     {key:'caseCount',lbl:'Case Count'},{key:'toneSystem',lbl:'Tone System'},
     {key:'genderSystem',lbl:'Gender System',fmt:v=>(v||'—').replace(/_/g,' ')},
-    {key:'genderCount',lbl:'Gender Count'},{key:'evidentiality',lbl:'Evidentiality'},
+    {key:'evidentiality',lbl:'Evidentiality'},
     {key:'hasVowelHarmony',lbl:'Vowel Harmony',fmt:v=>v?'Yes':'No'},
     {key:'hasClicks',lbl:'Clicks',fmt:v=>v?'Yes':'No'},{key:'hasEjectives',lbl:'Ejectives',fmt:v=>v?'Yes':'No'},
     {key:'consonantInventory',lbl:'Consonant Inventory'},{key:'vowelInventory',lbl:'Vowel Inventory'},
     {key:'definiteness',lbl:'Definiteness',fmt:v=>(v||'—').replace(/_/g,' ')},
     {key:'negationType',lbl:'Negation',fmt:v=>(v||'—').replace(/_/g,' ')},
-    {key:'l1Speakers',lbl:'L1 Speakers',fmt:v=>fmtNum(v||0)},{key:'totalSpeakers',lbl:'Total Speakers',fmt:v=>fmtNum(v||0)},
+    {key:'totalSpeakers',lbl:'Total Speakers',fmt:v=>fmtN(v||0)},
     {key:'unescoStatus',lbl:'Endangerment',fmt:v=>(v||'—').replace(/_/g,' ')}
   ];
-  c.innerHTML=`<div class="tbl-scroll"><table class="comp-table"><thead><tr><th>Feature</th>${sel.map(l=>`<th>${l.name}</th>`).join('')}</tr></thead><tbody>
-    ${features.map(f=>{const vals=sel.map(l=>f.fmt?f.fmt(l[f.key]):(l[f.key]??'—'));const same=vals.every(v=>v===vals[0])&&vals[0]!=='—';return `<tr${same?' class="match"':''}><td>${f.lbl}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;}).join('')}
+  c.innerHTML=`<div class="tbl-wrap"><table class="comp-table"><thead><tr><th>Feature</th>${sel.map(l=>`<th>${esc(l.name)}</th>`).join('')}</tr></thead><tbody>
+    ${features.map(f=>{const vals=sel.map(l=>f.fmt?f.fmt(l[f.key]):(l[f.key]??'—'));const same=vals.every(v=>v===vals[0])&&vals[0]!=='—';return`<tr${same?' class="match"':''}><td>${f.lbl}</td>${vals.map(v=>`<td>${esc(String(v))}</td>`).join('')}</tr>`;}).join('')}
   </tbody></table></div>`;
 }
 
-function runTimeline() {
-  const fam=document.getElementById('timelineFamily').value;
-  const c=document.getElementById('timelineResults');
+function runTimeline(){
+  const fam=document.getElementById('tlFamily').value;
+  const c=document.getElementById('tlResults');
   let langs=getAllLangs().filter(l=>l.isExtinct||l.unescoStatus==='extinct');
-  if (fam) langs=langs.filter(l=>l.family===fam);
+  if(fam)langs=langs.filter(l=>l.family===fam);
   langs.sort((a,b)=>(b.extinctionDate||0)-(a.extinctionDate||0));
-  if (!langs.length){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">No extinct languages for this filter.</p>';return}
-  c.innerHTML=`<div style="margin-bottom:14px;font-size:12px;color:var(--ink-low)">${langs.length} extinct language${langs.length!==1?'s':''}</div>
-  <div class="timeline">${langs.slice(0,40).map(l=>`
-    <div class="tl-item"><div class="tl-dot" style="background:${getFamilyHex(l.family)}"></div>
-    <div class="tl-period">${l.extinctionDate?`~${l.extinctionDate}`:'Date unknown'}</div>
-    <div class="tl-name">${l.name}</div>
-    <div class="tl-meta">${getFamilyName(l.family)} · ${l.region||l.macroRegion||'—'}</div></div>
-  `).join('')}</div>${langs.length>40?`<div style="color:var(--ink-low);font-size:12px;margin-top:12px">Showing 40 of ${langs.length}</div>`:''}`;
+  if(!langs.length){c.innerHTML='<p style="color:var(--ink-low);font-size:13px">No extinct languages for this filter.</p>';return}
+  c.innerHTML=`<div style="margin-bottom:12px;font-size:12px;color:var(--ink-low)">${langs.length} extinct / historical language${langs.length!==1?'s':''}</div>
+  <div class="tl-wrap">${langs.slice(0,40).map(l=>`
+    <div class="tl-item"><div class="tl-dot" style="background:${getFHex(l.family)}"></div>
+    <div class="tl-period">${l.extinctionDate?`~${l.extinctionDate}`:'date unknown'}</div>
+    <div class="tl-name">${esc(l.name)}</div>
+    <div class="tl-meta">${esc(getFamName(l.family))} · ${esc(l.region||l.macroRegion||'—')}</div></div>
+  `).join('')}</div>${langs.length>40?`<div style="color:var(--ink-low);font-size:12px;margin-top:10px">Showing 40 of ${langs.length}</div>`:''}`;
 }
 
-function runWorldStats() {
-  const c=document.getElementById('worldStats');
+function runWorldStats(){
+  const c=document.getElementById('wstatsResults');
   const langs=getAllLangs();
-  if (!langs.length){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
+  if(!langs.length){c.innerHTML='<p style="color:var(--ink-low)">Data not loaded.</p>';return}
   const tally=(arr,key)=>{const o={};arr.forEach(l=>{if(l[key])o[l[key]]=(o[l[key]]||0)+1});return Object.entries(o).sort((a,b)=>b[1]-a[1])};
-  const famE=tally(langs,'family'); const maxF=famE[0]?famE[0][1]:1;
-  const woE=tally(langs,'wordOrder'); const maxW=woE[0]?woE[0][1]:1;
-  const morphE=tally(langs,'morphType'); const maxM=morphE[0]?morphE[0][1]:1;
-  const endC={}; langs.forEach(l=>{const s=l.unescoStatus||'unknown';endC[s]=(endC[s]||0)+1});
-  const endColors={safe:'var(--safe)',vulnerable:'var(--vuln)',definitely_endangered:'var(--endanger)',severely_endangered:'var(--severe)',critically_endangered:'var(--critical)',extinct:'var(--extinct)'};
-  c.innerHTML=`<div class="stats-grid">
-    <div class="stats-card"><div class="stats-card-title">Languages by Family</div>${famE.slice(0,12).map(([f,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${getFamilyName(f)}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxF)*100}%;background:${getFamilyHex(f)}"></div></div></div>`).join('')}</div>
-    <div class="stats-card"><div class="stats-card-title">Word Order Distribution</div>${woE.map(([w,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${w}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxW)*100}%;background:var(--cyan)"></div></div></div>`).join('')}</div>
-    <div class="stats-card"><div class="stats-card-title">Endangerment Status</div>${Object.entries(endC).map(([s,n])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="color:${endColors[s]||'var(--ink-mid)'}">${s.replace(/_/g,' ')}</span><span style="font-weight:600;color:var(--ink)">${n}</span></div>`).join('')}</div>
-    <div class="stats-card"><div class="stats-card-title">Morphological Type</div>${morphE.map(([m,n])=>`<div class="stats-row-item"><div class="stats-bar-top"><span>${m}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxM)*100}%;background:var(--violet)"></div></div></div>`).join('')}</div>
+  const famE=tally(langs,'family');const maxF=famE[0]?famE[0][1]:1;
+  const woE=tally(langs,'wordOrder');const maxW=woE[0]?woE[0][1]:1;
+  const morphE=tally(langs,'morphType');const maxM=morphE[0]?morphE[0][1]:1;
+  const endC={};langs.forEach(l=>{const s=l.unescoStatus||'unknown';endC[s]=(endC[s]||0)+1});
+  const endCol={safe:'var(--safe)',vulnerable:'var(--vuln)',definitely_endangered:'var(--endanger)',severely_endangered:'var(--severe)',critically_endangered:'var(--critical)',extinct:'var(--extinct)'};
+  const total=langs.length;
+  c.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px">
+    <div class="dp-field"><div class="dp-lbl">Total Languages</div><div class="dp-val" style="font-size:1.4rem;color:var(--cyan)">${total}</div></div>
+    <div class="dp-field"><div class="dp-lbl">Families</div><div class="dp-val" style="font-size:1.4rem;color:var(--cyan)">${new Set(langs.map(l=>l.family)).size}</div></div>
+    <div class="dp-field"><div class="dp-lbl">Endangered (any level)</div><div class="dp-val" style="font-size:1.4rem;color:var(--endanger)">${langs.filter(l=>l.unescoStatus&&l.unescoStatus!=='safe').length}</div></div>
+    <div class="dp-field"><div class="dp-lbl">Extinct / No Speakers</div><div class="dp-val" style="font-size:1.4rem;color:var(--extinct)">${langs.filter(l=>l.isExtinct||l.unescoStatus==='extinct').length}</div></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stats-card"><div class="stats-ct">Languages by Family</div>${famE.slice(0,14).map(([f,n])=>`<div class="s-row"><div class="s-bar-top"><span>${esc(getFamName(f))}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxF)*100}%;background:${getFHex(f)}"></div></div></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-ct">Word Order Distribution</div>${woE.map(([w,n])=>`<div class="s-row"><div class="s-bar-top"><span>${esc(w)}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxW)*100}%;background:var(--cyan)"></div></div></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-ct">Endangerment Status</div>${Object.entries(endC).map(([s,n])=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:${endCol[s]||'var(--ink-mid)'}">${s.replace(/_/g,' ')}</span><span style="font-weight:600">${n}</span></div>`).join('')}</div>
+    <div class="stats-card"><div class="stats-ct">Morphological Type</div>${morphE.map(([m,n])=>`<div class="s-row"><div class="s-bar-top"><span>${esc(m)}</span><span>${n}</span></div><div class="bar-wrap"><div class="bar-fill" style="width:${(n/maxM)*100}%;background:var(--violet)"></div></div></div>`).join('')}</div>
   </div>`;
 }
+
+// ── BOOT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  initMap();
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+});
 </script>
 </body>
 </html>
