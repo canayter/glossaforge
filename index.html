@@ -725,23 +725,38 @@ let mapMarkers=[];
 
 function initMap(){
   if(leafletMap) return;
+  console.log('[GF] initMap called');
   if(typeof L === 'undefined' || typeof L.map !== 'function'){
+    console.error('[GF] Leaflet not available. typeof L =', typeof L);
     const el = document.getElementById('mapContainer');
     el.style.cssText += ';display:flex;align-items:center;justify-content:center;background:#0f1117';
     el.innerHTML = '<div style="color:#a8adb8;text-align:center;font-family:sans-serif;padding:2rem"><p style="margin-bottom:8px;font-size:1rem">Map library failed to load.</p><p style="font-size:0.8rem;opacity:0.6">Open browser DevTools → Console for details.</p></div>';
     return;
   }
-  leafletMap=L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,10],2);
-  L.control.zoom({position:'bottomright'}).addTo(leafletMap);
-  L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
-  darkTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
-  lightTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
-  const isDark=document.documentElement.getAttribute('data-theme')!=='light';
-  (isDark?darkTiles:lightTiles).addTo(leafletMap);
-  populateHeaderFilters();
-  renderMarkers();
-  renderLegend();
-  setupMapEvents();
+  console.log('[GF] Leaflet OK. Creating map...');
+  try{
+    leafletMap=L.map('mapContainer',{zoomControl:false,attributionControl:false}).setView([20,10],2);
+    console.log('[GF] Map created. Container size:', leafletMap.getSize());
+    L.control.zoom({position:'bottomright'}).addTo(leafletMap);
+    L.control.attribution({position:'bottomright',prefix:false}).addTo(leafletMap);
+    darkTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
+    lightTiles=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com">CARTO</a>',maxZoom:18});
+    const isDark=document.documentElement.getAttribute('data-theme')!=='light';
+    (isDark?darkTiles:lightTiles).addTo(leafletMap);
+    console.log('[GF] Tile layer added. Scheduling invalidateSize...');
+    setTimeout(()=>{
+      if(!leafletMap)return;
+      leafletMap.invalidateSize();
+      console.log('[GF] invalidateSize() called. New size:', leafletMap.getSize());
+    },300);
+    populateHeaderFilters();
+    renderMarkers();
+    renderLegend();
+    setupMapEvents();
+    console.log('[GF] initMap complete.');
+  }catch(e){
+    console.error('[GF] Map init error:', e);
+  }
 }
 
 function updateTiles(){
